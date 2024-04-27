@@ -1,4 +1,4 @@
-package com.example.workflowmanager.persistence.user;
+package com.example.workflowmanager.entity.user;
 
 import jakarta.persistence.*;
 
@@ -19,7 +19,7 @@ public class User
         return id;
     }
 
-    public void setId(Long id)
+    protected void setId(final Long id)
     {
         this.id = id;
     }
@@ -29,7 +29,7 @@ public class User
         return email;
     }
 
-    public void setEmail(String email)
+    public void setEmail(final String email)
     {
         this.email = email;
     }
@@ -39,7 +39,7 @@ public class User
         return password;
     }
 
-    public void setPassword(String password)
+    public void setPassword(final String password)
     {
         this.password = password;
     }

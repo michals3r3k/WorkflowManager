@@ -1,0 +1,30 @@
+<form class="login-form" style="margin: 2em;">
+    <div style="display: flex; flex-direction: column;">
+        <mat-form-field class="example-full-width">
+            <mat-label>Email</mat-label>
+            <input type="email" matInput 
+                [formControl]="emailFormControl" 
+                [errorStateMatcher]="matcher"
+                placeholder="email@example.com">
+            @if (emailFormControl.hasError('email') && !emailFormControl.hasError('required')) {
+            <mat-error>Please enter a valid email address</mat-error>
+            }
+            @if (emailFormControl.hasError('required')) {
+            <mat-error>Email is <strong>required</strong></mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+            <mat-label>Password</mat-label>
+            <input type="password" matInput
+                [formControl]="passwordFormControl" 
+                [errorStateMatcher]="matcher">
+            @if (passwordFormControl.hasError('required')) {
+                <mat-error>Password is <strong>required</strong></mat-error>
+            }
+        </mat-form-field>
+    </div>
+    <button mat-flat-button color="primary">
+        Sign in
+    </button>
+</form>
+  

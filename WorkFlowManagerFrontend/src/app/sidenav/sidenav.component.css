@@ -1,0 +1,11 @@
+.drawer-container {
+    width: 100%;
+    height: 1000px;
+}
+
+.menu-list {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    background-color: #3f51b5;
+}

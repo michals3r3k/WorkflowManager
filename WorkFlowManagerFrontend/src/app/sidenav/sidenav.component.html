@@ -1,0 +1,13 @@
+<mat-drawer-container class="drawer-container">
+    <mat-drawer mode="side" opened class="menu-list active">
+        <app-menu-item (click)="open()" *ngIf="!opened" [menuItem]="openMenuItem"></app-menu-item>
+        <app-menu-item (click)="close()" *ngIf="opened" [menuItem]="closeMenuItem"></app-menu-item>
+        <app-menu-item *ngFor="let menuItem of menuItems" 
+            [menuItem]="menuItem">
+        </app-menu-item>
+    </mat-drawer>
+    <mat-drawer-content>
+        <router-outlet />
+    </mat-drawer-content>
+</mat-drawer-container>
+  

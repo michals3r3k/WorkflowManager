@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class HomeComponent {
   
-  constructor(public dialog: MatDialog) {
+  constructor(private dialog: MatDialog) {
       // intentionally empty
   }
 

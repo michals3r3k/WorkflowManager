@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list'
 import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from "@angular/material/icon";
 import { MatDialogModule } from "@angular/material/dialog";
+import { MatCardModule } from "@angular/material/card"
 import { HttpClientModule } from '@angular/common/http'
 
 import { AppRoutingModule } from './app-routing.module';
@@ -17,15 +18,17 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { SidenavComponent } from './sidenav/sidenav.component';
 import { HomeComponent } from './home/home.component';
 import { MenuItemComponent } from './sidenav/menu-item/menu-item.component';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 @NgModule({
-  declarations: [
+  declarations: [	
     AppComponent,
     LoginComponent,
     SidenavComponent,
     HomeComponent,
-    MenuItemComponent
-  ],
+    MenuItemComponent,
+    WelcomeComponent
+   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -37,6 +40,7 @@ import { MenuItemComponent } from './sidenav/menu-item/menu-item.component';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
+    MatCardModule,
     HttpClientModule
   ],
   providers: [

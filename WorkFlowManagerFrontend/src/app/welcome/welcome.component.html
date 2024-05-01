@@ -1,0 +1,55 @@
+<div class="wrapper">
+
+  <div class="upper-nav">
+
+    <div class="logo">
+      <img src="/assets/images/windy.png"/>
+    </div>
+
+    <div class="nav-options">
+
+      <div class="logo-title">
+        <img src="/assets/images/windy.png" />
+        <span>Flow</span>
+      </div>
+
+      <div class="options">
+        <div class="upper-nav-item" *ngFor="let opt of navOptions">
+          <a class="upper-nav-link" [routerLink]="[opt.routerLink]">
+            <span class="upper-nav-text">{{opt.label}}</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="login">
+      <button class="login-button">
+        <div class="login-button-container">
+          <mat-icon class="icon" fontIcon="fingerprint"></mat-icon>
+          <span>Zaloguj</span>
+        </div>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="container">
+    <div class="welcome">
+      <div class="welcome-text">
+        <span>Go with the </span>
+        <span style="font-weight: 900;">FLOW</span>
+      </div>
+      <span style="font-size: 24px;">Your All-in-One Workflow Management Solution</span>
+      <button class="go-btn" [ngClass]="btnClicked ? 'animate' : ''" (click)="goClicked()" [disabled]="btnClicked">GO!</button>
+    </div>
+  </div>
+
+  <div class="info-panel">
+    <mat-card>XD</mat-card>
+    <mat-card>XD</mat-card>
+    <mat-card>XD</mat-card>
+    <mat-card>XD</mat-card>
+  </div>
+
+</div>

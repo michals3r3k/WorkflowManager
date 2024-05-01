@@ -1,0 +1,215 @@
+.wrapper {
+    font-family: "Lato", sans-serif;
+}
+
+.upper-nav {
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    height: 80px;
+}
+
+.logo {
+    background: #4169E1;
+    width: 80px;
+    height: 100%;
+    padding: 12px;
+
+    img {
+        background-color: transparent;
+        height: 100%;
+        width: 100%;
+    }
+}
+
+.nav-options {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0px;
+
+    .logo-title {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+        font-size: 28px;
+        padding: 20px;
+        img {
+            width: 100%;
+            height: 100%;
+            margin-right: 10px;
+        }
+    }
+
+    .options {
+        margin-top: 6px;
+        display: flex;
+
+        .upper-nav-item {
+            padding: 5px;
+        }
+
+        .upper-nav-link {
+            text-decoration: none;
+            padding: 5px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.08rem;
+            color: #777;
+        }
+
+        .upper-nav-link:hover {
+            color:#4169E1
+        }
+    }
+}
+
+.login {
+    width: 120px;
+    display: flex;
+    align-items: center;
+
+    .login-button {
+        background: #4169E1;
+        border: none;
+        border-radius: 20px;
+        height: 40px;
+        width: 100%;
+        margin: 10px;
+        color: #fff;
+        font-size: 14px;
+        transition: all 0.5s ease;
+
+        .login-button-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon {
+            margin-right: 5px;
+        }
+    }
+
+    .login-button:hover {
+        background: #fff;
+        color: #4169E1;
+        border: 1px solid #4169E1;
+    }
+}
+
+.container {
+    background: transparent;
+
+    .welcome {
+        display: flex;
+        flex-direction: column;
+        margin: 50px;
+        align-items: center;
+        .welcome-text {
+            font-size: 50px;
+            font-weight: 400;
+            letter-spacing: 0.2rem;
+            margin-bottom: 20px;
+        }
+    }
+}
+
+
+
+.go-btn {
+    margin: 70px;
+    position: relative;
+    padding: 10px;
+    background: #4169E1;
+    border-radius: 10px;
+    color: #fff;
+    border: none;
+    font-size: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 200px;
+    height: 100px;
+    transition: transform 0.2s ease;
+    box-shadow: 0 5px 10px #220025a0;
+}
+
+.go-btn:active {
+    transform: scale(0.96);
+}
+
+.go-btn::before,
+.go-btn::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    width: 150%;
+    background-repeat: no-repeat;
+}
+
+.go-btn.animate::before {
+    top: -70%;
+    background-image: radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #4169E1 20%, transparent 30%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #4169E1 15%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #4169E1 15%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 18% 18%, 15% 25%, 10% 18%, 12% 15%;
+    background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%, 40% 90%, 55% 90%, 70% 90%, 85% 90%, 90% 90%;
+    animation: topBubbles 0.6s ease-in-out forwards;
+}
+@keyframes topBubbles {
+    50% {
+        background-position: 0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%, 50% 50%, 65% 20%, 90% 30%, 100% 40%, 110% 20%;
+    }
+    100% {
+        background-position: 0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%, 50% 40%, 65% 10%, 90% 20%, 100% 40%, 105% 10%;
+        background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    }
+}
+
+.go-btn.animate::after {
+    bottom: -70%;
+    background-image: radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #4169E1 20%, transparent 30%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, transparent 20%, #4169E1 15%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%),
+        radial-gradient(circle, #4169E1 20%, transparent 20%);
+    background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 18% 18%;
+    background-position: 10% 0%, 30% 10%, 55% 0%, 70% 0%, 85% 0%, 70% 0%, 60% 0%, 45% 0%, 90% 0%;
+    animation: bottomBubbles 0.6s ease-in-out forwards;
+}
+@keyframes bottomBubbles {
+    50% {
+        background-position: 0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 92% 60%, 110% 0%, 95% 20%, 80% 10%;
+    }
+    100% {
+        background-position: 0% 90%, 20% 80%, 45% 70%, 60% 110%, 75% 80%, 92% 70%, 110% 10%, 95% 30%, 80% 25%;
+        background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    }
+}
+
+.info-panel {
+    display: flex;
+    justify-content: center;
+
+    mat-card {
+        margin: 10px;
+        width: 200px;
+        height: 450px;
+    }
+}

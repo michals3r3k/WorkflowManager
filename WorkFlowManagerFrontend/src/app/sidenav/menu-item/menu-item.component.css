@@ -1,14 +1,19 @@
-.menu-item {
+.menu-item-link {
     display: flex;
-    padding: 2em;
     text-decoration: none;
     color: #fff;
-}
-
-.menu-item:hover {
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+    width: fit-content;
+    overflow: hidden;
+    text-wrap: nowrap;
 }
 
 .menu-item-label {
-    margin-left: 1em;
+    margin-left: 1.5em;
+    transition: all .2s ease-in-out;
+    opacity: 1;
+}
+
+.menu-item-label-collapsed {
+    opacity: 0;
+    transition: all .2s ease-in-out;
 }

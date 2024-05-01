@@ -1,4 +1,7 @@
-<a class="menu-item" href="#">
-    <mat-icon class="icon">{{menuItem.icon}}</mat-icon>
-    <span *ngIf="menuItem.label && menuItem.showLabel" class="menu-item-label">{{menuItem.label}}</span>
+<a class="menu-item-link" href="#" >
+    <mat-icon class="icon">{{matIcon}}</mat-icon>
+    <span class="menu-item-label" 
+        [ngClass]="{'menu-item-label-collapsed': collapsed || !label}">
+        {{label}}
+    </span>
 </a>

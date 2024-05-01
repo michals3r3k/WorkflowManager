@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { MenuItemDto } from './menu-item/menu-item.component';
 
 @Component({
   selector: 'app-sidenav',
@@ -8,63 +7,39 @@ import { MenuItemDto } from './menu-item/menu-item.component';
 })
 export class SidenavComponent {
   opened: boolean = false;
-  openMenuItem: MenuItemDto = {
-    icon: "arrow_forward",
-    label: "Show",
-    showLabel: false
-  };
-  closeMenuItem: MenuItemDto = {
-    icon: "close",
-    label: "",
-    showLabel: true
-  };
-  
-  menuItems: MenuItemDto[] = [
+  menuItems = [
     {
       icon: "home",
       label: "Home",
-      showLabel: this.opened
     },
     {
       icon: "task",
       label: "Task",
-      showLabel: this.opened
     },
     {
       icon: "calendar_month",
       label: "Calendar",
-      showLabel: this.opened
     },
     {
       icon: "account_circle",
-      label: "My Account",
-      showLabel: this.opened
+      label: "My Account"
     },
     {
       icon: "login",
-      label: "Login",
-      showLabel: this.opened
+      label: "Login"
     },
     {
       icon: "logout",
-      label: "Logout",
-      showLabel: this.opened
+      label: "Logout"
     },
   ];
 
   open() {
     this.opened = true;
-    this._updateMenuItems();
   }
 
   close() {
     this.opened = false;
-    this._updateMenuItems();
-  }
-
-  _updateMenuItems()
-  {
-    this.menuItems = this.menuItems.map(elt => <MenuItemDto>{icon: elt.icon, label: elt.label, showLabel: this.opened});
   }
 
 }

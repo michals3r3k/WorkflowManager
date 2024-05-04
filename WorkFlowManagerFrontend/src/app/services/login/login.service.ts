@@ -9,13 +9,32 @@ export class LoginService {
     // itentionally empty
   }
 
-  login(email: string, password: string) {
+  login(email: string, password: string, callback: (res: LoginResponse) => void) {
     let body = {
       email: email, 
       password: password
     };
-    this.http.post("http://localhost:8080/api/login", body)
-      .subscribe(data => console.log(data));
-    // TODO: store token in cookies / localstore
+    this.http.post<LoginResponse>("http://localhost:8080/api/login", body)
+      .subscribe(res => {
+        console.log(res);
+        if(res.success) {
+          localStorage.setItem("WorkflowManagerToken", JSON.stringify({
+            email: email,
+            token: res.token
+          }));
+        }
+        callback(res);
+      });
   }
+
+  logout() {
+    localStorage.removeItem("WorkflowManagerToken");
+  }
+
+}
+
+interface LoginResponse {
+  token: string,
+  success: boolean,
+  errors: string[];
 }

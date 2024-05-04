@@ -1,38 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { LoggedUserService } from '../services/login/logged-user.service';
+import { LoginService } from '../services/login/login.service';
+import { LoginDialogOpenerService } from '../services/login/login-dialog-opener.service';
 
 @Component({
   selector: 'app-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.css'
 })
-export class SidenavComponent {
+export class SidenavComponent implements OnInit {
+  userLogged: boolean = false;
   opened: boolean = false;
-  menuItems = [
-    {
-      icon: "home",
-      label: "Home",
-    },
-    {
-      icon: "task",
-      label: "Task",
-    },
-    {
-      icon: "calendar_month",
-      label: "Calendar",
-    },
-    {
-      icon: "account_circle",
-      label: "My Account"
-    },
-    {
-      icon: "login",
-      label: "Login"
-    },
-    {
-      icon: "logout",
-      label: "Logout"
-    },
-  ];
+
+  constructor(private loggedUserService: LoggedUserService, 
+    private loginService: LoginService,
+    private loginDialogOpener: LoginDialogOpenerService) {
+    // itentionally empty
+  }
+
+  ngOnInit() {
+    this.loggedUserService.getLoggedUser(loggedUser => {
+      this.userLogged = !!loggedUser;
+    });
+  }
 
   open() {
     this.opened = true;
@@ -40,6 +30,15 @@ export class SidenavComponent {
 
   close() {
     this.opened = false;
+  }
+
+  logout() {
+    this.loginService.logout();
+    location.reload();
+  }
+
+  openLoginDialog() {
+    this.loginDialogOpener.open(true);
   }
 
 }

@@ -18,3 +18,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 div.mat-drawer-inner-container {
     overflow: hidden;
 }
+
+.login-dialog .mat-mdc-dialog-surface {
+  border-radius: 40px !important;
+}

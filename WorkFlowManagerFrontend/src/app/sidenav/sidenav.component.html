@@ -1,12 +1,14 @@
 <mat-drawer-container class="drawer-container">
     <mat-drawer mode="side" opened class="menu-list" [ngClass]="{'menu-list-collapsed': !opened}">
-        <app-menu-item class="menu-item" (click)="open()" *ngIf="!opened" matIcon="arrow_forward"></app-menu-item>
-        <app-menu-item class="menu-item" (click)="close()" *ngIf="opened" matIcon="close"></app-menu-item>
-        <app-menu-item class="menu-item" *ngFor="let menuItem of menuItems" 
-            [matIcon]="menuItem.icon"
-            [label]="menuItem.label"
-            [collapsed]="!opened">
-        </app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="!opened" matIcon="arrow_forward" (click)="open()"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="opened" matIcon="close" (click)="close()" ></app-menu-item>
+        <app-menu-item class="menu-item" matIcon="home" label="Home" [collapsed]="!opened" routerLink="/home"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="business" label="Organizations" [collapsed]="!opened" routerLink="/organizations"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="task" label="Task" [collapsed]="!opened"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="calendar_month" label="Calendar" [collapsed]="!opened"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="account_circle" label="My Account" [collapsed]="!opened"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="!userLogged" matIcon="login" label="Login" [collapsed]="!opened" (click)="openLoginDialog()"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="logout" label="Logout" [collapsed]="!opened" (click)="logout()"></app-menu-item>
     </mat-drawer>
     <mat-drawer-content>
         <router-outlet />

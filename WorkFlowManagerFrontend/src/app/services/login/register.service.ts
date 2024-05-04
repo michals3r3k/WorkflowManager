@@ -14,6 +14,7 @@ export class RegisterService {
     let body = {
       email: email, password: password
     };
-    this.http.post("http://localhost:8080/api/register", body).subscribe(data => console.log(data));
+    this.http.post("http://localhost:8080/api/register", body)
+      .subscribe(data => console.log(data));
   }
 }

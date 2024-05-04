@@ -19,6 +19,7 @@ import { SidenavComponent } from './sidenav/sidenav.component';
 import { HomeComponent } from './home/home.component';
 import { MenuItemComponent } from './sidenav/menu-item/menu-item.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { OrganizationsComponent } from './organizations/organizations.component';
 
 @NgModule({
   declarations: [	
@@ -27,7 +28,8 @@ import { WelcomeComponent } from './welcome/welcome.component';
     SidenavComponent,
     HomeComponent,
     MenuItemComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    OrganizationsComponent
    ],
   imports: [
     BrowserModule,

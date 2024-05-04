@@ -1,0 +1,21 @@
+.organizations-container {
+    margin: 3em;
+    width: fit-content;
+}
+
+.organizations-container mat-card {
+    margin-top: 2em;
+    margin-right: 2em;
+    padding: 2em;
+    cursor: pointer;
+    width: 900px;
+}
+
+.organizations-container mat-card:hover {
+    opacity: .7;
+}
+
+.organizations-container .organization-list {
+    display: flex;
+    flex-wrap: wrap;
+}

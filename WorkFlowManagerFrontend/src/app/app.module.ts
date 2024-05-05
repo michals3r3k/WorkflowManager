@@ -19,15 +19,17 @@ import { SidenavComponent } from './sidenav/sidenav.component';
 import { HomeComponent } from './home/home.component';
 import { MenuItemComponent } from './sidenav/menu-item/menu-item.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { AboutUsComponent } from './about-us/about-us.component';
 
 @NgModule({
-  declarations: [	
+  declarations: [		
     AppComponent,
     LoginComponent,
     SidenavComponent,
     HomeComponent,
     MenuItemComponent,
-    WelcomeComponent
+    WelcomeComponent,
+      AboutUsComponent
    ],
   imports: [
     BrowserModule,

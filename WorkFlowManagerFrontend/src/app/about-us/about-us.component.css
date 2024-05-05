@@ -1,0 +1,51 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    background-color: #D3D3D3;
+}
+
+.title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    background-image: url("/assets/images/about-us-background-img.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: top 20% center;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.title h1 {
+    font-size: 70px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.t1 {
+    background: #5555;
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(0 0, 100% 0, 100% 250px, 0 150px)
+}
+
+.t2 {
+    margin-top: -100px;
+    background: #4169E1cc;
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(0 0, 100% 100px, 100% 250px, 0 250px)
+}
+
+.t2 h1 {
+    margin-top: 40px;
+    font-size: 40px;
+}
+
+.about-flow {
+    display: block;
+}

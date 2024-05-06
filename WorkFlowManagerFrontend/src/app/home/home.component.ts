@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { LoginComponent } from '../login/login.component';
-import { MatDialog } from '@angular/material/dialog';
+import { LoginDialogOpenerService } from '../services/login/login-dialog-opener.service';
 
 @Component({
   selector: 'app-home',
@@ -8,16 +7,12 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  
-  constructor(private dialog: MatDialog) {
+  constructor(private loginDialogOpener: LoginDialogOpenerService) {
       // intentionally empty
   }
 
   openDialog() {
-      const dialogRef = this.dialog.open(LoginComponent);
-      dialogRef.afterClosed().subscribe(() => {
-          console.log('The dialog was closed');
-      });
+    this.loginDialogOpener.open(true);
   }
   
 }

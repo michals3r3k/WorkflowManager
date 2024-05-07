@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { LoginComponent } from '../login/login.component';
 
 @Component({
   selector: 'app-welcome',
@@ -28,7 +30,7 @@ export class WelcomeComponent implements OnInit {
     }
   ]
 
-  constructor() { }
+  constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
   }
@@ -37,6 +39,10 @@ export class WelcomeComponent implements OnInit {
     this.btnClicked = true;
     setTimeout(() => {
       this.btnClicked = false;
+      const dialogRef = this.dialog.open(LoginComponent);
+      dialogRef.afterClosed().subscribe(() => {
+          console.log('The dialog was closed');
+      });
     }, 600);
   }
 

@@ -21,15 +21,19 @@ import { SidenavComponent } from './sidenav/sidenav.component';
 import { HomeComponent } from './home/home.component';
 import { MenuItemComponent } from './sidenav/menu-item/menu-item.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { AboutUsComponent } from './about-us/about-us.component';
 import { OrganizationsComponent } from './organizations/organizations.component';
 import { OrganizationCreateComponent } from './organizations/organization-create/organization-create.component';
+import { OrganizationDetailsComponent } from './organization-details/organization-details.component';
 import { ResultToasterComponent } from './result-toaster/result-toaster.component';
-
+import { ProfileComponent } from './profile/profile.component';
 import { Router } from '@angular/router';
 import { AuthInterceptorService } from './services/auth-interceptor/auth-interceptor.service';
 
+import { FilterPipe } from './Pipes/filter.pipe';
+
 @NgModule({
-  declarations: [	
+  declarations: [				
     AppComponent,
     LoginComponent,
     SidenavComponent,
@@ -38,7 +42,11 @@ import { AuthInterceptorService } from './services/auth-interceptor/auth-interce
     WelcomeComponent,
     OrganizationsComponent,
     OrganizationCreateComponent,
-    ResultToasterComponent
+    OrganizationDetailsComponent,
+    ResultToasterComponent,
+    AboutUsComponent,
+    ProfileComponent,
+    FilterPipe
    ],
   imports: [
     BrowserModule,

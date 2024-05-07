@@ -1,0 +1,109 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    background-color: #D3D3D3;
+}
+
+.title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    background-image: url("/assets/images/about-us-background-img.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: top 20% center;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.title h1 {
+    font-size: 70px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.t1 {
+    background: #5555;
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(0 0, 100% 0, 100% 250px, 0 150px)
+}
+
+.t2 {
+    margin-top: -100px;
+    background: #4169E1cc;
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(0 0, 100% 100px, 100% 250px, 0 250px)
+}
+
+.t2 h1 {
+    margin-top: 40px;
+    font-size: 40px;
+}
+
+.about-flow {
+    display: flex;
+    vertical-align: top;
+    padding: 40px;
+    align-items: center;
+}
+
+.about-flow p{
+    color: #444;
+    margin: 20px;
+    font-size: 24px;
+    line-height: 34px;
+}
+
+.about-flow img{
+    width: 30%;
+    clip-path: inset(0 0 0 0 round 20px);
+}
+
+.creators {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background-image: url(/assets/images/about-us-creators-bg.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: top 20% center;
+    background-color: #3339;
+    background-blend-mode: multiply;
+    color: #fff;
+}
+
+.creators h1 {
+    font-weight: 900;
+    font-size: 40px;
+}
+
+.creator-serek,
+.creator-rogowski {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.creator-serek h1,
+.creator-rogowski h1 {
+    font-size: 24px;
+}
+
+.creator-serek p,
+.creator-rogowski p {
+    font-size: 18px;
+}
+
+.creator-serek img,
+.creator-rogowski img {
+    clip-path: circle(30%);
+    width: 30%;
+}

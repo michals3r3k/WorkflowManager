@@ -10,11 +10,11 @@ export class RegisterService {
     // itentionally empty
   }
 
-  register(email: string, password: string) {
+  register(email: string, password: string, callback: (res: any) => void) {
     let body = {
       email: email, password: password
     };
     this.http.post("http://localhost:8080/api/register", body)
-      .subscribe(data => console.log(data));
+      .subscribe(data => callback(data));
   }
 }

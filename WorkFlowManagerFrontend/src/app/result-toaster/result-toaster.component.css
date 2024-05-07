@@ -1,0 +1,19 @@
+.toaster {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 16px;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+  .success {
+    background-color: #4CAF50;
+  }
+  .error {
+    background-color: #f44336;
+  }
+  .info {
+    background-color: #369bf4;
+  }

@@ -15,6 +15,7 @@ export class LoginComponent {
   loginObj: LoginModel  = new LoginModel();
 
   @Output() afterLogin: EventEmitter<any> = new EventEmitter(); 
+  @Output() afterRegister: EventEmitter<any> = new EventEmitter(); 
 
   constructor(private loginService: LoginService, 
     private registerService: RegisterService,
@@ -22,8 +23,14 @@ export class LoginComponent {
     this.isSignDivVisiable = this.data.isSignDivVisiable;
   }
 
+  openLogin() {
+    this.isSignDivVisiable = false;
+  }
+
   onRegister() {
-    this.registerService.register(this.signUpObj.email, this.signUpObj.password);
+    this.registerService.register(this.signUpObj.email, this.signUpObj.password, (res) => {
+      this.afterRegister.emit(res);
+    });
   }
 
   onLogin() {

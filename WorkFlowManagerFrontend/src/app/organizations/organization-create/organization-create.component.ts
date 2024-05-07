@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { HttpRequestService } from '../../services/http/http-request.service';
 
 @Component({
   selector: 'app-organization-create',
@@ -9,24 +9,22 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class OrganizationCreateComponent {
   organizationCreateModel: OrganizationAddModel = new OrganizationAddModel();
 
-  constructor(private http: HttpClient) {
+  constructor(private httpService: HttpRequestService) {
     // itentionally empty
   }
 
+  @Output() onSuccess: EventEmitter<any> = new EventEmitter(); 
+
   create() {
-    console.log(this.organizationCreateModel);
-      let token = localStorage.getItem("WorkflowManagerToken");
-      if(token) {
-        let x = JSON.parse(token);
-        const headers = new HttpHeaders({
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ` + x.token
-        })
-        this.http.post("http://localhost:8080/api/organization/create", this.organizationCreateModel, { headers: headers })
-          .subscribe(res => {
-            console.log(res);
-          });
+    this.httpService.post("api/organization/create", this.organizationCreateModel, res => {
+      if(res.success) {
+        this.onSuccess.emit(res);
       }
+      else {
+        // TODO: resultToaster
+        alert(res.errors);
+      }
+    });
   }
 }
 

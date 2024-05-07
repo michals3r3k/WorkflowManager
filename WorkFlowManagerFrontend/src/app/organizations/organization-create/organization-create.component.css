@@ -1,3 +1,5 @@
 .organization-create-container {
     margin: 2em;
+    display: flex;
+    flex-direction: column;
 }

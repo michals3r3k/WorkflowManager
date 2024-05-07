@@ -10,6 +10,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatCardModule } from "@angular/material/card"
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 
@@ -22,6 +23,7 @@ import { MenuItemComponent } from './sidenav/menu-item/menu-item.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { OrganizationsComponent } from './organizations/organizations.component';
 import { OrganizationCreateComponent } from './organizations/organization-create/organization-create.component';
+import { ResultToasterComponent } from './result-toaster/result-toaster.component';
 
 @NgModule({
   declarations: [	
@@ -32,7 +34,8 @@ import { OrganizationCreateComponent } from './organizations/organization-create
     MenuItemComponent,
     WelcomeComponent,
     OrganizationsComponent,
-    OrganizationCreateComponent
+    OrganizationCreateComponent,
+    ResultToasterComponent
    ],
   imports: [
     BrowserModule,
@@ -47,6 +50,7 @@ import { OrganizationCreateComponent } from './organizations/organization-create
     MatDialogModule,
     MatCardModule,
     MatInputModule,
+    MatSnackBarModule,
     HttpClientModule
   ],
   providers: [

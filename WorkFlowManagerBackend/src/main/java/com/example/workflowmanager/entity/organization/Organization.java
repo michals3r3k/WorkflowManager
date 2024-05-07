@@ -2,6 +2,7 @@ package com.example.workflowmanager.entity.organization;
 
 import com.example.workflowmanager.entity.user.User;
 import jakarta.persistence.*;
+import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ public class Organization
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull
     private String name;
     private String description;
 

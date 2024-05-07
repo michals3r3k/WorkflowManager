@@ -1,12 +1,15 @@
 import { Injectable, Inject } from '@angular/core';
 import { LoginComponent } from '../../login/login.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ResultToasterService } from '../result-toaster/result-toaster.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginDialogOpenerService {
-  constructor(private dialog: MatDialog) { 
+  constructor(private dialog: MatDialog,
+    private resultToaster: ResultToasterService
+  ) { 
     // itentionally empty
   }
 
@@ -15,14 +18,25 @@ export class LoginDialogOpenerService {
       panelClass: "login-dialog",
       data: {isSignDivVisiable: !showLogin}
     });
-    dialogRef.componentInstance.afterLogin.subscribe(res => {
+    const loginComponent = dialogRef.componentInstance;
+    loginComponent.afterLogin.subscribe(res => {
       if(res.success) {
+        this.resultToaster.success("Login success");
         location.reload();
       }
       else {
-        alert(res.errors);
+        this.resultToaster.error(res.errors);
       }
     });
+    loginComponent.afterRegister.subscribe(res => {
+      if(res.success) {
+        loginComponent.openLogin();
+        this.resultToaster.success("Register success");
+      }
+      else {
+        this.resultToaster.error(res.errors);
+      }
+    })
     return dialogRef;
   }
 }

@@ -1,34 +1,87 @@
 package com.example.workflowmanager.rest.organization;
 
+import com.example.workflowmanager.db.organization.OrganizationRepository;
+import com.example.workflowmanager.entity.organization.Organization;
+import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.organization.OrganizationService;
 import com.example.workflowmanager.service.organization.OrganizationService.OrganizationServiceResult;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @CrossOrigin
 @RestController
 public class OrganizationController
 {
+    private final OrganizationRepository organizationRepository;
     private final OrganizationService organizationService;
+    private final CurrentUserService currentUserService;
 
-    public OrganizationController(OrganizationService organizationService)
+    public OrganizationController(OrganizationRepository organizationRepository,
+        OrganizationService organizationService,
+        CurrentUserService currentUserService)
     {
+        this.organizationRepository = organizationRepository;
         this.organizationService = organizationService;
+        this.currentUserService = currentUserService;
     }
 
     @PostMapping("/api/organization/create")
     public ResponseEntity<OrganizationServiceResult> create(
         @RequestBody OrganizationCreateRequest organizationCreateRequest)
     {
-        SecurityContext context = SecurityContextHolder.getContext();
-        String email = context.getAuthentication().getName();
-        return ResponseEntity.ok(organizationService.create(email,
+        String currentUserEmail = CurrentUserService.getCurrentUserEmail();
+        return ResponseEntity.ok(organizationService.create(currentUserEmail,
             organizationCreateRequest.getName(), organizationCreateRequest.getDescription()));
+    }
+
+    @GetMapping("/api/organization/list")
+    public ResponseEntity<List<OrganizationRest>> getList()
+    {
+        List<OrganizationRest> organizations = currentUserService.getCurrentUser()
+            .map(User::getId)
+            .map(Collections::singleton)
+            .map(organizationRepository::getListByUserIds)
+            .map(Collection::stream)
+            .orElseGet(Stream::empty)
+            .map(OrganizationRest::new)
+            .sorted(Comparator.comparing(OrganizationRest::getName,
+                Comparator.naturalOrder()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(organizations);
+    }
+
+    public static class OrganizationRest
+    {
+        private Organization organization;
+
+        private OrganizationRest(Organization organization)
+        {
+            this.organization = organization;
+        }
+
+        public Long getId()
+        {
+            return organization.getId();
+        }
+
+        public String getName()
+        {
+            return organization.getName();
+        }
+
+        public String getDescription()
+        {
+            return organization.getDescription();
+        }
+
     }
 
     public static class OrganizationCreateRequest

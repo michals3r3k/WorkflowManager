@@ -11,10 +11,9 @@ export class HttpRequestService {
   }
 
   post(endpoint: string, body: any | null, callback: (res: any) => void) {
-    debugger;
     let token = localStorage.getItem("WorkflowManagerToken");
     if(!token) {
-      this.router.navigate(["/home"]);
+      this.router.navigateByUrl("/home?showLogin=true");
       return;
     }
     this.http.post("http://localhost:8080/" + endpoint, body, { 
@@ -28,10 +27,9 @@ export class HttpRequestService {
   }
 
   get(endpoint: string, callback: (res: any) => void) {
-    debugger;
     let token = localStorage.getItem("WorkflowManagerToken");
     if(!token) {
-      this.router.navigate(["/home"]);
+      this.router.navigateByUrl("/home?showLogin=true");
       return;
     }
     this.http.get("http://localhost:8080/" + endpoint, { 

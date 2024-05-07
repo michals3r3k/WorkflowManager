@@ -11,7 +11,7 @@ import { MatDialogModule } from "@angular/material/dialog";
 import { MatCardModule } from "@angular/material/card"
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { HttpClientModule } from '@angular/common/http'
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
@@ -24,6 +24,9 @@ import { WelcomeComponent } from './welcome/welcome.component';
 import { OrganizationsComponent } from './organizations/organizations.component';
 import { OrganizationCreateComponent } from './organizations/organization-create/organization-create.component';
 import { ResultToasterComponent } from './result-toaster/result-toaster.component';
+
+import { Router } from '@angular/router';
+import { AuthInterceptorService } from './services/auth-interceptor/auth-interceptor.service';
 
 @NgModule({
   declarations: [	
@@ -54,7 +57,15 @@ import { ResultToasterComponent } from './result-toaster/result-toaster.componen
     HttpClientModule
   ],
   providers: [
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useFactory: function(router: Router) {
+        return new AuthInterceptorService(router);
+      },
+      multi: true,
+      deps: [Router]
+    }
   ],
   bootstrap: [AppComponent]
 })

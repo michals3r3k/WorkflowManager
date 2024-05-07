@@ -18,7 +18,7 @@ export class ResultToasterService {
     this._showMessage(message, 'error');
   }
 
-  _showMessage(message: string, type: string) {
+  private _showMessage(message: string, type: string) {
     this.snackBar.openFromComponent(ResultToasterComponent, {
       data: { message: message, type: type },
       duration: 2000,

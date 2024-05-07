@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -8,6 +8,8 @@ export class LoginService {
   constructor(private http: HttpClient) { 
     // itentionally empty
   }
+
+  @Output() logoutSuccess: EventEmitter<any> = new EventEmitter();
 
   login(email: string, password: string, callback: (res: LoginResponse) => void) {
     let body = {
@@ -29,6 +31,7 @@ export class LoginService {
 
   logout() {
     localStorage.removeItem("WorkflowManagerToken");
+    this.logoutSuccess.emit();
   }
 
 }

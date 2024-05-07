@@ -34,8 +34,9 @@ public class OrganizationService
 
     public enum OrganizationCreateError
     {
-
+        // TODO: add possible errors
     }
+
     public static class OrganizationServiceResult
     {
         private final Set<OrganizationCreateError> errors;

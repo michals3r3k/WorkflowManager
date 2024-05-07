@@ -27,10 +27,6 @@ export class LoginComponent {
     this.isSignDivVisiable = false;
   }
 
-  openRegister() {
-    this.isSignDivVisiable = true;
-  }
-
   onRegister() {
     this.registerService.register(this.signUpObj.email, this.signUpObj.password, (res) => {
       this.afterRegister.emit(res);

@@ -58,32 +58,6 @@ public class OrganizationController
         return ResponseEntity.ok(organizations);
     }
 
-    public static class OrganizationRest
-    {
-        private Organization organization;
-
-        private OrganizationRest(Organization organization)
-        {
-            this.organization = organization;
-        }
-
-        public Long getId()
-        {
-            return organization.getId();
-        }
-
-        public String getName()
-        {
-            return organization.getName();
-        }
-
-        public String getDescription()
-        {
-            return organization.getDescription();
-        }
-
-    }
-
     public static class OrganizationCreateRequest
     {
         private String name;
@@ -107,6 +81,32 @@ public class OrganizationController
         public void setDescription(String description)
         {
             this.description = description;
+        }
+
+    }
+
+    public static class OrganizationRest
+    {
+        private Organization organization;
+
+        private OrganizationRest(Organization organization)
+        {
+            this.organization = organization;
+        }
+
+        public Long getId()
+        {
+            return organization.getId();
+        }
+
+        public String getName()
+        {
+            return organization.getName();
+        }
+
+        public String getDescription()
+        {
+            return organization.getDescription();
         }
 
     }

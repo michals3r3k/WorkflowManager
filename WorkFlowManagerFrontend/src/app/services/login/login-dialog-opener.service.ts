@@ -1,14 +1,12 @@
 import { Injectable, Inject, Output, EventEmitter } from '@angular/core';
 import { LoginComponent } from '../../login/login.component';
 import { MatDialog } from '@angular/material/dialog';
-import { ResultToasterService } from '../result-toaster/result-toaster.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginDialogOpenerService {
-  constructor(private dialog: MatDialog,
-    private resultToaster: ResultToasterService) { 
+  constructor(private dialog: MatDialog) { 
     // itentionally empty
   }
 

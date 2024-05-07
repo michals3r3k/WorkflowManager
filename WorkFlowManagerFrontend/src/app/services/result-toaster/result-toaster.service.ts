@@ -18,6 +18,10 @@ export class ResultToasterService {
     this._showMessage(message, 'error');
   }
 
+  info(message: string) {
+    this._showMessage(message, 'info');
+  }
+
   private _showMessage(message: string, type: string) {
     this.snackBar.openFromComponent(ResultToasterComponent, {
       data: { message: message, type: type },

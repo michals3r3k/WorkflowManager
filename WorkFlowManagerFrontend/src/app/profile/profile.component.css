@@ -1,0 +1,136 @@
+.container {
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 900px) {
+    .wrapper {
+        flex-direction: column;
+    }
+}
+
+.profil-data {
+    background: #aaa3;
+    border-radius: 30px;
+    margin: 10px;
+    padding:20px;
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items:start;
+}
+
+.profil-image {
+    width: 150px;
+    height: 150px;
+    position: relative;
+}
+
+.image {
+    width: 100%;
+    height: 100%;
+    border-radius: 100px;
+    overflow: hidden;
+    border: 4px solid #ccc;
+}
+
+.image img {
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+    height: 100%;
+}
+
+.new-image-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    position: absolute;
+    top: 70%;
+    left: 70%;
+    border: none;
+    background: #ccc;
+    display: flex;
+    transition: all 0.3s ease;
+}
+
+.new-image-btn mat-icon {
+    margin: auto;
+}
+
+.new-image-btn:hover {
+    background: #4169E1;
+}
+
+.new-image-btn:hover mat-icon {
+    color: #fff;
+}
+
+.display-name {
+    font-size: 24px;
+    font-weight: 400;
+    margin: 20px 0;
+}
+
+.manage-profile-btn {
+    width: 100%;
+    height: 25px;
+    display: relative;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+}
+
+.btn-content-m,
+.btn-content-s {
+    position: absolute;
+    top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: color 0.4 ease;
+}
+.btn-content-m {
+    animation: fadeIn 0.2s forwards;
+    animation-delay: 0.2s;
+}
+.btn-content-s {
+    animation: fadeOut 0.2s forwards;
+}
+
+.manage-profile-btn-editmode {
+    background: #4169E1;
+    color: #fff;
+}
+@keyframes fadeOut {
+    to {opacity: 0;}
+}
+@keyframes fadeIn {
+    to {opacity: 1;}
+}
+.btn-content-m-editmode{
+    animation: fadeOut 0.2s forwards;
+}
+.btn-content-s-editmode{
+    animation: fadeIn 0.2s forwards;
+    animation-delay: 0.2s;
+}
+
+.profile-field {
+    margin-top: -10px;
+    width: 100%;
+}
+
+.organizations-projects {
+    background: #00f2;
+    height: 200px;
+    width: 100%;
+}

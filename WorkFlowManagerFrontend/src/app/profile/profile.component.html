@@ -1,0 +1,56 @@
+<div class="container">
+
+  <div class="wrapper">
+
+    <div class="profil-data">
+      <div class="profil-image">
+        <div class="image">
+          <img src="/assets/images/creator-dummy-img.jpg" />
+        </div>
+        <button class="new-image-btn" *ngIf="editMode">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+
+      <span class="display-name">Hubert Rogowski</span>
+
+      <button class="manage-profile-btn" [ngClass]="editMode ? 'manage-profile-btn-editmode' : ''" (click)="toggleEditMode()">
+        <div style="position: relative;">
+          <div class="btn-content-m" [ngClass]="editMode ? 'btn-content-m-editmode' : ''">Manage account</div>
+          <div class="btn-content-s" [ngClass]="editMode ? 'btn-content-s-editmode' : ''">Save changes</div>
+        </div>
+      </button>
+
+      <mat-form-field class="profile-field">
+        <mat-label>First name</mat-label>
+        <input matInput placeholder="Enter your first name" [readonly]="!editMode"/>
+        <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field class="profile-field">
+        <mat-label>Last name</mat-label>
+        <input matInput placeholder="Enter your last name" [readonly]="!editMode"/>
+        <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field class="profile-field">
+        <mat-label>Position</mat-label>
+        <input matInput placeholder="Enter your position" [readonly]="!editMode"/>
+        <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field class="profile-field">
+        <mat-label>E-mail</mat-label>
+        <input matInput placeholder="Enter your e-mail" [readonly]="!editMode"/>
+        <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
+      </mat-form-field>
+
+    </div>
+  
+    <div class="organizations-projects">
+      
+    </div>
+
+  </div>
+
+</div>

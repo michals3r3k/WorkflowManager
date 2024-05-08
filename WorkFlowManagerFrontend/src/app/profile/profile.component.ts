@@ -9,6 +9,17 @@ export class ProfileComponent implements OnInit {
 
   editMode: boolean = false;
 
+  organizations = [
+    {
+      name: "organization 1",
+      role: "Admin"
+    },
+    {
+      name: "organization 2",
+      role: "Programist"
+    }
+  ];
+
   constructor() { }
 
   ngOnInit() {

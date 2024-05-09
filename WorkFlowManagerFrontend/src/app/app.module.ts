@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar'; 
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -11,6 +11,8 @@ import { MatDialogModule } from "@angular/material/dialog";
 import { MatCardModule } from "@angular/material/card"
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete'; 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 
@@ -24,7 +26,7 @@ import { WelcomeComponent } from './welcome/welcome.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { OrganizationsComponent } from './organizations/organizations.component';
 import { OrganizationCreateComponent } from './organizations/organization-create/organization-create.component';
-import { OrganizationDetailsComponent } from './organization-details/organization-details.component';
+import { OrganizationDetailsComponent } from './organizations/organization-details/organization-details.component';
 import { ResultToasterComponent } from './result-toaster/result-toaster.component';
 import { ProfileComponent } from './profile/profile.component';
 import { Router } from '@angular/router';
@@ -52,6 +54,7 @@ import { FilterPipe } from './Pipes/filter.pipe';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule,
     MatToolbarModule,
     MatSidenavModule,
@@ -62,6 +65,8 @@ import { FilterPipe } from './Pipes/filter.pipe';
     MatCardModule,
     MatInputModule,
     MatSnackBarModule,
+    MatSelectModule,
+    MatAutocompleteModule,
     HttpClientModule
   ],
   providers: [

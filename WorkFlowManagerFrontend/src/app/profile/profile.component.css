@@ -167,3 +167,39 @@
 .organizations h1 {
     
 }
+
+.no-dec-a {
+    text-decoration: none;
+    color: #000;
+}
+
+.project {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.project mat-icon {
+    margin: 3px;
+}
+
+.project:hover {
+    background: #85aff633;
+}
+
+.show-all-link {
+    text-decoration: none;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.show-all-link a {
+    text-decoration: none;
+    color: #4169E1;
+}
+
+.show-all-link a:hover {
+    text-decoration: underline;
+}

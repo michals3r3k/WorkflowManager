@@ -12,11 +12,49 @@ export class ProfileComponent implements OnInit {
   organizations = [
     {
       name: "organization 1",
-      role: "Admin"
+      role: "Admin",
+      routeLink: "http://localhost:4200/organization-details"
     },
     {
       name: "organization 2",
-      role: "Programist"
+      role: "Programist",
+      routeLink: "http://localhost:4200/organization-details"
+    }
+  ];
+
+  projects = [
+    {
+      name: "project 1",
+      role: "Admin",
+      routeLink: "http://localhost:4200"
+    },
+    {
+      name: "project 2",
+      role: "Programist",
+      routeLink: "http://localhost:4200"
+    },
+    {
+      name: "project 3",
+      role: "Programist",
+      routeLink: "http://localhost:4200"
+    }
+  ];
+
+  tasks = [
+    {
+      name: "task 1",
+      role: "Admin",
+      routeLink: "http://localhost:4200"
+    },
+    {
+      name: "task 2",
+      role: "Programist",
+      routeLink: "http://localhost:4200"
+    },
+    {
+      name: "task 3",
+      role: "Programist",
+      routeLink: "http://localhost:4200"
     }
   ];
 

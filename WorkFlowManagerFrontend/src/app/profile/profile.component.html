@@ -52,7 +52,15 @@
       <span class="section-title">Organizations</span>
       <div class="info-panel">
         <div class="organization" *ngFor="let ogranization of organizations">
-            {{ogranization.name}}
+          <a class="no-dec-a" href="http://localhost:4200">
+            <div class="project">
+              <mat-icon>lightbulb_circle</mat-icon>
+             {{ogranization.name}}
+            </div>
+          </a>
+        </div>
+        <div class="show-all-link">
+          <a href="http://localhost:4200">Show all organizations</a>
         </div>
       </div>
 
@@ -62,15 +70,31 @@
 
       <span class="section-title">Projects</span>
       <div class="info-panel">
-        <div class="organization" *ngFor="let ogranization of organizations">
-            {{ogranization.name}}
+        <div *ngFor="let project of projects">
+          <a class="no-dec-a" href="http://localhost:4200">
+            <div class="project">
+              <mat-icon>lightbulb_circle</mat-icon>
+             {{project.name}}
+            </div>
+          </a>
+        </div>
+        <div class="show-all-link">
+          <a href="http://localhost:4200">Show all projects</a>
         </div>
       </div>
 
       <span class="section-title">Tasks</span>
       <div class="info-panel">
-        <div class="organization" *ngFor="let ogranization of organizations">
-            {{ogranization.name}}
+        <div *ngFor="let task of tasks">
+          <a class="no-dec-a" href="http://localhost:4200">
+            <div class="project">
+              <mat-icon>lightbulb_circle</mat-icon>
+              {{task.name}}
+            </div>
+          </a>
+        </div>
+        <div class="show-all-link">
+          <a href="http://localhost:4200">Show all tasks</a>
         </div>
       </div>
 

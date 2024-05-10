@@ -33,6 +33,8 @@ import { Router } from '@angular/router';
 import { AuthInterceptorService } from './services/auth-interceptor/auth-interceptor.service';
 
 import { FilterPipe } from './Pipes/filter.pipe';
+import { UserPickerComponent } from './organizations/user-picker/user-picker.component';
+import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
 
 @NgModule({
   declarations: [				
@@ -48,7 +50,9 @@ import { FilterPipe } from './Pipes/filter.pipe';
     ResultToasterComponent,
     AboutUsComponent,
     ProfileComponent,
-    FilterPipe
+    FilterPipe,
+    UserPickerComponent,
+    OrganizationMemberPickerComponent
    ],
   imports: [
     BrowserModule,

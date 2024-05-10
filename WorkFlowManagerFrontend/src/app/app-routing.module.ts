@@ -4,13 +4,14 @@ import { HomeComponent } from './home/home.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { OrganizationsComponent } from './organizations/organizations.component';
-import { OrganizationDetailsComponent } from './organization-details/organization-details.component';
+import { OrganizationDetailsComponent } from './organizations/organization-details/organization-details.component';
 import { ProfileComponent } from './profile/profile.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: HomeComponent
+    redirectTo: 'welcome',
+    pathMatch: 'full'
   },
   {
     path: 'home',
@@ -29,7 +30,7 @@ const routes: Routes = [
     component: OrganizationsComponent
   },
   {
-    path: 'organization-details',
+    path: 'organization-details/:id',
     component: OrganizationDetailsComponent
   },
   {

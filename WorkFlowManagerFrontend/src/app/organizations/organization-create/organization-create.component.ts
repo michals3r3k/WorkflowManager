@@ -16,7 +16,7 @@ export class OrganizationCreateComponent {
   @Output() onSuccess: EventEmitter<any> = new EventEmitter(); 
 
   create() {
-    this.httpService.post("api/organization/create", this.organizationCreateModel, res => {
+    this.httpService.post("api/organization/create", this.organizationCreateModel).subscribe(res => {
       if(res.success) {
         this.onSuccess.emit(res);
       }

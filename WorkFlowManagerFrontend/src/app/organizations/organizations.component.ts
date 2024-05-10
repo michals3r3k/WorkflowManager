@@ -18,7 +18,7 @@ export class OrganizationsComponent implements OnInit{
   organizations: any[];
 
   _loadOrganizations() {
-    this.http.get("api/organization/list", (res) => {
+    this.http.get("api/organization/list").subscribe((res) => {
       this.organizations = res;
     })
   }

@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatToolbarModule } from '@angular/material/toolbar'; 
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list'
 import { MatButtonModule } from '@angular/material/button'
@@ -12,7 +12,8 @@ import { MatCardModule } from "@angular/material/card"
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAutocompleteModule } from '@angular/material/autocomplete'; 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatMenuModule} from '@angular/material/menu'
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 
@@ -37,7 +38,7 @@ import { UserPickerComponent } from './organizations/user-picker/user-picker.com
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
 
 @NgModule({
-  declarations: [				
+  declarations: [
     AppComponent,
     LoginComponent,
     SidenavComponent,
@@ -71,6 +72,7 @@ import { OrganizationMemberPickerComponent } from './organizations/organization-
     MatSnackBarModule,
     MatSelectModule,
     MatAutocompleteModule,
+    MatMenuModule,
     HttpClientModule
   ],
   providers: [

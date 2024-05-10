@@ -11,13 +11,13 @@ import { ResultToasterService } from '../../services/result-toaster/result-toast
 })
 export class OrganizationMemberPickerComponent {
   userEmailControl = new FormControl();
-  filteredOptions$: Observable<any[]>;  
+  userOptions$: Observable<any[]>;  
 
   @Output() onUserSelected : EventEmitter<number> = new EventEmitter();
 
   constructor(private http: HttpRequestService,
     private resultToaster: ResultToasterService) {
-    this.filteredOptions$ = this.userEmailControl.valueChanges
+    this.userOptions$ = this.userEmailControl.valueChanges
       .pipe(
         startWith(''),
         debounceTime(400),
@@ -26,7 +26,7 @@ export class OrganizationMemberPickerComponent {
 
   addMember() {
     let email = this.userEmailControl.value;
-    let sub = this.filteredOptions$
+    let sub = this.userOptions$
       .pipe(map(users => users
         .filter(user => user.name === email)
         .map(user => user.id)))

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { ActivatedRoute } from '@angular/router';
-import { FormControl } from '@angular/forms';
-import { Observable, debounceTime, filter, map, of, startWith, switchMap } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
+import { MatDialog } from '@angular/material/dialog';
+import { OrganizationMemberPickerComponent } from '../organization-member-picker/organization-member-picker.component';
 
 @Component({
   selector: 'app-organization-details',
@@ -35,7 +36,8 @@ export class OrganizationDetailsComponent implements OnInit {
     }
   ];
 
-  constructor(private route: ActivatedRoute, private http: HttpRequestService) {
+  constructor(private route: ActivatedRoute, private http: HttpRequestService,
+    private dialog: MatDialog, private resultToaster: ResultToasterService) {
     
   }
 
@@ -52,5 +54,24 @@ export class OrganizationDetailsComponent implements OnInit {
   private loadMembers() {
     this.members$ = this.http.get("api/organization/" + this.organizationId + "/member/list");
   } 
+
+  openAddUserDialg() {
+    let dialogRef = this.dialog.open(OrganizationMemberPickerComponent);
+    dialogRef.componentInstance.onUserSelected.subscribe(userId => {
+      this.http.post("api/organization/member/add", {
+        organizationId: this.organizationId,
+        userId: userId
+      }).subscribe(res => {
+        if(res.success) {
+          this.resultToaster.success("Member added successfully");
+          this.loadMembers();
+        }
+        else {
+          this.resultToaster.success("Unknown error");
+        }
+        dialogRef.close();
+      })
+    });
+  }
 
 }

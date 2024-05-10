@@ -27,6 +27,24 @@ export class OrganizationDetailsComponent implements OnInit {
       role: "Programist"
     }
   ];
+  roles = [
+    {
+      name: "Admin",
+      users: 2
+    },
+    {
+      name: "PM",
+      users: 3
+    },
+    {
+      name: "Programist",
+      users: 8
+    },
+    {
+      name: "QA",
+      role: 2
+    }
+  ];
 
   constructor() { }
 

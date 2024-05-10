@@ -1,29 +1,46 @@
 <div class="container">
-  <h1 *ngIf="organization" class="organization-data">
-    <p>Organization: {{organization.name}}</p>
-    <p *ngIf="organization.description">Description: {{organization.description}}</p>
-  </h1>
-  <div class="users">
-    <mat-form-field class="example-full-width">
-      <input type="text" placeholder="Pick one" aria-label="Number" matInput [formControl]="userEmailControl" [matAutocomplete]="userAutocomplete">
-      <mat-autocomplete #userAutocomplete="matAutocomplete">
-        <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option.name">
-          {{option.name}}
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
-    <button class="add-btn" (click)="addMember()" mat-raised-button color="primary">
-      <mat-icon>add</mat-icon>
-      add member
-    </button>
-    <div class="search-user">
-      <input type="text" name="search" [(ngModel)]="searchUser" placeholder="Search member..." />
+  <div class="users-panel">
+    <div>
+      <mat-form-field class="profile-field">
+        <mat-label>Search user</mat-label>
+        <input matInput type="text" [(ngModel)]="searchUser" placeholder="Search user"/>
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
     </div>
-    <mat-list *ngIf="members$ | async as members">
+
+    <button class="add-btn" mat-flat-button color="primary">
+      <span>Add user</span>
+      <mat-icon matSuffix>add</mat-icon>
+    </button>
+
+    <mat-list class="users-list" *ngIf="members$ | async as members">
       <mat-list-item *ngFor="let member of members | filter: searchUser">
         <span matListItemTitle>{{member.name}}</span>
-        <span matListItemLine>Moderator</span>
       </mat-list-item>
-    </mat-list> 
+    </mat-list>
+  </div>
+
+  <div class="roles-panel">
+    <div>
+      <mat-form-field>
+        <mat-label>Search role</mat-label>
+        <input matInput type="text" [(ngModel)]="searchUser" placeholder="Search role"/>
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <button class="add-btn" mat-flat-button color="primary">
+      <span>Create role</span>
+      <mat-icon matSuffix>add</mat-icon>
+    </button>
+   
+    <mat-list class="roles-list">
+      <mat-list-item *ngFor="let role of roles">
+        <span matListItemTitle>{{role.name}}</span>
+        <button mat-button></button>
+        <!-- <button mat-button [matMenuTriggerFor]="menu">
+        </button> -->
+      </mat-list-item>
+    </mat-list>
   </div>
 </div>

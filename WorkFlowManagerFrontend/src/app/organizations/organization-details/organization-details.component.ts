@@ -12,19 +12,31 @@ import { ResultToasterService } from '../../services/result-toaster/result-toast
 })
 export class OrganizationDetailsComponent implements OnInit {
   private organizationId: string | null;
-  userEmailControl = new FormControl();
-  filteredOptions$: Observable<any[]>;
   searchUser: string = "";
   organization: any = null;
   members$: Observable<any[] | null> = of(null);
+  
+  roles = [
+    {
+      name: "Admin",
+      users: 2
+    },
+    {
+      name: "PM",
+      users: 3
+    },
+    {
+      name: "Programist",
+      users: 8
+    },
+    {
+      name: "QA",
+      role: 2
+    }
+  ];
 
-  constructor(private route: ActivatedRoute, private http: HttpRequestService,
-    private resultToaster: ResultToasterService) {
-    this.filteredOptions$ = this.userEmailControl.valueChanges
-    .pipe(
-      startWith(''),
-      debounceTime(400),
-      switchMap(val => this.filter()));
+  constructor(private route: ActivatedRoute, private http: HttpRequestService) {
+    
   }
 
   ngOnInit() {
@@ -37,39 +49,8 @@ export class OrganizationDetailsComponent implements OnInit {
     })    
   }
 
-  addMember() {
-    let email = this.userEmailControl.value;
-    let subscription = this.filteredOptions$
-      .pipe(
-        map(list => list
-          .filter(user => user.name === email)
-          .map(user => user.id)),
-        filter(list => list.length === 1))
-      .subscribe(userIds => {
-        subscription.unsubscribe();
-        let userId = userIds[0] || null;
-        if(!userId) {
-          this.resultToaster.error("User isn't in the list.");
-          return;
-        }
-        this.http.post("api/organization/member/add", {
-          organizationId: this.organizationId,
-          userId: userId
-        }).subscribe(res => {
-          if(res.success) {
-            this.resultToaster.success("Member added successfully")
-            this.loadMembers();
-          }
-        })
-      })
-  }
-
   private loadMembers() {
     this.members$ = this.http.get("api/organization/" + this.organizationId + "/member/list");
-  }
-
-  private filter(): Observable<any[]> {
-    return this.http.get("api/users/like/" + (this.userEmailControl.value || null));
-  }  
+  } 
 
 }

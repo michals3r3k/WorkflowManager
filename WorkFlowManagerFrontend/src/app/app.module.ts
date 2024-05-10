@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -34,7 +34,6 @@ import { Router } from '@angular/router';
 import { AuthInterceptorService } from './services/auth-interceptor/auth-interceptor.service';
 
 import { FilterPipe } from './Pipes/filter.pipe';
-import { UserPickerComponent } from './organizations/user-picker/user-picker.component';
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
 
 @NgModule({
@@ -52,7 +51,6 @@ import { OrganizationMemberPickerComponent } from './organizations/organization-
     AboutUsComponent,
     ProfileComponent,
     FilterPipe,
-    UserPickerComponent,
     OrganizationMemberPickerComponent
    ],
   imports: [

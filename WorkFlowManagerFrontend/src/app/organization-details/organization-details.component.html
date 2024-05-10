@@ -38,6 +38,8 @@
     <mat-list class="roles-list">
       <mat-list-item *ngFor="let role of roles">
         <span matListItemTitle>{{role.name}}</span>
+        <button mat-button [matMenuTriggerFor]="menu">
+        </button>
       </mat-list-item>
     </mat-list>
 

@@ -11,6 +11,7 @@ import { MatDialogModule } from "@angular/material/dialog";
 import { MatCardModule } from "@angular/material/card"
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule} from '@angular/material/menu'
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 
@@ -62,6 +63,7 @@ import { FilterPipe } from './Pipes/filter.pipe';
     MatCardModule,
     MatInputModule,
     MatSnackBarModule,
+    MatMenuModule,
     HttpClientModule
   ],
   providers: [

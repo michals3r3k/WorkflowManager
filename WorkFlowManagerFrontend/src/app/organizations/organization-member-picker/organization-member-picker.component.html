@@ -1,0 +1,19 @@
+<div class="user-picker-container">
+    <div>
+        <mat-form-field class="example-full-width">
+            <input matInput type="text" placeholder="Pick user" aria-label="Number"
+                [formControl]="userEmailControl" [matAutocomplete]="userAutocomplete"/>
+            <mat-autocomplete #userAutocomplete="matAutocomplete">
+                <mat-option *ngFor="let userOption of userOptions$ | async" [value]="userOption.name">
+                    {{userOption.name}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
+    <div>
+        <button class="add-btn" (click)="addMember()" mat-raised-button color="primary">
+            <mat-icon>add</mat-icon>
+            Add member
+        </button>
+    </div>
+</div>

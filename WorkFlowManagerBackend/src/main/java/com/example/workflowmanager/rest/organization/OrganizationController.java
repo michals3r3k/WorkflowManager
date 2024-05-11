@@ -9,12 +9,8 @@ import com.example.workflowmanager.service.organization.OrganizationService.Orga
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @CrossOrigin
 @RestController
@@ -48,14 +44,23 @@ public class OrganizationController
         List<OrganizationRest> organizations = currentUserService.getCurrentUser()
             .map(User::getId)
             .map(Collections::singleton)
-            .map(organizationRepository::getListByUserIds)
-            .map(Collection::stream)
-            .orElseGet(Stream::empty)
+            .map(organizationRepository::getListByUserIds).stream()
+            .flatMap(Collection::stream)
             .map(OrganizationRest::new)
             .sorted(Comparator.comparing(OrganizationRest::getName,
                 Comparator.naturalOrder()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(organizations);
+    }
+
+    @GetMapping("/api/organization/{id}")
+    public ResponseEntity<OrganizationRest> getDetails(@PathVariable Long id)
+    {
+        OrganizationRest organization = Optional.ofNullable(id)
+            .map(organizationRepository::getReferenceById)
+            .map(OrganizationRest::new)
+            .orElse(null);
+        return ResponseEntity.ok(organization);
     }
 
     public static class OrganizationCreateRequest

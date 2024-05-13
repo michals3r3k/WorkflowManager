@@ -1,13 +1,13 @@
-package com.example.workflowmanager.entity.organization;
+package com.example.workflowmanager.entity.organization.project;
 
-import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.entity.organization.Organization;
 import jakarta.persistence.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Objects;
 
 @Entity
-public class Organization
+public class Project
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,15 +17,20 @@ public class Organization
     private String description;
 
     @ManyToOne()
-    @JoinColumn(name="userId", nullable=false)
-    private User user;
+    @JoinColumn(name="organizationId", nullable=false)
+    private Organization organization;
+
+    public Project()
+    {
+        // for hibernate
+    }
 
     public Long getId()
     {
         return id;
     }
 
-    public void setId(Long id)
+    protected void setId(Long id)
     {
         this.id = id;
     }
@@ -50,14 +55,15 @@ public class Organization
         this.description = description;
     }
 
-    public User getUser()
+    public Organization getOrganization()
     {
-        return user;
+        return organization;
     }
 
-    public void setUser(User user)
+    public void setOrganization(
+        Organization organization)
     {
-        this.user = user;
+        this.organization = organization;
     }
 
     @Override
@@ -71,8 +77,8 @@ public class Organization
         {
             return false;
         }
-        Organization that = (Organization) o;
-        return Objects.equals(id, that.id);
+        Project project = (Project) o;
+        return Objects.equals(id, project.id);
     }
 
     @Override

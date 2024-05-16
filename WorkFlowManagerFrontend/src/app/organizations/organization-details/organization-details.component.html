@@ -34,17 +34,21 @@
         </mat-form-field>
       </div>
   
-      <button class="add-btn" mat-flat-button color="primary">
+      <button class="add-btn" (click)="openAddRoleDialog()" mat-flat-button color="primary">
         <span>Create role</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
      
       <mat-list class="roles-list">
         <mat-list-item *ngFor="let role of roles">
-          <span matListItemTitle>{{role.name}}</span>
-          <button mat-button></button>
-          <!-- <button mat-button [matMenuTriggerFor]="menu">
-          </button> -->
+          <div class="roles-item">
+            <span matListItemTitle>{{role.name}}</span>
+            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role)">
+              <div style="display: flex; justify-content: center; align-items: center;">
+                <mat-icon>menu</mat-icon>
+              </div>
+            </button>
+          </div>
         </mat-list-item>
       </mat-list>
     </div>

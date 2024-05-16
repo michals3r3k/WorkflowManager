@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { OrganizationCreateComponent } from '../organizations/organization-create/organization-create.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { ResultToasterService } from '../services/result-toaster/result-toaster.service';
 import { HttpRequestService } from '../services/http/http-request.service';
 

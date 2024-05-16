@@ -4,26 +4,23 @@ import com.example.workflowmanager.db.organization.role.OrganizationPermissionRe
 import com.example.workflowmanager.db.organization.role.OrganizationRoleRepository;
 import com.example.workflowmanager.entity.organization.role.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
 public class OrganizationRoleController
 {
     private final OrganizationRoleRepository organizationRoleRepository;
-    private final OrganizationPermissionRepository organizationPermissionRepository;
 
     public OrganizationRoleController(
-        OrganizationRoleRepository organizationRoleRepository,
-        OrganizationPermissionRepository organizationPermissionRepository)
+        OrganizationRoleRepository organizationRoleRepository)
     {
         this.organizationRoleRepository = organizationRoleRepository;
-        this.organizationPermissionRepository = organizationPermissionRepository;
     }
 
     @PostMapping("/api/organization/role/add")
@@ -34,12 +31,16 @@ public class OrganizationRoleController
             request.getOrganizationId(), request.getRole());
         OrganizationRole organizationRole = new OrganizationRole(organizationRoleId);
         organizationRoleRepository.save(organizationRole);
-        request.getPermissions().stream()
-            .map(Permission::valueOf)
-            .map(permission -> new OrganizationPermissionId(permission, organizationRoleId))
-            .map(OrganizationPermission::new)
-            .forEachOrdered(organizationPermissionRepository::save);
         return ResponseEntity.ok(new OrganizationRoleCreateServiceResult(true));
+    }
+
+    public ResponseEntity<List<OrganizationRoleRest>> getOrganizationRoleList(@PathVariable Long organizationId) {
+        List<OrganizationRoleRest> roles = organizationRoleRepository
+            .getListByOrganization(Collections.singleton(organizationId)).stream()
+            .map(OrganizationRoleRest::new)
+            .sorted(Comparator.comparing(OrganizationRoleRest::getRole, Comparator.naturalOrder()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(roles);
     }
 
     public static class OrganizationRoleCreateServiceResult
@@ -62,14 +63,11 @@ public class OrganizationRoleController
     {
         private Long organizationId;
         private String role;
-        private List<String> permissions;
 
-        public OrganizationRoleRequest(Long organizationId, String role,
-            List<String> permissions)
+        public OrganizationRoleRequest(Long organizationId, String role)
         {
             this.organizationId = organizationId;
             this.role = role;
-            this.permissions = permissions;
         }
 
         public Long getOrganizationId()
@@ -91,17 +89,20 @@ public class OrganizationRoleController
         {
             this.role = role;
         }
-
-        public List<String> getPermissions()
-        {
-            return permissions;
-        }
-
-        public void setPermissions(List<String> permissions)
-        {
-            this.permissions = permissions;
-        }
-
     }
 
+    public static class OrganizationRoleRest
+    {
+        private final OrganizationRole role;
+
+        private OrganizationRoleRest(OrganizationRole role)
+        {
+            this.role = role;
+        }
+
+        public String getRole()
+        {
+            return this.role.getId().getRole();
+        }
+    }
 }

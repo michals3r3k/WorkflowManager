@@ -31,3 +31,21 @@
 .mat-form-field {
     width: 100%;
 }
+
+.roles-item {
+    display: flex;
+    flex-direction: row;
+}
+
+.roles-item-btn {
+    border-radius: 5px;
+    background: none;
+    border: none;
+    padding: 3px;
+    margin-left: auto;
+    transition: all 0.5 ease;
+}
+
+.roles-item-btn:hover {
+    background: #9993;
+}

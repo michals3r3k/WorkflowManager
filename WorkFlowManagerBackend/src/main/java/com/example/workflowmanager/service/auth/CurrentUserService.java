@@ -2,6 +2,7 @@ package com.example.workflowmanager.service.auth;
 
 import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.user.User;
+import org.hibernate.query.sqm.mutation.internal.cte.CteInsertStrategy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +28,4 @@ public class CurrentUserService
         String currentUserEmail = getCurrentUserEmail();
         return userRepository.findByEmail(currentUserEmail);
     }
-
 }

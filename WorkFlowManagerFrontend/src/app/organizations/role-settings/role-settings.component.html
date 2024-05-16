@@ -1,0 +1,46 @@
+<div class="container">
+  <button class="close-btn" (click)="close()" >
+    <div class="close">
+      <mat-icon>close</mat-icon>
+    </div>
+  </button>
+  <button class="delete-btn" (click)="close()" [disabled]="disableBtnEnable" (mouseenter)="startDeleteBtnTimer()" (mouseleave)="resetDeleteBtnTimer()">
+    <div class="delete">
+      <div class="delete-timer" [ngClass]="{'delete-timer-hover': deleteBtnHover}">
+        <span class="timer-text" [ngClass]="{'timer-text-hover': deleteBtnHover}"></span>
+      </div>
+      <mat-icon>delete</mat-icon>
+    </div>
+  </button>
+  <div class="users">
+
+    <div class="users-title">
+      <h1>Users</h1>
+    </div>
+
+    <div class="add-user">
+      <div>
+        <mat-form-field class="profile-field">
+          <mat-label>Search user</mat-label>
+          <input matInput type="text" [(ngModel)]="searchUser" placeholder="Search user"/>
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+  
+      <button class="add-btn" mat-flat-button color="primary" >
+        <span>Add user</span>
+        <mat-icon matSuffix>add</mat-icon>
+      </button>
+
+    </div>
+
+    <div class="users-list">
+      <mat-list class="users-list" >
+        <mat-list-item >
+          <span matListItemTitle></span>
+        </mat-list-item>
+      </mat-list>
+    </div>
+
+  </div>
+</div>

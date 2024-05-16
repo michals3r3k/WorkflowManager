@@ -35,6 +35,8 @@ import { AuthInterceptorService } from './services/auth-interceptor/auth-interce
 
 import { FilterPipe } from './Pipes/filter.pipe';
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
+import { RoleCreateComponent } from './organizations/role-create/role-create.component';
+import { RoleSettingsComponent } from './organizations/role-settings/role-settings.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,9 @@ import { OrganizationMemberPickerComponent } from './organizations/organization-
     AboutUsComponent,
     ProfileComponent,
     FilterPipe,
-    OrganizationMemberPickerComponent
+    OrganizationMemberPickerComponent,
+    RoleCreateComponent,
+    RoleSettingsComponent
    ],
   imports: [
     BrowserModule,

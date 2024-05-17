@@ -5,6 +5,9 @@ import { Observable, of } from 'rxjs';
 import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationMemberPickerComponent } from '../organization-member-picker/organization-member-picker.component';
+import { RoleSettingsComponent } from '../role-settings/role-settings.component';
+import { OrganizationCreateComponent } from '../organization-create/organization-create.component';
+import { RoleCreateComponent } from '../role-create/role-create.component';
 
 @Component({
   selector: 'app-organization-details',
@@ -16,7 +19,7 @@ export class OrganizationDetailsComponent implements OnInit {
   searchUser: string = "";
   organization: any = null;
   members$: Observable<any[] | null> = of(null);
-  
+
   roles = [
     {
       name: "Admin",
@@ -71,6 +74,24 @@ export class OrganizationDetailsComponent implements OnInit {
         }
         dialogRef.close();
       })
+    });
+  }
+
+  openAddRoleDialog() {
+    let dialogRef = this.dialog.open(RoleCreateComponent, {data: { organizationId: this.organizationId }});
+    dialogRef.componentInstance.onCancel.subscribe(() => {
+      dialogRef.close();
+    });
+    dialogRef.componentInstance.onCreate.subscribe(() => {
+      dialogRef.close();
+      this.openRoleSettingsDialog('test');
+    });
+  }
+
+  openRoleSettingsDialog(param: any) {
+    let dialogRef = this.dialog.open(RoleSettingsComponent);
+    dialogRef.componentInstance.onClose.subscribe(() => {
+      dialogRef.close();
     });
   }
 

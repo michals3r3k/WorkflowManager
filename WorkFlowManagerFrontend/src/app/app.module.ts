@@ -35,6 +35,8 @@ import { AuthInterceptorService } from './services/auth-interceptor/auth-interce
 
 import { FilterPipe } from './Pipes/filter.pipe';
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
+import { RoleCreateComponent } from './organizations/role-create/role-create.component';
+import { RoleSettingsComponent } from './organizations/role-settings/role-settings.component';
 import { ProjectsComponent } from './organizations/projects/projects.component';
 import { ProjectCreateComponent } from './organizations/projects/project-create/project-create.component';
 
@@ -54,6 +56,8 @@ import { ProjectCreateComponent } from './organizations/projects/project-create/
     ProfileComponent,
     FilterPipe,
     OrganizationMemberPickerComponent,
+    RoleCreateComponent,
+    RoleSettingsComponent,
     ProjectsComponent,
     ProjectCreateComponent,
    ],

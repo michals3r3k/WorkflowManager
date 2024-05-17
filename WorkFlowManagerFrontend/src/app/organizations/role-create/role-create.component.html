@@ -1,0 +1,25 @@
+<div class="container">
+  <div>
+    <h1>Create new role</h1>
+  </div>
+  <div>
+    <mat-form-field class="example-full-width">
+      <mat-label>New role name</mat-label>
+      <input matInput type="text" placeholder="Role name" aria-label="Number"
+          [formControl]="roleNameControl" />
+        <div *ngIf="roleNameControl.invalid && (roleNameControl.touched || roleNameControl.dirty)">
+          @if (roleNameControl.hasError('required')) {
+            <mat-error>Name is <strong>required</strong></mat-error>
+          }
+          @if (roleNameControl.hasError('roleNameAvailable')) {
+            <mat-error>Name is taken</mat-error>
+            <span>{{roleNameControl.getError('roleNameAvailable')}}</span>
+          }
+        </div>
+    </mat-form-field>
+  </div>
+  <div class="btn-container">
+    <button mat-raised-button color="primary" (click)="cancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="create()" [disabled]="roleNameControl.invalid">Create</button>
+  </div>
+</div>

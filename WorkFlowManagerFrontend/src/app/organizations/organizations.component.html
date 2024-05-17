@@ -7,8 +7,10 @@
         <mat-card class="upper-nav-item" *ngFor="let organization of organizations"
             [routerLink]="['/organization-details', organization.id]">
             <mat-icon>business</mat-icon>
-            {{organization.name}} <br/>
-            {{organization.description}}
+            <mat-card-header>
+                <mat-card-title>{{organization.name}}</mat-card-title>
+                <mat-card-subtitle>{{organization.description}}</mat-card-subtitle>
+            </mat-card-header>
         </mat-card>
     </div>
 </div>

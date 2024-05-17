@@ -14,6 +14,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule} from '@angular/material/menu'
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 
@@ -39,6 +40,7 @@ import { RoleCreateComponent } from './organizations/role-create/role-create.com
 import { RoleSettingsComponent } from './organizations/role-settings/role-settings.component';
 import { ProjectsComponent } from './organizations/projects/projects.component';
 import { ProjectCreateComponent } from './organizations/projects/project-create/project-create.component';
+import { ProjectDetailsComponent } from './organizations/projects/project-details/project-details.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,7 @@ import { ProjectCreateComponent } from './organizations/projects/project-create/
     RoleSettingsComponent,
     ProjectsComponent,
     ProjectCreateComponent,
+    ProjectDetailsComponent,
    ],
   imports: [
     BrowserModule,
@@ -79,6 +82,7 @@ import { ProjectCreateComponent } from './organizations/projects/project-create/
     MatSelectModule,
     MatAutocompleteModule,
     MatMenuModule,
+    DragDropModule,
     HttpClientModule
   ],
   providers: [

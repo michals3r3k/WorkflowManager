@@ -6,11 +6,12 @@ import { AboutUsComponent } from './about-us/about-us.component';
 import { OrganizationsComponent } from './organizations/organizations.component';
 import { OrganizationDetailsComponent } from './organizations/organization-details/organization-details.component';
 import { ProfileComponent } from './profile/profile.component';
+import { ProjectDetailsComponent } from './organizations/projects/project-details/project-details.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'welcome',
+    redirectTo: 'welcome', 
     pathMatch: 'full'
   },
   {
@@ -32,6 +33,10 @@ const routes: Routes = [
   {
     path: 'organization-details/:id',
     component: OrganizationDetailsComponent
+  },
+  {
+    path: 'project-details/:id',
+    component: ProjectDetailsComponent
   },
   {
     path: 'profile',

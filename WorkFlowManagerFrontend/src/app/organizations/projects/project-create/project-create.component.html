@@ -1,0 +1,13 @@
+<div class="project-create-container">
+    <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput name="name" [(ngModel)]="projectCreateModel.name"/>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Description</mat-label>
+        <input matInput name="description" [(ngModel)]="projectCreateModel.description"/>
+    </mat-form-field>
+    <button (click)="create()" mat-raised-button color="primary">
+        Create
+    </button>
+</div>

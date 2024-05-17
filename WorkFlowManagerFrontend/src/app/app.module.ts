@@ -14,6 +14,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule} from '@angular/material/menu'
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 
@@ -37,6 +38,9 @@ import { FilterPipe } from './Pipes/filter.pipe';
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
 import { RoleCreateComponent } from './organizations/role-create/role-create.component';
 import { RoleSettingsComponent } from './organizations/role-settings/role-settings.component';
+import { ProjectsComponent } from './organizations/projects/projects.component';
+import { ProjectCreateComponent } from './organizations/projects/project-create/project-create.component';
+import { ProjectDetailsComponent } from './organizations/projects/project-details/project-details.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +59,10 @@ import { RoleSettingsComponent } from './organizations/role-settings/role-settin
     FilterPipe,
     OrganizationMemberPickerComponent,
     RoleCreateComponent,
-    RoleSettingsComponent
+    RoleSettingsComponent,
+    ProjectsComponent,
+    ProjectCreateComponent,
+    ProjectDetailsComponent,
    ],
   imports: [
     BrowserModule,
@@ -75,6 +82,7 @@ import { RoleSettingsComponent } from './organizations/role-settings/role-settin
     MatSelectModule,
     MatAutocompleteModule,
     MatMenuModule,
+    DragDropModule,
     HttpClientModule
   ],
   providers: [

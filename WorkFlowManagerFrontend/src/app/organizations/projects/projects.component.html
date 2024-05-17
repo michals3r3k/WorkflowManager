@@ -1,0 +1,16 @@
+<div class="projects-container">
+    <button class="add-btn" (click)="openCreateDialog()" mat-raised-button color="primary">
+        <mat-icon>add</mat-icon>
+        Add new project
+    </button>
+    <div class="project-list" *ngIf="projects$ | async as projects">
+        <mat-card class="upper-nav-item" *ngFor="let project of projects"
+            [routerLink]="['/project-details', project.id]">
+            <mat-icon>rocket_launch</mat-icon>
+            <mat-card-header>
+                <mat-card-title>{{project.name}}</mat-card-title>
+                <mat-card-subtitle>{{project.description}}</mat-card-subtitle>
+            </mat-card-header>
+        </mat-card>
+    </div>
+</div>

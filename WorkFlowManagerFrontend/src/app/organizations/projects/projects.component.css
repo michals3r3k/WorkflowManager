@@ -1,0 +1,21 @@
+.projects-container {
+    margin: 1em;
+    width: fit-content;
+}
+
+.projects-container mat-card {
+    margin-top: 2em;
+    margin-right: 2em;
+    padding: 2em;
+    cursor: pointer;
+    width: 300px;
+}
+
+.projects-container mat-card:hover {
+    opacity: .7;
+}
+
+.projects-container .project-list {
+    display: flex;
+    flex-wrap: wrap;
+}

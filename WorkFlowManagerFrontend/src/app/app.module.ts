@@ -35,6 +35,8 @@ import { AuthInterceptorService } from './services/auth-interceptor/auth-interce
 
 import { FilterPipe } from './Pipes/filter.pipe';
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
+import { ProjectsComponent } from './organizations/projects/projects.component';
+import { ProjectCreateComponent } from './organizations/projects/project-create/project-create.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,9 @@ import { OrganizationMemberPickerComponent } from './organizations/organization-
     AboutUsComponent,
     ProfileComponent,
     FilterPipe,
-    OrganizationMemberPickerComponent
+    OrganizationMemberPickerComponent,
+    ProjectsComponent,
+    ProjectCreateComponent,
    ],
   imports: [
     BrowserModule,

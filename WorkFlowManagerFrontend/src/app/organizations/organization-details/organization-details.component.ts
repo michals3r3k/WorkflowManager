@@ -12,7 +12,7 @@ import { OrganizationMemberPickerComponent } from '../organization-member-picker
   styleUrls: ['./organization-details.component.css']
 })
 export class OrganizationDetailsComponent implements OnInit {
-  private organizationId: string | null;
+  organizationId: string | null;
   searchUser: string = "";
   organization: any = null;
   members$: Observable<any[] | null> = of(null);

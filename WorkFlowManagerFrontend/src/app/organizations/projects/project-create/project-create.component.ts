@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
 import { HttpRequestService } from '../../../services/http/http-request.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ResultToasterService } from '../../../services/result-toaster/result-toaster.service';
 
 @Component({
   selector: 'app-project-create',
@@ -15,6 +16,7 @@ export class ProjectCreateComponent {
   @Output() onSuccess: EventEmitter<any> = new EventEmitter(); 
 
   constructor(private httpService: HttpRequestService,
+    private resultToaster: ResultToasterService,
     @Inject(MAT_DIALOG_DATA) private data: {organizationId: string})
   {
     this.organizationId = data.organizationId;
@@ -26,8 +28,7 @@ export class ProjectCreateComponent {
         this.onSuccess.emit(res);
       }
       else {
-        // TODO: resultToaster
-        alert("error");
+        this.resultToaster.error("Project creation error");
       }
     });
   }

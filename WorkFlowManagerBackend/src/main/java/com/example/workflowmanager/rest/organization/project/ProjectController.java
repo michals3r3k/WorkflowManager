@@ -40,7 +40,6 @@ public class ProjectController
         return ResponseEntity.ok(new ProjectServiceResult());
     }
 
-
     @GetMapping("api/project/{organizationId}")
     public ResponseEntity<List<ProjectRest>> getList(@PathVariable Long organizationId)
     {
@@ -57,11 +56,6 @@ public class ProjectController
     {
         private String name;
         private String description;
-
-        public ProjectCreateRequest()
-        {
-            //
-        }
 
         public String getName()
         {
@@ -84,7 +78,6 @@ public class ProjectController
         }
 
     }
-
 
     public static class ProjectServiceResult
     {
@@ -125,7 +118,5 @@ public class ProjectController
         }
 
     }
-
-
 
 }

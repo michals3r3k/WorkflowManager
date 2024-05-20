@@ -27,7 +27,7 @@
         </mat-form-field>
       </div>
   
-      <button class="add-btn" mat-flat-button color="primary" >
+      <button class="add-user-btn" mat-flat-button color="primary" >
         <span>Add user</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
@@ -42,5 +42,25 @@
       </mat-list>
     </div>
 
+  </div>
+  <div class="permissions">
+    <div style="display: flex; flex-direction: row;">
+      <h1>Permissions</h1>
+      <button mat-flat-button color="primary" class="save-permission-btn" [disabled]="disablePermissionSave">Save</button>
+    </div>
+    <div class="permission-classes">
+      <div class="permission-section organization-permissions">
+        <h2>Organization</h2>
+        <mat-checkbox class="checkbox" color="primary" (change)="enableSavePermission()">Add/Remove users</mat-checkbox>
+      </div>
+      <div class="permission-section project-permissions">
+        <h2>Project</h2>
+        <mat-checkbox class="checkbox" color="primary">Add/Remove users</mat-checkbox>
+      </div>
+      <div class="permission-section tasks-permissions">
+        <h2>Tasks</h2>
+        <mat-checkbox class="checkbox" color="primary">Add/Remove users</mat-checkbox>
+      </div>
+    </div>
   </div>
 </div>

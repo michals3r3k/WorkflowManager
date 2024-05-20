@@ -1,5 +1,7 @@
 .container {
-    padding: 20px;;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
 }
 
 .close {
@@ -17,7 +19,7 @@
     right: 0;
     width: 30px;
     height: 30px;
-    margin: 10px;
+    margin: 0 10px;
     transition: all 0.3s ease;
 }
 
@@ -47,7 +49,7 @@
     right: 40px;
     width: 30px;
     height: 30px;
-    margin: 10px;
+    margin: 0 10px;
     transition: all 0.3s ease;
 }
 
@@ -98,6 +100,7 @@
 
 .users {
     max-width: 500px;
+    height: 100%;
     background: #fefefe;
     border-radius: 20px;
     padding: 20px;
@@ -105,3 +108,38 @@
     box-shadow: 0px 5px 5px #aaaa;
     transition: all 0.3s ease;
 }
+
+.add-user-btn {
+    width: 100%;
+}
+
+.permissions {
+    height: 100%;
+    background: #fefefe;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0px 5px 5px #aaaa;
+    transition: all 0.3s ease;
+}
+
+.permission-classes {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 100%;
+}
+
+.permission-section {
+    background: #fefefe;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0px 5px 5px #aaaa;
+    transition: all 0.3s ease;
+}
+
+.save-permission-btn {
+    margin: 0 10px;
+    padding: 0;
+}
+

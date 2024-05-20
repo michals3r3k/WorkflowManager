@@ -8,6 +8,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 export class RoleSettingsComponent implements OnInit {
 
   disableBtnEnable = true;
+  disablePermissionSave = true;
   deleteBtnHover = false;
   timerID: any;
   searchUser = "";
@@ -34,6 +35,10 @@ export class RoleSettingsComponent implements OnInit {
     this.deleteBtnHover = false;
     clearTimeout(this.timerID);
     this.disableBtnEnable = true;
+  }
+
+  enableSavePermission() {
+    this.disablePermissionSave = false;
   }
 
 }

@@ -12,6 +12,7 @@ import { MatCardModule } from "@angular/material/card"
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule} from '@angular/material/menu'
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -80,6 +81,7 @@ import { ProjectDetailsComponent } from './organizations/projects/project-detail
     MatInputModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatCheckboxModule,
     MatAutocompleteModule,
     MatMenuModule,
     DragDropModule,

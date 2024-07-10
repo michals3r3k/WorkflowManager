@@ -1,8 +1,12 @@
 package com.example.workflowmanager.rest.organization.project;
 
+import com.example.workflowmanager.db.organization.OrganizationInProjectRepository;
 import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.db.organization.project.ProjectRepository;
 import com.example.workflowmanager.entity.organization.Organization;
+import com.example.workflowmanager.entity.organization.OrganizationInProject;
+import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
+import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.project.Project;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +22,15 @@ public class ProjectController
 {
     private final ProjectRepository projectRepository;
     private final OrganizationRepository organizationRepository;
+    private final OrganizationInProjectRepository organizationInProjectRepository;
 
     public ProjectController(ProjectRepository projectRepository,
-        OrganizationRepository organizationRepository)
+        OrganizationRepository organizationRepository,
+        OrganizationInProjectRepository organizationInProjectRepository)
     {
         this.projectRepository = projectRepository;
         this.organizationRepository = organizationRepository;
+        this.organizationInProjectRepository = organizationInProjectRepository;
     }
 
     @PostMapping("/api/project/create/{organizationId}")
@@ -33,10 +40,13 @@ public class ProjectController
     {
         Organization organization = organizationRepository.getReferenceById(organizationId);
         Project project = new Project();
-        project.setOrganization(organization);
         project.setName(projectCreateRequest.getName());
         project.setDescription(projectCreateRequest.getDescription());
         projectRepository.save(project);
+        OrganizationInProject organizationInProject = new OrganizationInProject(
+            new OrganizationInProjectId(organizationId, project.getId()));
+        organizationInProject.setRole(OrganizationInProjectRole.OWNER);
+        organizationInProjectRepository.save(organizationInProject);
         return ResponseEntity.ok(new ProjectServiceResult());
     }
 

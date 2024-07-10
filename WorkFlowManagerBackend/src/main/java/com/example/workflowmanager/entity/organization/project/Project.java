@@ -1,10 +1,11 @@
 package com.example.workflowmanager.entity.organization.project;
 
-import com.example.workflowmanager.entity.organization.Organization;
+import com.example.workflowmanager.entity.organization.OrganizationInProject;
 import jakarta.persistence.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Project
@@ -15,10 +16,8 @@ public class Project
     @NotNull
     private String name;
     private String description;
-
-    @ManyToOne()
-    @JoinColumn(name="organizationId", nullable=false)
-    private Organization organization;
+    @OneToMany(mappedBy = "project")
+    private Set<OrganizationInProject> organizationsInProject;
 
     public Project()
     {
@@ -55,16 +54,7 @@ public class Project
         this.description = description;
     }
 
-    public Organization getOrganization()
-    {
-        return organization;
-    }
 
-    public void setOrganization(
-        Organization organization)
-    {
-        this.organization = organization;
-    }
 
     @Override
     public boolean equals(Object o)

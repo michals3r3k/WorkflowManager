@@ -7,11 +7,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface OrganizationRepository extends JpaRepository<Organization, Long>
 {
     @Query("select o from Organization o join o.user u where u.id in (?1)")
     List<Organization> getListByUserIds(Collection<Long> userIds);
+
+    @Query("select o from Organization o where o.name like (?1)")
+    Set<Organization> getListByNameLike(String nameSearch);
 
 }

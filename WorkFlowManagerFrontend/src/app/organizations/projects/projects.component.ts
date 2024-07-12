@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { HttpRequestService } from '../../services/http/http-request.service';
-import { Observable } from 'rxjs';
+import { filter, map, Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectCreateComponent } from './project-create/project-create.component';
 import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
@@ -12,7 +12,8 @@ import { ResultToasterService } from '../../services/result-toaster/result-toast
 })
 export class ProjectsComponent implements OnInit {
   @Input() organizationId: string;
-  projects$: Observable<any[]>;
+  projectsOwning$: Observable<any[]>;
+  projectsReporting$: Observable<any[]>;
 
   constructor(private dialog: MatDialog, private http: HttpRequestService,
     private resultToaster: ResultToasterService) {
@@ -24,7 +25,13 @@ export class ProjectsComponent implements OnInit {
   }
 
   private _loadProjects() {
-    this.projects$ = this.http.get("api/project/" + this.organizationId);
+    var projects$: Observable<any[]> = this.http.get("api/project/" + this.organizationId);
+    this.projectsOwning$ = projects$.pipe(
+      map(projects => projects.filter(project => project.role === "OWNER"))
+    );
+    this.projectsReporting$ = projects$.pipe(
+      map(projects => projects.filter(project => project.role === "REPORTER"))
+    );
   }
 
   openCreateDialog() {

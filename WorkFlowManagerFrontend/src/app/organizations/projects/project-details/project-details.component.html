@@ -1,4 +1,8 @@
 <div class="project-details-container">
+    <button class="add-btn" (click)="openOrganizationInviteDialog()" mat-raised-button color="primary">
+        <mat-icon>add</mat-icon>
+        Invite organization
+    </button>
     <div cdkDropList
         cdkDropListOrientation="horizontal" 
         [cdkDropListData]="taskGroups"

@@ -50,16 +50,28 @@ public class ProjectController
         return ResponseEntity.ok(new ProjectServiceResult());
     }
 
-    @GetMapping("api/project/{organizationId}")
+    @GetMapping("/api/project/{organizationId}")
     public ResponseEntity<List<ProjectRest>> getList(@PathVariable Long organizationId)
     {
-        List<ProjectRest> projects = projectRepository.getListByOrganizationIds(
+        List<ProjectRest> projects = organizationInProjectRepository.getListByOrganizationIds(
             Collections.singleton(organizationId)).stream()
             .map(ProjectRest::new)
             .sorted(Comparator.comparing(ProjectRest::getName, Comparator.naturalOrder())
-                .thenComparing(ProjectRest::getId))
+                .thenComparing(ProjectRest::getProjectId))
             .collect(Collectors.toList());
         return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/api/project-details/{organizationId}/{projectId}")
+    public ResponseEntity<ProjectRest> getDetails(@PathVariable Long organizationId, @PathVariable Long projectId)
+    {
+        if(organizationId == null || projectId == null)
+        {
+            return ResponseEntity.ok(null);
+        }
+        ProjectRest projectRest = new ProjectRest(organizationInProjectRepository
+            .getReferenceById(new OrganizationInProjectId(organizationId, projectId)));
+        return ResponseEntity.ok(projectRest);
     }
 
     public static class ProjectCreateRequest
@@ -105,16 +117,22 @@ public class ProjectController
 
     public static class ProjectRest
     {
+        private final OrganizationInProject oip;
         private final Project project;
 
-        private ProjectRest(Project project)
+        private ProjectRest(OrganizationInProject oip)
         {
-            this.project = project;
+            this.oip = oip;
+            this.project = oip.getProject();
         }
 
-        public Long getId()
+        public Long getProjectId()
         {
-            return project.getId();
+            return oip.getId().getProjectId();
+        }
+        public Long getOrganizationId()
+        {
+            return oip.getOrganization().getId();
         }
 
         public String getName()
@@ -125,6 +143,11 @@ public class ProjectController
         public String getDescription()
         {
             return project.getDescription();
+        }
+
+        public OrganizationInProjectRole getRole()
+        {
+            return oip.getRole();
         }
 
     }

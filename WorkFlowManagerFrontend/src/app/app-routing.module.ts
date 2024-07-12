@@ -35,7 +35,7 @@ const routes: Routes = [
     component: OrganizationDetailsComponent
   },
   {
-    path: 'project-details/:id',
+    path: 'project-details/:organizationId/:projectId',
     component: ProjectDetailsComponent
   },
   {

@@ -42,6 +42,7 @@ import { RoleSettingsComponent } from './organizations/role-settings/role-settin
 import { ProjectsComponent } from './organizations/projects/projects.component';
 import { ProjectCreateComponent } from './organizations/projects/project-create/project-create.component';
 import { ProjectDetailsComponent } from './organizations/projects/project-details/project-details.component';
+import { OrganizationAddComponent } from './organizations/projects/organization-add/organization-add.component';
 
 @NgModule({
   declarations: [
@@ -64,6 +65,7 @@ import { ProjectDetailsComponent } from './organizations/projects/project-detail
     ProjectsComponent,
     ProjectCreateComponent,
     ProjectDetailsComponent,
+    OrganizationAddComponent,
    ],
   imports: [
     BrowserModule,

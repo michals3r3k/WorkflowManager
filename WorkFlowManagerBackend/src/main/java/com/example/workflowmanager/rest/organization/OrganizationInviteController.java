@@ -47,7 +47,7 @@ public class OrganizationInviteController
     }
 
     @PostMapping("/api/organization-in-project/invite")
-    public ResponseEntity<OrganizationInviteServiceResult> addMember(@RequestBody OrganizationInviteRequest request)
+    public ResponseEntity<OrganizationInviteServiceResult> inviteOrganization(@RequestBody OrganizationInviteRequest request)
     {
         // TODO: add service with validation
         OrganizationInProject organizationInProject = new OrganizationInProject(

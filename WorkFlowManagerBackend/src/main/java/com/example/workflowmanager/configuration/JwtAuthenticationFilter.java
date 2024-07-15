@@ -1,5 +1,6 @@
 package com.example.workflowmanager.configuration;
 
+import com.example.workflowmanager.service.auth.CustomUserDetailsService;
 import com.example.workflowmanager.service.auth.jwt.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,10 +23,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_TOKEN_PREFIX = "Bearer ";
 
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
 
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService,
+    public JwtAuthenticationFilter(CustomUserDetailsService userDetailsService,
         JwtService jwtService)
     {
         this.userDetailsService = userDetailsService;
@@ -50,7 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
         {
             if(jwtService.isTokenValid(token, email))
             {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                String uri = request.getRequestURI();
+                Long organizationIdOrNull = extractIdFromUri(uri, "organization");
+                Long projectIdOrNull = extractIdFromUri(uri, "project");
+                UserDetails userDetails = userDetailsService.loadUserByUsernameAndOrganizationId(email, organizationIdOrNull);
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     new WebAuthenticationDetailsSource().buildDetails(request),
@@ -59,6 +62,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private Long extractIdFromUri(String uri, String prefix) {
+        int index = uri.indexOf(prefix + "/");
+        if (index != -1) {
+            index += prefix.length() + 1;
+            int endIndex = uri.indexOf("/", index);
+            if (endIndex == -1) {
+                endIndex = uri.length();
+            }
+            String idStr = uri.substring(index, endIndex);
+            try {
+                return Long.valueOf(idStr);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
 }

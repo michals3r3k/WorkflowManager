@@ -7,6 +7,7 @@ import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.organization.OrganizationService;
 import com.example.workflowmanager.service.organization.OrganizationService.OrganizationServiceResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -54,6 +55,7 @@ public class OrganizationController
     }
 
     @GetMapping("/api/organization/{id}")
+    @PreAuthorize("hasAuthority('ORGANIZATION_R')")
     public ResponseEntity<OrganizationRest> getDetails(@PathVariable Long id)
     {
         OrganizationRest organization = Optional.ofNullable(id)

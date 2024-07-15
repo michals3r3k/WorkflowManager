@@ -4,6 +4,7 @@ import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.OrganizationMemberId;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -24,6 +25,7 @@ public class OrganizationMemberController
     }
 
     @GetMapping("/api/organization/{organizationId}/member/list")
+    @PreAuthorize("hasAuthority('ORGANIZATION_MEMBER_R')")
     public ResponseEntity<List<OrganizationMemberRest>> getDetails(@PathVariable Long organizationId)
     {
         List<OrganizationMemberRest> members = organizationMemberRepository
@@ -34,12 +36,14 @@ public class OrganizationMemberController
         return ResponseEntity.ok(members);
     }
 
-    @PostMapping("/api/organization/member/add")
-    public ResponseEntity<OrganizationMemberCreateServiceResult> addMember(@RequestBody OrganizationMemberAddRequest request)
+    @PostMapping("/api/organization/{organizationId}/member/add")
+    @PreAuthorize("hasAuthority('ORGANIZATION_MEMBER_C')")
+    public ResponseEntity<OrganizationMemberCreateServiceResult> addMember(
+        @PathVariable Long organizationId, @RequestBody OrganizationMemberAddRequest request)
     {
         // TODO: add service with validation
         OrganizationMemberId organizationMemberId = new OrganizationMemberId(
-            request.getOrganizationId(), request.getUserId());
+            organizationId, request.getUserId());
         organizationMemberRepository.save(new OrganizationMember(organizationMemberId));
         return ResponseEntity.ok(new OrganizationMemberCreateServiceResult(true));
     }
@@ -62,23 +66,17 @@ public class OrganizationMemberController
 
     public static class OrganizationMemberAddRequest
     {
-        private Long organizationId;
         private Long userId;
 
-        public OrganizationMemberAddRequest(Long organizationId, Long userId)
+
+        public OrganizationMemberAddRequest()
         {
-            this.organizationId = organizationId;
+            // for Spring.
+        }
+
+        public OrganizationMemberAddRequest(Long userId)
+        {
             this.userId = userId;
-        }
-
-        public Long getOrganizationId()
-        {
-            return organizationId;
-        }
-
-        public void setOrganizationId(Long organizationId)
-        {
-            this.organizationId = organizationId;
         }
 
         public Long getUserId()

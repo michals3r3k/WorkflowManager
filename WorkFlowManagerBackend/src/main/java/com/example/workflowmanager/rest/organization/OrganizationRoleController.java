@@ -1,9 +1,10 @@
 package com.example.workflowmanager.rest.organization;
 
-import com.example.workflowmanager.db.organization.role.OrganizationPermissionRepository;
 import com.example.workflowmanager.db.organization.role.OrganizationRoleRepository;
-import com.example.workflowmanager.entity.organization.role.*;
+import com.example.workflowmanager.entity.organization.role.OrganizationRole;
+import com.example.workflowmanager.entity.organization.role.OrganizationRoleId;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -23,12 +24,14 @@ public class OrganizationRoleController
         this.organizationRoleRepository = organizationRoleRepository;
     }
 
-    @PostMapping("/api/organization/role/add")
-    public ResponseEntity<OrganizationRoleCreateServiceResult> addRole(@RequestBody OrganizationRoleRequest request)
+    @PostMapping("/api/organization/{organizationId}/role/add")
+    @PreAuthorize("hasAuthority('ROLE_C')")
+    public ResponseEntity<OrganizationRoleCreateServiceResult> addRole(
+        @PathVariable Long organizationId, @RequestBody OrganizationRoleRequest request)
     {
         // TODO: add service with validation
         OrganizationRoleId organizationRoleId = new OrganizationRoleId(
-            request.getOrganizationId(), request.getRole());
+            organizationId, request.getRole());
         OrganizationRole organizationRole = new OrganizationRole(organizationRoleId);
         organizationRoleRepository.save(organizationRole);
         return ResponseEntity.ok(new OrganizationRoleCreateServiceResult(true));
@@ -61,23 +64,11 @@ public class OrganizationRoleController
 
     public static class OrganizationRoleRequest
     {
-        private Long organizationId;
         private String role;
 
-        public OrganizationRoleRequest(Long organizationId, String role)
+        public OrganizationRoleRequest(String role)
         {
-            this.organizationId = organizationId;
             this.role = role;
-        }
-
-        public Long getOrganizationId()
-        {
-            return organizationId;
-        }
-
-        public void setOrganizationId(Long organizationId)
-        {
-            this.organizationId = organizationId;
         }
 
         public String getRole()

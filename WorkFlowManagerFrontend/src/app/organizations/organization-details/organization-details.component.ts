@@ -61,8 +61,7 @@ export class OrganizationDetailsComponent implements OnInit {
   openAddUserDialg() {
     let dialogRef = this.dialog.open(OrganizationMemberPickerComponent);
     dialogRef.componentInstance.onUserSelected.subscribe(userId => {
-      this.http.post("api/organization/member/add", {
-        organizationId: this.organizationId,
+      this.http.post("api/organization/" + this.organizationId + "/member/add", {
         userId: userId
       }).subscribe(res => {
         if(res.success) {

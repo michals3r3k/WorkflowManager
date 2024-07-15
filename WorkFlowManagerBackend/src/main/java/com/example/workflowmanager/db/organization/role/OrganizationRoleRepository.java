@@ -1,6 +1,5 @@
 package com.example.workflowmanager.db.organization.role;
 
-import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.role.OrganizationRole;
 import com.example.workflowmanager.entity.organization.role.OrganizationRoleId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +14,5 @@ public interface OrganizationRoleRepository extends JpaRepository<OrganizationRo
 {
     @Query("select or from OrganizationRole or where or.id.organizationId in (?1)")
     List<OrganizationRole> getListByOrganization(Collection<Long> organizationIds);
+
 }

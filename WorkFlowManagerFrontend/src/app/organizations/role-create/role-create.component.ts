@@ -37,7 +37,7 @@ export class RoleCreateComponent implements OnInit {
     else {
       alert("Error occured when trying to read role name.")
     }
-    this.httpService.post("api/organization/role/add", new RoleAddModel(this.data.organizationId, valueStr)).subscribe(res => {
+    this.httpService.post("api/organization/" + this.data.organizationId + "/role/add", new RoleAddModel(valueStr)).subscribe(res => {
       if (res.success) {
         this.onCreate.emit(res);
       }
@@ -49,11 +49,9 @@ export class RoleCreateComponent implements OnInit {
 }
 
 class RoleAddModel {
-  organizationId: number;
   role: string;
 
-  constructor(id: number, role: string) {
-    this.organizationId = id;
+  constructor(role: string) {
     this.role = role;
   }
 }

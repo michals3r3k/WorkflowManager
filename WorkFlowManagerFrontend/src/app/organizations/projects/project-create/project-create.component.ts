@@ -23,7 +23,7 @@ export class ProjectCreateComponent {
   }
 
   create() {
-    this.httpService.post("api/project/create/" + this.organizationId, this.projectCreateModel).subscribe(res => {
+    this.httpService.post("api/organization/" + this.organizationId + "/project/create", this.projectCreateModel).subscribe(res => {
       if(res.success) {
         this.onSuccess.emit(res);
       }

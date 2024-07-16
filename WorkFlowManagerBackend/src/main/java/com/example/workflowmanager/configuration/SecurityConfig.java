@@ -41,7 +41,6 @@ public class SecurityConfig
             .authorizeHttpRequests(customizer -> customizer
                 .requestMatchers("/api/login").permitAll()
                 .requestMatchers("/api/register").permitAll()
-                .requestMatchers("/api/checkToken").permitAll()
                 .requestMatchers("/api/permissions").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().denyAll())

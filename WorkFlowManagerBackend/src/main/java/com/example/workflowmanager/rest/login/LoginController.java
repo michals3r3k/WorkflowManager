@@ -52,14 +52,6 @@ public class LoginController
         return ResponseEntity.ok(registerResult);
     }
 
-    @PostMapping("api/checkToken")
-    public ResponseEntity<Boolean> checkToken(
-        @RequestBody TokenCheckRequest tokenCheckRequest)
-    {
-        return ResponseEntity.ok(jwtService.isTokenValid(
-            tokenCheckRequest.getToken(), tokenCheckRequest.getEmail()));
-    }
-
     @PostMapping("api/permissions")
     public ResponseEntity<List<String>> getPermissions(@RequestBody PermissionsRequest request)
     {
@@ -74,6 +66,11 @@ public class LoginController
     {
         private Long organizationId;
 
+        public PermissionsRequest()
+        {
+            // for spring
+        }
+
         public PermissionsRequest(Long organizationId)
         {
             this.organizationId = organizationId;
@@ -87,39 +84,6 @@ public class LoginController
         public void setOrganizationId(final Long organizationId)
         {
             this.organizationId = organizationId;
-        }
-
-    }
-
-    public static class TokenCheckRequest
-    {
-        private String email;
-        private String token;
-
-        public TokenCheckRequest(final String email, final String token)
-        {
-            this.email = email;
-            this.token = token;
-        }
-
-        public String getEmail()
-        {
-            return email;
-        }
-
-        public void setEmail(String email)
-        {
-            this.email = email;
-        }
-
-        public String getToken()
-        {
-            return token;
-        }
-
-        public void setToken(String token)
-        {
-            this.token = token;
         }
 
     }

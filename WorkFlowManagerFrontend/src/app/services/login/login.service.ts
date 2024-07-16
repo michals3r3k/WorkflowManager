@@ -1,11 +1,12 @@
 import { EventEmitter, Injectable, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { LoggedUserService } from './logged-user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient, private loggedUser: LoggedUserService) { 
     // itentionally empty
   }
 
@@ -24,6 +25,7 @@ export class LoginService {
             email: email,
             token: res.token
           }));
+          this.loggedUser.setUser({email: email})
         }
         callback(res);
       });
@@ -31,6 +33,7 @@ export class LoginService {
 
   logout() {
     localStorage.removeItem("WorkflowManagerToken");
+    this.loggedUser.clearUser();
     this.logoutSuccess.emit();
   }
 

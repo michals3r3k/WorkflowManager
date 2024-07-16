@@ -14,4 +14,7 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
 {
     @Query("select om from OrganizationMember om where om.id.organizationId in (?1)")
     List<OrganizationMember> getListByOrganization(Collection<Long> organizationIds);
+
+    @Query("select om from OrganizationMember om join fetch om.organization o where om.id.userId in (?1)")
+    List<OrganizationMember> getListByUserIdsWithOrganization(Collection<Long> userIds);
 }

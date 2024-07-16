@@ -4,7 +4,7 @@
         Add new organization
     </button>
     <div class="organization-list">
-        <mat-card class="upper-nav-item" *ngFor="let organization of organizations"
+        <mat-card class="upper-nav-item" *ngFor="let organization of organizations$ | async"
             [routerLink]="['/organization-details', organization.id]">
             <mat-icon>business</mat-icon>
             <mat-card-header>

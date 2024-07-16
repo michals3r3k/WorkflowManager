@@ -22,7 +22,6 @@ export class SidenavComponent implements OnInit {
   ) {
     this.loginDialogOpener.afterLogin.subscribe(data => {
       if(data.res.success) {
-        this.userLogged = true;
         this.resultToaster.success("Login success");  
         data.dialogRef.close();
       }
@@ -39,15 +38,15 @@ export class SidenavComponent implements OnInit {
         this.resultToaster.error(data.res.errors);  
       }
     });
+    
     this.loginService.logoutSuccess.subscribe(() => {
       this.resultToaster.success("Logged out");
       this.router.navigate(["/home"]);
-      this.userLogged = false;
     });
   }
 
   ngOnInit() {
-    this.loggedUserService.getLoggedUser(loggedUser => {
+    this.loggedUserService.user$.subscribe(loggedUser => {
       this.userLogged = !!loggedUser;
     });
   }

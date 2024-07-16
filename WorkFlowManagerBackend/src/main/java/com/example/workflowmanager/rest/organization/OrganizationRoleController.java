@@ -37,6 +37,8 @@ public class OrganizationRoleController
         return ResponseEntity.ok(new OrganizationRoleCreateServiceResult(true));
     }
 
+    @GetMapping("/api/organization/{organizationId}/role/list")
+    @PreAuthorize("hasAuthority('ROLE_R')")
     public ResponseEntity<List<OrganizationRoleRest>> getOrganizationRoleList(@PathVariable Long organizationId) {
         List<OrganizationRoleRest> roles = organizationRoleRepository
             .getListByOrganization(Collections.singleton(organizationId)).stream()
@@ -65,6 +67,12 @@ public class OrganizationRoleController
     public static class OrganizationRoleRequest
     {
         private String role;
+
+        public OrganizationRoleRequest()
+        {
+
+
+        }
 
         public OrganizationRoleRequest(String role)
         {

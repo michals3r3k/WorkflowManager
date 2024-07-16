@@ -4,7 +4,7 @@
     <p *ngIf="organization.description">Description: {{organization.description}}</p>
   </div>
   <div class="panel-container">
-    <div class="users-panel">
+    <div class="users-panel" *ngIf="memberR">
       <div>
         <mat-form-field class="profile-field">
           <mat-label>Search user</mat-label>
@@ -25,7 +25,7 @@
       </mat-list>
     </div>
   
-    <div class="roles-panel">
+    <div class="roles-panel" *ngIf="roleR">
       <div>
         <mat-form-field>
           <mat-label>Search role</mat-label>
@@ -40,12 +40,12 @@
       </button>
      
       <mat-list class="roles-list">
-        <mat-list-item *ngFor="let role of roles">
+        <mat-list-item *ngFor="let role of roles$ | async">
           <div class="roles-item">
-            <span matListItemTitle>{{role.name}}</span>
+            <span matListItemTitle>{{role.role}}</span>
             <button class="roles-item-btn" (click)="openRoleSettingsDialog(role)">
               <div style="display: flex; justify-content: center; align-items: center;">
-                <mat-icon>menu</mat-icon>
+              <mat-icon>menu</mat-icon>
               </div>
             </button>
           </div>
@@ -53,5 +53,5 @@
       </mat-list>
     </div>
   </div>
-  <app-projects *ngIf="organizationId" [organizationId]="organizationId"></app-projects>
+  <app-projects *ngIf="organizationId && projectR" [organizationId]="organizationId"></app-projects>
 </div>

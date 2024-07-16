@@ -68,7 +68,7 @@ public class LoginController
 
         public PermissionsRequest()
         {
-
+            // for spring
         }
 
         public PermissionsRequest(Long organizationId)

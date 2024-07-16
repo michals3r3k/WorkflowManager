@@ -70,8 +70,7 @@ public class OrganizationRoleController
 
         public OrganizationRoleRequest()
         {
-
-
+            // for spring
         }
 
         public OrganizationRoleRequest(String role)

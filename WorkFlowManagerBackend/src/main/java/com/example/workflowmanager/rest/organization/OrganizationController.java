@@ -137,7 +137,6 @@ public class OrganizationController
             return organization.getUser().getId().equals(userIdOrNull);
         }
 
-
     }
 
 }

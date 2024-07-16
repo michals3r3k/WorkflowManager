@@ -19,7 +19,6 @@ export class RoleSettingsComponent {
   organizationId: number;
   roles$: Observable<any>;
 
-
   @Output() onClose : EventEmitter<null> = new EventEmitter();
 
   constructor(private http: HttpRequestService,

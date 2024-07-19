@@ -12,34 +12,44 @@ export class HttpRequestService {
   }
 
   post(endpoint: string, body: any | null): Observable<any> {
-    let token = localStorage.getItem("WorkflowManagerToken");
-    if(!token) {
-      this.router.navigateByUrl("/home?showLogin=true");
-      return new Observable(subscriber => {
-        subscriber.error(new Error("No token available"));
-      });
+    return this.postGeneric<any>(endpoint, body);
+  }
+
+  postGeneric<T>(endpoint: string, body: any | null): Observable<T> {
+    let headers: HttpHeaders | null = this.getHttpHeaders();
+    if(!headers) {
+      return this.navigateToLogin<T>();
     }
-    return this.http.post("http://localhost:8080/" + endpoint, body, { 
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ` + JSON.parse(token).token
-      }) 
-    });
+    return this.http.post<T>(`http://localhost:8080/${endpoint}`, body, {headers: headers});
   }
 
   get(endpoint: string): Observable<any> {
+    return this.getGeneric<any>(endpoint);
+  }
+
+  getGeneric<T>(endpoint: string): Observable<T> {
+    let headers: HttpHeaders | null = this.getHttpHeaders();
+    if(!headers) {
+      return this.navigateToLogin<T>();
+    }
+    return this.http.get<T>(`http://localhost:8080/${endpoint}`, {headers: headers});
+  }
+
+  private getHttpHeaders(): HttpHeaders | null {
     let token = localStorage.getItem("WorkflowManagerToken");
     if(!token) {
-      this.router.navigateByUrl("/home?showLogin=true");
-      return new Observable(subscriber => {
-        subscriber.error(new Error("No token available"));
-      });
+      return null;
     }
-    return this.http.get("http://localhost:8080/" + endpoint, { 
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ` + JSON.parse(token).token
-      }) 
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ` + JSON.parse(token).token
+    });
+  }
+
+  private navigateToLogin<T>(): Observable<T> {
+    this.router.navigateByUrl("/home?showLogin=true");
+    return new Observable(subscriber => {
+      subscriber.error(new Error("No token available"));
     });
   }
 

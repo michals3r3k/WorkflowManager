@@ -71,7 +71,7 @@ public class UserPermissionService
         {
             return Sets.immutableEnumSet(EnumSet.allOf(Permission.class));
         }
-        Set<OrganizationRoleId> roleIds = omrRepository.getIdListByOrganizationMemberIds(
+        Set<OrganizationRoleId> roleIds = omrRepository.getRoleIdListByIds(
             Collections.singleton(new OrganizationMemberId(organizationIdOrNull, userId)));
         return opRepository.getListByRoleIds(roleIds)
             .stream()

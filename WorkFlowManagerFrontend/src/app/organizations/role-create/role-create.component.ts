@@ -1,27 +1,26 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { CustomValidators } from '../../validators/roleNameAvailable.validator';
-import { HttpRequestService } from '../../services/http/http-request.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { RoleDetailsService } from '../../services/organizations/role-settings/role-details.service';
+import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-role-create',
   templateUrl: './role-create.component.html',
   styleUrls: ['./role-create.component.css']
 })
-export class RoleCreateComponent implements OnInit {
+export class RoleCreateComponent {
 
   roleNameControl = new FormControl('', [Validators.required, CustomValidators.roleNameAvailable]);
 
   @Output() onCancel : EventEmitter<null> = new EventEmitter();
-  @Output() onCreate : EventEmitter<null> = new EventEmitter();
+  @Output() onCreate : EventEmitter<string> = new EventEmitter();
 
-  constructor(private httpService: HttpRequestService,
+  constructor(private service: RoleDetailsService,
+    private serviceResultHelper: ServiceResultHelper,
     @Inject(MAT_DIALOG_DATA) public data: { organizationId: number}
   ) {}
-
-  ngOnInit() {
-  }
 
   cancel() {
     this.onCancel.emit();
@@ -37,21 +36,11 @@ export class RoleCreateComponent implements OnInit {
     else {
       alert("Error occured when trying to read role name.")
     }
-    this.httpService.post("api/organization/" + this.data.organizationId + "/role/add", new RoleAddModel(valueStr)).subscribe(res => {
-      if (res.success) {
-        this.onCreate.emit(res);
-      }
-      else {
-        alert(res.errors);
+    this.service.createRole(this.data.organizationId, valueStr).subscribe(result => {
+      this.serviceResultHelper.handleServiceResult(result, "Role created successfully", "Errors occured");
+      if (result.success) {
+        this.onCreate.emit(valueStr);
       }
     });
-  }
-}
-
-class RoleAddModel {
-  role: string;
-
-  constructor(role: string) {
-    this.role = role;
   }
 }

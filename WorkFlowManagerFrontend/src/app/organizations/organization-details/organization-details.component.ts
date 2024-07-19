@@ -80,18 +80,21 @@ export class OrganizationDetailsComponent implements OnInit {
     dialogRef.componentInstance.onCancel.subscribe(() => {
       dialogRef.close();
     });
-    dialogRef.componentInstance.onCreate.subscribe(() => {
+    dialogRef.componentInstance.onCreate.subscribe(role => {
       dialogRef.close();
       this.loadRoles();
-      this.openRoleSettingsDialog('test');
+      this.openRoleSettingsDialog(role);
     });
   }
 
-  openRoleSettingsDialog(param: any) {
+  openRoleSettingsDialog(role: string) {
     let dialogRef = this.dialog.open(RoleSettingsComponent, {data: {
       organizationId: this.organizationId, 
-      role: param.name
+      role: role
     }});
+    dialogRef.componentInstance.onDelete.subscribe(() => {
+      this.loadRoles();
+    });
     dialogRef.componentInstance.onClose.subscribe(() => {
       dialogRef.close();
     });

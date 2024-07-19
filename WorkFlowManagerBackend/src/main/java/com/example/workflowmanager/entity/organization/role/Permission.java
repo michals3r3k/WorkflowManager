@@ -7,6 +7,7 @@ public enum Permission
     ORGANIZATION_MEMBER_C,
     ROLE_R,
     ROLE_C,
+    ROLE_U,
     PROJECT_C,
     PROJECT_R;
 }

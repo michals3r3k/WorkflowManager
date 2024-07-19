@@ -14,7 +14,7 @@ export class RoleCreateComponent implements OnInit {
   roleNameControl = new FormControl('', [Validators.required, CustomValidators.roleNameAvailable]);
 
   @Output() onCancel : EventEmitter<null> = new EventEmitter();
-  @Output() onCreate : EventEmitter<null> = new EventEmitter();
+  @Output() onCreate : EventEmitter<string> = new EventEmitter();
 
   constructor(private httpService: HttpRequestService,
     @Inject(MAT_DIALOG_DATA) public data: { organizationId: number}
@@ -39,7 +39,7 @@ export class RoleCreateComponent implements OnInit {
     }
     this.httpService.post("api/organization/" + this.data.organizationId + "/role/add", new RoleAddModel(valueStr)).subscribe(res => {
       if (res.success) {
-        this.onCreate.emit(res);
+        this.onCreate.emit(valueStr);
       }
       else {
         alert(res.errors);

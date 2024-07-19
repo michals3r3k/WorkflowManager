@@ -2,6 +2,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
+import { RoleDetails, RoleDetailsService } from '../../services/organizations/role-settings/role-details.service';
 
 @Component({
   selector: 'app-role-settings',
@@ -9,7 +10,6 @@ import { Observable } from 'rxjs';
   styleUrls: ['./role-settings.component.css']
 })
 export class RoleSettingsComponent {
-
   disableBtnEnable = true;
   disablePermissionSave = true;
   deleteBtnHover = false;
@@ -17,20 +17,25 @@ export class RoleSettingsComponent {
   searchUser = "";
 
   organizationId: number;
-  roles$: Observable<any>;
-
+  role: string;
+  roles$: Observable<RoleDetails>;
 
   @Output() onClose : EventEmitter<null> = new EventEmitter();
 
-  constructor(private http: HttpRequestService,
+  constructor(private service: RoleDetailsService,
     @Inject(MAT_DIALOG_DATA) private data: {organizationId: number, role: string}
   ) {
     this.organizationId = data.organizationId;
+    this.role = data.role;
     this._loadRoles();
   }
 
   _loadRoles() {
-    this.roles$ = this.http.get("api/organization/" + this.organizationId + "/role/list");
+    this.roles$ = this.service.getRoleDetailsList(this.organizationId, this.role);
+    this.roles$.subscribe(x => {
+      debugger;
+      console.log(x);
+    })
   }
 
   close() {

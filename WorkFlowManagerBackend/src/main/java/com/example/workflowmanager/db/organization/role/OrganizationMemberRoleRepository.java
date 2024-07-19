@@ -16,12 +16,23 @@ public interface OrganizationMemberRoleRepository extends JpaRepository<Organiza
 {
     @Query(
         "select " +
-            "omr.id " +
+            "r.id " +
         "from " +
             "OrganizationMemberRole omr " +
             "join omr.role r " +
             "join omr.member m " +
         "where " +
             "m.id in (?1)")
-    Set<OrganizationRoleId> getIdListByOrganizationMemberIds(Collection<OrganizationMemberId> organizationMemberIds);
+    Set<OrganizationRoleId> getRoleIdListByIds(Collection<OrganizationMemberId> organizationMemberIds);
+
+    @Query(
+        "select " +
+            "omr.id " +
+        "from " +
+            "OrganizationMemberRole omr " +
+            "join omr.role r " +
+        "where " +
+            "r.id in (?1)")
+    Set<OrganizationMemberRoleId> getIdListByRoleIds(Collection<OrganizationRoleId> organizationRoleIds);
+
 }

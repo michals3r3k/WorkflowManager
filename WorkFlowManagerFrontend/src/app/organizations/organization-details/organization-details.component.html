@@ -43,7 +43,7 @@
         <mat-list-item *ngFor="let role of roles$ | async">
           <div class="roles-item">
             <span matListItemTitle>{{role.role}}</span>
-            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role)">
+            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role.role)">
               <div style="display: flex; justify-content: center; align-items: center;">
               <mat-icon>menu</mat-icon>
               </div>

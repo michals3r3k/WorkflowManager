@@ -4,7 +4,7 @@
       <mat-icon>close</mat-icon>
     </div>
   </button>
-  <button class="delete-btn" (click)="close()" [disabled]="disableBtnEnable" (mouseenter)="startDeleteBtnTimer()" (mouseleave)="resetDeleteBtnTimer()">
+  <button class="delete-btn" (click)="delete()" [disabled]="disableBtnEnable" (mouseenter)="startDeleteBtnTimer()" (mouseleave)="resetDeleteBtnTimer()">
     <div class="delete">
       <div class="delete-timer" [ngClass]="{'delete-timer-hover': deleteBtnHover}">
         <span class="timer-text" [ngClass]="{'timer-text-hover': deleteBtnHover}"></span>
@@ -12,55 +12,40 @@
       <mat-icon>delete</mat-icon>
     </div>
   </button>
-  <div class="users">
-
-    <div class="users-title">
-      <h1>Users</h1>
-    </div>
-
-    <div class="add-user">
-      <div>
-        <mat-form-field class="profile-field">
-          <mat-label>Search user</mat-label>
-          <input matInput type="text" [(ngModel)]="searchUser" placeholder="Search user"/>
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+  <div class="role-data-container" *ngIf="roleDetails$ | async as roleDetails">
+    
+    <div class="users">
+      <div class="users-title">
+        <h1>Users</h1>
       </div>
-  
-      <button class="add-user-btn" mat-flat-button color="primary" >
-        <span>Add user</span>
-        <mat-icon matSuffix>add</mat-icon>
-      </button>
-
-    </div>
-
-    <div class="users-list">
+      <div class="add-user">
+        <div>
+          <mat-form-field class="profile-field">
+            <mat-label>Search user</mat-label>
+            <input matInput type="text" [(ngModel)]="searchUser" placeholder="Search user"/>
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
       <mat-list class="users-list" >
-        <mat-list-item >
-          <span matListItemTitle></span>
+        <mat-list-item *ngFor="let member of roleDetails.members">
+          <mat-checkbox class="checkbox" color="primary" [(ngModel)]="member.selected" matListItemTitle>{{member.email}}</mat-checkbox>
         </mat-list-item>
       </mat-list>
     </div>
 
-  </div>
-  <div class="permissions">
-    <div style="display: flex; flex-direction: row;">
-      <h1>Permissions</h1>
-      <button mat-flat-button color="primary" class="save-permission-btn" [disabled]="disablePermissionSave">Save</button>
-    </div>
-    <div class="permission-classes">
-      <div class="permission-section organization-permissions">
-        <h2>Organization</h2>
-        <mat-checkbox class="checkbox" color="primary" (change)="enableSavePermission()">Add/Remove users</mat-checkbox>
+    <div class="permissions">
+      <div style="display: flex; flex-direction: row;">
+        <h1>Permissions</h1>
+        <button mat-flat-button color="primary" class="save-permission-btn" (click)="save(roleDetails)">Save</button>
       </div>
-      <div class="permission-section project-permissions">
-        <h2>Project</h2>
-        <mat-checkbox class="checkbox" color="primary">Add/Remove users</mat-checkbox>
-      </div>
-      <div class="permission-section tasks-permissions">
-        <h2>Tasks</h2>
-        <mat-checkbox class="checkbox" color="primary">Add/Remove users</mat-checkbox>
+      <div class="permission-classes">
+        <div class="permission-section" *ngFor="let section of roleDetails.permissionSections">
+          <h2>{{section.sectionName}}</h2>
+          <mat-checkbox *ngFor="let permission of section.permissions" class="checkbox" color="primary" [(ngModel)]="permission.selected">{{permission.permission}}</mat-checkbox>
+        </div>
       </div>
     </div>
+
   </div>
 </div>

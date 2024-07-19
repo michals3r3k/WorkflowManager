@@ -6,11 +6,13 @@ import com.example.workflowmanager.db.organization.role.OrganizationPermissionRe
 import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.OrganizationMemberId;
-import com.example.workflowmanager.entity.organization.role.OrganizationMemberRoleId;
-import com.example.workflowmanager.entity.organization.role.OrganizationPermissionId;
-import com.example.workflowmanager.entity.organization.role.OrganizationRoleId;
-import com.example.workflowmanager.entity.organization.role.Permission;
+import com.example.workflowmanager.entity.organization.role.*;
 import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.rest.organization.OrganizationRoleDetailsRest.OrganizationMemberRest;
+import com.example.workflowmanager.rest.organization.OrganizationRoleDetailsRest.PermissionRest;
+import com.example.workflowmanager.rest.organization.OrganizationRoleDetailsRest.PermissionSectionRest;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
 
@@ -40,14 +42,14 @@ public class OrganizationRoleDetailsRestFactory
     public OrganizationRoleDetailsRest getOrganizationRoleDetails(
         final OrganizationRoleId organizationRoleId)
     {
-        final List<OrganizationRoleDetailsRest.PermissionRest> permissions =
-            getPermissionRestList(organizationRoleId);
-        final List<OrganizationRoleDetailsRest.OrganizationMemberRest> members =
+        final List<PermissionSectionRest> sections =
+            getPermissionSections(organizationRoleId);
+        final List<OrganizationMemberRest> members =
             getMemberRestList(organizationRoleId);
-        return new OrganizationRoleDetailsRest(permissions, members);
+        return new OrganizationRoleDetailsRest(sections, members);
     }
 
-    private List<OrganizationRoleDetailsRest.OrganizationMemberRest> getMemberRestList(
+    private List<OrganizationMemberRest> getMemberRestList(
         final OrganizationRoleId organizationRoleId)
     {
         final Set<Long> userIdsSelected = memberRoleRepository
@@ -62,22 +64,34 @@ public class OrganizationRoleDetailsRestFactory
         return userRepository.getListByIds(userIdsAll).stream()
             .sorted(Comparator.comparing(User::getEmail)
                 .thenComparing(User::getId))
-            .map(user -> new OrganizationRoleDetailsRest.OrganizationMemberRest(user,
+            .map(user -> new OrganizationMemberRest(user,
                 userIdsSelected.contains(user.getId())))
             .collect(Collectors.toList());
     }
 
-    private List<OrganizationRoleDetailsRest.PermissionRest> getPermissionRestList(
-        final OrganizationRoleId organizationRoleId)
+    private List<PermissionSectionRest> getPermissionSections(final OrganizationRoleId organizationRoleId)
     {
-        final Set<Permission> selectedPermissions = permissionRepository.getListByRoleIds(
-                Collections.singleton(organizationRoleId)).stream()
-            .map(OrganizationPermissionId::getPermission)
-            .collect(Sets.toImmutableEnumSet());
-        return EnumSet.allOf(Permission.class).stream()
-            .map(permission -> new OrganizationRoleDetailsRest.PermissionRest(
-                permission, selectedPermissions.contains(permission)))
+        final Set<Permission> selectedPermissions = getSelectedPermissions(organizationRoleId);
+        final ListMultimap<PermissionSection, Permission> permissionSectionMap =
+            Multimaps.index(EnumSet.allOf(Permission.class), Permission::getSection);
+        return EnumSet.allOf(PermissionSection.class).stream()
+            .map(section -> {
+                final List<PermissionRest> permissions = permissionSectionMap
+                    .get(section).stream()
+                    .map(permission -> new PermissionRest(permission,
+                        selectedPermissions.contains(permission)))
+                    .collect(Collectors.toList());
+                return new PermissionSectionRest(section, permissions);
+            })
             .collect(Collectors.toList());
     }
+
+    private Set<Permission> getSelectedPermissions(final OrganizationRoleId organizationRoleId)
+    {
+        return permissionRepository.getListByRoleIds(Collections.singleton(organizationRoleId)).stream()
+            .map(OrganizationPermissionId::getPermission)
+            .collect(Sets.toImmutableEnumSet());
+    }
+
 
 }

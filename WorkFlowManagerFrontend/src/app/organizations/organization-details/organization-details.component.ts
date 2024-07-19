@@ -92,6 +92,9 @@ export class OrganizationDetailsComponent implements OnInit {
       organizationId: this.organizationId, 
       role: role
     }});
+    dialogRef.componentInstance.onDelete.subscribe(() => {
+      this.loadRoles();
+    });
     dialogRef.componentInstance.onClose.subscribe(() => {
       dialogRef.close();
     });

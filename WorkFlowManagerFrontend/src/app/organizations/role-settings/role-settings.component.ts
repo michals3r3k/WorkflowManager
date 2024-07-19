@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { HttpRequestService } from '../../services/http/http-request.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { RoleDetails, RoleDetailsService } from '../../services/organizations/role-settings/role-details.service';
+import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-role-settings',
@@ -11,35 +11,42 @@ import { RoleDetails, RoleDetailsService } from '../../services/organizations/ro
 })
 export class RoleSettingsComponent {
   disableBtnEnable = true;
-  disablePermissionSave = true;
   deleteBtnHover = false;
   timerID: any;
   searchUser = "";
 
   organizationId: number;
   role: string;
-  roles$: Observable<RoleDetails>;
+  roleDetails$: Observable<RoleDetails>;
 
   @Output() onClose : EventEmitter<null> = new EventEmitter();
+  @Output() onDelete : EventEmitter<null> = new EventEmitter();
 
   constructor(private service: RoleDetailsService,
+    private serviceResultHelper: ServiceResultHelper,
     @Inject(MAT_DIALOG_DATA) private data: {organizationId: number, role: string}
   ) {
     this.organizationId = data.organizationId;
     this.role = data.role;
-    this._loadRoles();
+    this._getRoleDetails();
   }
 
-  _loadRoles() {
-    this.roles$ = this.service.getRoleDetailsList(this.organizationId, this.role);
-    this.roles$.subscribe(x => {
-      debugger;
-      console.log(x);
-    })
+  _getRoleDetails() {
+    this.roleDetails$ = this.service.getRoleDetails(this.organizationId, this.role);
   }
 
   close() {
     this.onClose.emit();
+  }
+
+  delete() {
+    this.service.deleteRole(this.organizationId, this.role).subscribe(result => {
+      this.serviceResultHelper.handleServiceResult(result, "Role deleted successfully", "Errors occured");
+      if(result.success) {
+        this.close();
+        this.onDelete.emit();
+      }
+    });
   }
 
   startDeleteBtnTimer() {
@@ -55,8 +62,13 @@ export class RoleSettingsComponent {
     this.disableBtnEnable = true;
   }
 
-  enableSavePermission() {
-    this.disablePermissionSave = false;
+  save(roleDetails: RoleDetails) {
+    this.service.setRoleDetails(this.organizationId, this.role, roleDetails).subscribe(result => {
+      this.serviceResultHelper.handleServiceResult(result, "Role saved successfully", "Errors occured");
+      if(result.success) {
+        this._getRoleDetails();
+      }
+    });
   }
 
 }

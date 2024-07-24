@@ -2,9 +2,9 @@ package com.example.workflowmanager.service.auth;
 
 import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.user.User;
-import org.hibernate.query.sqm.mutation.internal.cte.CteInsertStrategy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -23,6 +23,7 @@ public class CurrentUserService
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    @Transactional
     public Optional<User> getCurrentUser()
     {
         String currentUserEmail = getCurrentUserEmail();

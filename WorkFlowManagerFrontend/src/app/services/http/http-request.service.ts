@@ -23,11 +23,11 @@ export class HttpRequestService {
     return this.http.post<T>(`http://localhost:8080/${endpoint}`, body, {headers: headers});
   }
 
-  get(endpoint: string): Observable<any> {
-    return this.getGeneric<any>(endpoint);
+  get(endpoint: string, responseType?: string): Observable<any> {
+    return this.getGeneric<any>(endpoint, responseType);
   }
 
-  getGeneric<T>(endpoint: string): Observable<T> {
+  getGeneric<T>(endpoint: string, responseType?: string): Observable<T> {
     let headers: HttpHeaders | null = this.getHttpHeaders();
     if(!headers) {
       return this.navigateToLogin<T>();
@@ -35,13 +35,12 @@ export class HttpRequestService {
     return this.http.get<T>(`http://localhost:8080/${endpoint}`, {headers: headers});
   }
 
-  private getHttpHeaders(): HttpHeaders | null {
+  getHttpHeaders(): HttpHeaders | null {
     let token = localStorage.getItem("WorkflowManagerToken");
     if(!token) {
       return null;
     }
     return new HttpHeaders({
-      'Content-Type': 'application/json',
       'Authorization': `Bearer ` + JSON.parse(token).token
     });
   }

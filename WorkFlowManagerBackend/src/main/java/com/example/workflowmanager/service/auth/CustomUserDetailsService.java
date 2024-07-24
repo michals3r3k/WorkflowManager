@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -30,6 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService
         return loadUserByUsernameAndOrganizationId(email, null);
     }
 
+    @Transactional
     public UserDetails loadUserByUsernameAndOrganizationId(String email, Long organizationIdOrNull) throws UsernameNotFoundException
     {
         User user = getUser(email);

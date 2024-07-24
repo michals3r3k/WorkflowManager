@@ -2,6 +2,7 @@ package com.example.workflowmanager.rest.user;
 
 import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.service.auth.CurrentUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,10 +19,13 @@ import java.util.stream.Collectors;
 public class UserController
 {
     private final UserRepository userRepository;
+    private CurrentUserService currentUserService;
 
-    public UserController(UserRepository userRepository)
+    public UserController(UserRepository userRepository,
+        CurrentUserService currentUserService)
     {
         this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping("/api/users/like/{searchValue}")

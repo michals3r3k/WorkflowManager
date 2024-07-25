@@ -1,0 +1,208 @@
+
+<div class="container">
+
+  <div class="buttons">
+
+    <button mat-flat-button color="primary" class="btn">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+    <button mat-flat-button color="primary" class="btn">
+      <mat-icon>save</mat-icon>
+      Save Config
+    </button>
+
+  </div>
+
+  <div class="available-values">
+    <div class="status-panel">
+
+      <div class="column-header">
+        <span>Statuses</span>
+      </div>
+
+      <div class="scroll-container">
+        <mat-list>
+          <mat-list-item *ngFor="let status of statuses">
+            <span matListItemTitle>{{status}}</span>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+      <div class="form-container">
+        <mat-form-field >
+          <mat-label>Add status</mat-label>
+          <input matInput placeholder="Enter new status name" [(ngModel)]="newStatusName">
+          <button
+          mat-icon-button
+          matSuffix
+          (click)="addStatus()">
+          <mat-icon>add</mat-icon>
+        </button>
+        </mat-form-field>
+      </div>
+
+    </div>
+    <div class="categories-panel">
+      
+      <div class="column-header">
+        <span>Categories</span>
+      </div>
+
+      <div class="scroll-container">
+        <mat-list>
+          <mat-list-item *ngFor="let category of categories">
+            <span matListItemTitle>{{category}}</span>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+      <div class="form-container">
+        <mat-form-field >
+          <mat-label>Add category</mat-label>
+          <input matInput placeholder="Enter new category name" [(ngModel)]="newCategoryName" >
+          <button
+          mat-icon-button
+          matSuffix
+          (click)="addCategory()">
+          <mat-icon>add</mat-icon>
+        </button>
+        </mat-form-field>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="fields-border">
+
+    <div class="add-field">
+      <button mat-flat-button color="primary" class="btn" (click)="addNewField()">
+        <mat-icon>add</mat-icon>
+        New field
+      </button>
+    </div>
+
+    <div class="order-fields" cdkDropListGroup>
+
+      <div class="order-fields-column1 drag-drop-list" cdkDropList [cdkDropListData]="fields_column1" (cdkDropListDropped)="dropField($event)">
+        
+        <div class="column-header">
+          <span>First column</span>
+        </div>
+
+        <div class="order-field drag-drop-item" *ngFor="let field of fields_column1" cdkDrag >
+          <div class="drop-placeholder" *cdkDragPlaceholder></div>
+
+          <div class="order-field-row1">
+            <mat-icon class="icon">touch_app</mat-icon>
+            <div class="form-container">
+              <mat-form-field >
+                <mat-label>Field name</mat-label>
+                <input matInput [(ngModel)]="field.name" placeholder="Enter field name" >
+              </mat-form-field>
+            </div>
+            <div class="form-container">
+              <mat-form-field>
+                <mat-label>Select</mat-label>
+                <mat-select required [(value)]="field.value_type">
+                  <mat-option value="Text">Text</mat-option>
+                  <mat-option value="Date">Date</mat-option>
+                  <mat-option value="Number">Number</mat-option>
+                  <mat-option value="Flag">Flag</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          
+          <div class="order-field-row2">
+            <mat-checkbox class="checkbox-margin" color="primary">Required</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
+            <div class="form-container">
+              <mat-form-field>
+                <mat-label>Status</mat-label>
+                <mat-select multiple>
+                    <mat-option *ngFor="let status of statuses"  [value]="status">{{status}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="order-field-row2">
+            <mat-checkbox class="checkbox-margin" color="primary">Client visible</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
+            <div class="form-container">
+              <mat-form-field>
+                <mat-label>Status</mat-label>
+                <mat-select multiple>
+                    <mat-option *ngFor="let status of statuses"  [value]="status">{{status}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+        </div>
+  
+      </div>
+  
+      <div class="order-fields-column2 drag-drop-list" cdkDropList [cdkDropListData]="fields_column2" (cdkDropListDropped)="dropField($event)">
+  
+        <div class="column-header">
+          <span>Second column</span>
+        </div>
+        
+        <div class="order-field drag-drop-item" *ngFor="let field of fields_column2" cdkDrag>
+          <div class="drop-placeholder" *cdkDragPlaceholder></div>
+          <div class="order-field-row1">
+            <mat-icon class="icon">touch_app</mat-icon>
+            <div class="form-container">
+              <mat-form-field >
+                <mat-label>Field name</mat-label>
+                <input matInput [(ngModel)]="field.name" placeholder="Enter field name" >
+              </mat-form-field>
+            </div>
+            <div class="form-container">
+              <mat-form-field>
+                <mat-label>Select</mat-label>
+                <mat-select required [(value)]="field.value_type">
+                  <mat-option value="Text">Text</mat-option>
+                  <mat-option value="Date">Date</mat-option>
+                  <mat-option value="Number">Number</mat-option>
+                  <mat-option value="Flag">Flag</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          
+          <div class="order-field-row2">
+            <mat-checkbox class="checkbox-margin" color="primary">Required</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
+            <div class="form-container">
+              <mat-form-field>
+                <mat-label>Status</mat-label>
+                <mat-select multiple>
+                    <mat-option *ngFor="let status of statuses"  [value]="status">{{status}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="order-field-row2">
+            <mat-checkbox class="checkbox-margin" color="primary">Client visible</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
+            <div class="form-container">
+              <mat-form-field>
+                <mat-label>Status</mat-label>
+                <mat-select multiple>
+                    <mat-option *ngFor="let status of statuses"  [value]="status">{{status}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+
+  </div>
+
+</div>

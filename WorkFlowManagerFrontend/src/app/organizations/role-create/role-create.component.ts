@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Form, FormControl, ValidationErrors, Validators, AsyncValidatorFn, AbstractControl } from '@angular/forms';
 import { CustomValidators } from '../../validators/roleNameAvailable.validator';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-role-create',
@@ -11,14 +12,16 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class RoleCreateComponent implements OnInit {
 
-  roleNameControl = new FormControl('', [Validators.required, CustomValidators.roleNameAvailable]);
-
+  roleNameControl = new FormControl('', [Validators.required], [this.cv.roleNameAvailable(this.data.organizationId)]);
+  
   @Output() onCancel : EventEmitter<null> = new EventEmitter();
   @Output() onCreate : EventEmitter<null> = new EventEmitter();
 
   constructor(private httpService: HttpRequestService,
+    private cv: CustomValidators,
     @Inject(MAT_DIALOG_DATA) public data: { organizationId: number}
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
   }
@@ -28,7 +31,6 @@ export class RoleCreateComponent implements OnInit {
   }
 
   create() {
-    alert(this.data.organizationId)
     var valueStr = ""
     const value = this.roleNameControl.value;
     if (value !== null && value !== undefined) {

@@ -34,6 +34,7 @@ public class OrganizationRoleController
         return ResponseEntity.ok(new OrganizationRoleCreateServiceResult(true));
     }
 
+    @GetMapping("api/organization/{organizationId}/roles")
     public ResponseEntity<List<OrganizationRoleRest>> getOrganizationRoleList(@PathVariable Long organizationId) {
         List<OrganizationRoleRest> roles = organizationRoleRepository
             .getListByOrganization(Collections.singleton(organizationId)).stream()
@@ -41,6 +42,14 @@ public class OrganizationRoleController
             .sorted(Comparator.comparing(OrganizationRoleRest::getRole, Comparator.naturalOrder()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(roles);
+    }
+
+    @GetMapping("api/organization/{organizationId}/role/{role}/available")
+    public ResponseEntity<Boolean> isRoleNameAvailable(@PathVariable Long organizationId, @PathVariable String role) {
+        boolean isTaken = organizationRoleRepository
+                .getListByOrganization(Collections.singleton(organizationId)).stream()
+                .anyMatch(r -> r.getId().getRole().equalsIgnoreCase(role));
+        return ResponseEntity.ok(!isTaken);
     }
 
     public static class OrganizationRoleCreateServiceResult

@@ -43,9 +43,12 @@ import { ProjectsComponent } from './organizations/projects/projects.component';
 import { ProjectCreateComponent } from './organizations/projects/project-create/project-create.component';
 import { ProjectDetailsComponent } from './organizations/projects/project-details/project-details.component';
 import { OrganizationAddComponent } from './organizations/projects/organization-add/organization-add.component';
+import { InvitationsComponent } from './invitations/invitations.component';
+import { OrdersListComponent } from './orders-list/orders-list.component';
+import { OrderComponent } from './order/order.component';
 
 @NgModule({
-  declarations: [
+  declarations: [			
     AppComponent,
     LoginComponent,
     SidenavComponent,
@@ -66,6 +69,9 @@ import { OrganizationAddComponent } from './organizations/projects/organization-
     ProjectCreateComponent,
     ProjectDetailsComponent,
     OrganizationAddComponent,
+      InvitationsComponent,
+      OrdersListComponent,
+      OrderComponent
    ],
   imports: [
     BrowserModule,

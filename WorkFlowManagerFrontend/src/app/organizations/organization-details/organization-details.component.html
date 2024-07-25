@@ -39,7 +39,7 @@
         <mat-icon matSuffix>add</mat-icon>
       </button>
      
-      <mat-list class="roles-list">
+      <mat-list class="roles-list" *ngIf="roles$ | async as roles">
         <mat-list-item *ngFor="let role of roles">
           <div class="roles-item">
             <span matListItemTitle>{{role.name}}</span>

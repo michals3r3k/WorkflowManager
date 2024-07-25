@@ -19,25 +19,7 @@ export class OrganizationDetailsComponent implements OnInit {
   searchUser: string = "";
   organization: any = null;
   members$: Observable<any[] | null> = of(null);
-
-  roles = [
-    {
-      name: "Admin",
-      users: 2
-    },
-    {
-      name: "PM",
-      users: 3
-    },
-    {
-      name: "Programist",
-      users: 8
-    },
-    {
-      name: "QA",
-      role: 2
-    }
-  ];
+  roles$: Observable<any[] | null> = of(null);
 
   constructor(private route: ActivatedRoute, private http: HttpRequestService,
     private dialog: MatDialog, private resultToaster: ResultToasterService) {
@@ -51,12 +33,17 @@ export class OrganizationDetailsComponent implements OnInit {
         this.organization = res;
       })
       this.loadMembers();
+      this.loadRoles();
     })    
   }
 
   private loadMembers() {
     this.members$ = this.http.get("api/organization/" + this.organizationId + "/member/list");
-  } 
+  }
+  
+  private loadRoles() {
+    this.roles$ = this.http.get(`api/organization/${this.organizationId}/roles`);
+  }
 
   openAddUserDialg() {
     let dialogRef = this.dialog.open(OrganizationMemberPickerComponent);
@@ -84,7 +71,7 @@ export class OrganizationDetailsComponent implements OnInit {
     });
     dialogRef.componentInstance.onCreate.subscribe(() => {
       dialogRef.close();
-      this.openRoleSettingsDialog('test');
+      this.loadRoles();
     });
   }
 
@@ -95,4 +82,13 @@ export class OrganizationDetailsComponent implements OnInit {
     });
   }
 
+}
+
+export class Role {
+  
+  name: String;
+
+  constructor() {
+
+  }
 }

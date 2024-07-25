@@ -2,51 +2,35 @@
 
   <div class="wrapper">
 
-    <div class="profil-data">
+    <div class="profil-data" *ngIf="editData$ | async as editData">
         <div class="profil-image">
-          <div class="image">
-            <img src="/assets/images/creator-dummy-img.jpg" />
+          <div class="image" *ngFor="let imageUrl of [imageUrl$ | async]">
+            <img *ngIf="imageUrl" [src]="imageUrl"/>
+            <img *ngIf="!imageUrl" src="/assets/images/creator-dummy-img.jpg"/>
           </div>
-          <button class="new-image-btn" *ngIf="editMode">
+          <button class="new-image-btn" (click)="openImgUpload($event)" *ngIf="editMode">
             <mat-icon>edit</mat-icon>
+            <input type="file" (change)="uploadImg($event)" style="display: none;"/>
           </button>
         </div>
-  
         <span class="section-title">Hubert Rogowski</span>
-  
         <div class="info-panel">
-  
           <button class="manage-profile-btn" [ngClass]="editMode ? 'manage-profile-btn-editmode' : ''" (click)="toggleEditMode()">
             <div style="position: relative;">
-              <div class="btn-content-m" [ngClass]="editMode ? 'btn-content-m-editmode' : ''">Manage account</div>
-              <div class="btn-content-s" [ngClass]="editMode ? 'btn-content-s-editmode' : ''">Save changes</div>
+              <div class="btn-content-m" *ngIf="!editMode" [ngClass]="editMode ? 'btn-content-m-editmode' : ''">Manage account</div>
+              <div class="btn-content-s" *ngIf="editMode" [ngClass]="editMode ? 'btn-content-s-editmode' : ''" (click)="save(editData)">Save changes</div>
             </div>
           </button>
-    
           <mat-form-field class="profile-field">
             <mat-label>First name</mat-label>
-            <input matInput placeholder="Enter your first name" [readonly]="!editMode"/>
+            <input matInput placeholder="Enter your first name" [(ngModel)]="editData.firstName" [readonly]="!editMode"/>
             <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
           </mat-form-field>
-    
           <mat-form-field class="profile-field">
             <mat-label>Last name</mat-label>
-            <input matInput placeholder="Enter your last name" [readonly]="!editMode"/>
+            <input matInput placeholder="Enter your last name" [(ngModel)]="editData.secondName" [readonly]="!editMode"/>
             <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
           </mat-form-field>
-    
-          <mat-form-field class="profile-field">
-            <mat-label>Position</mat-label>
-            <input matInput placeholder="Enter your position" [readonly]="!editMode"/>
-            <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
-          </mat-form-field>
-    
-          <mat-form-field class="profile-field">
-            <mat-label>E-mail</mat-label>
-            <input matInput placeholder="Enter your e-mail" [readonly]="!editMode"/>
-            <mat-icon matSuffix *ngIf="editMode">edit</mat-icon>
-          </mat-form-field>
-  
       </div>
 
       <span class="section-title">Organizations</span>
@@ -97,9 +81,6 @@
           <a href="http://localhost:4200">Show all tasks</a>
         </div>
       </div>
-
     </div>
-
   </div>
-
 </div>

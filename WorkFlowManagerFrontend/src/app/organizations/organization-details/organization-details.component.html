@@ -4,7 +4,7 @@
     <p *ngIf="organization.description">Description: {{organization.description}}</p>
   </div>
   <div class="panel-container">
-    <div class="users-panel">
+    <div class="users-panel" *ngIf="memberR">
       <div>
         <mat-form-field class="profile-field">
           <mat-label>Search user</mat-label>
@@ -12,20 +12,20 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
-  
+
       <button class="add-btn" mat-flat-button color="primary" (click)="openAddUserDialg()">
         <span>Add user</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
-  
+
       <mat-list class="users-list" *ngIf="members$ | async as members">
         <mat-list-item *ngFor="let member of members | filter: searchUser">
           <span matListItemTitle>{{member.name}}</span>
         </mat-list-item>
       </mat-list>
     </div>
-  
-    <div class="roles-panel">
+
+    <div class="roles-panel" *ngIf="roleR">
       <div>
         <mat-form-field>
           <mat-label>Search role</mat-label>
@@ -33,19 +33,19 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
-  
+
       <button class="add-btn" (click)="openAddRoleDialog()" mat-flat-button color="primary">
         <span>Create role</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
-     
-      <mat-list class="roles-list" *ngIf="roles$ | async as roles">
-        <mat-list-item *ngFor="let role of roles">
+
+      <mat-list class="roles-list">
+        <mat-list-item *ngFor="let role of roles$ | async">
           <div class="roles-item">
-            <span matListItemTitle>{{role.name}}</span>
-            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role)">
+            <span matListItemTitle>{{role.role}}</span>
+            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role.role)">
               <div style="display: flex; justify-content: center; align-items: center;">
-                <mat-icon>menu</mat-icon>
+              <mat-icon>menu</mat-icon>
               </div>
             </button>
           </div>
@@ -53,5 +53,5 @@
       </mat-list>
     </div>
   </div>
-  <app-projects *ngIf="organizationId" [organizationId]="organizationId"></app-projects>
+  <app-projects *ngIf="organizationId && projectR" [organizationId]="organizationId"></app-projects>
 </div>

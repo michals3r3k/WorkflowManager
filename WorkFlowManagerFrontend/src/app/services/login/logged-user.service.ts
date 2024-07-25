@@ -1,29 +1,30 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoggedUserService {
-  constructor(private http: HttpClient) { 
-    // itentionally empty
+  private user: BehaviorSubject<LoggedUser | null>;
+  public user$: Observable<LoggedUser | null>;
+
+  constructor() { 
+    let token = localStorage.getItem("WorkflowManagerToken");
+    if(token) {
+      this.user = new BehaviorSubject<LoggedUser | null>({email : JSON.parse(token).email});
+    }
+    else {
+      this.user = new BehaviorSubject<LoggedUser | null>(null);
+    }
+    this.user$ = this.user.asObservable();
   }
 
-  getLoggedUser(callback: (loggedUser?: LoggedUser) => void) {
-    let token = localStorage.getItem("WorkflowManagerToken");
-    if(!token) {
-      return callback();
-    }
-    let userData = JSON.parse(token);
-    this.http.post("http://localhost:8080/api/checkToken", userData)
-      .subscribe(res => {
-        if(res) {
-          callback({email: userData.email});
-        }
-        else {
-          callback();
-        }
-      });
+  setUser(user: LoggedUser) {
+    this.user.next(user);
+  }
+
+  clearUser() {
+    this.user.next(null);
   }
 
 }

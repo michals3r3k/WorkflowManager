@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ResultToasterService } from '../services/result-toaster/result-toaster.service';
 import { HttpRequestService } from '../services/http/http-request.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-organizations',
@@ -16,12 +17,11 @@ export class OrganizationsComponent implements OnInit{
     // itentionally empty
   }
 
-  organizations: any[];
+  organizations$: Observable<any[]>;
 
   _loadOrganizations() {
-    this.http.get("api/organization/list").subscribe((res) => {
-      this.organizations = res;
-    })
+    this.http.get("api/organization/list");
+    this.organizations$ = this.http.get("api/organization/list");
   }
 
   ngOnInit(): void {
@@ -31,7 +31,7 @@ export class OrganizationsComponent implements OnInit{
   openCreateDialog() {
     const dialogRef = this.dialog.open(OrganizationCreateComponent);
     const createComponent = dialogRef.componentInstance;
-    createComponent.onSuccess.subscribe(res => {
+    createComponent.onSuccess.subscribe(() => {
       this._loadOrganizations();
       this.resultToaster.success("Organization created successfully");
       dialogRef.close();

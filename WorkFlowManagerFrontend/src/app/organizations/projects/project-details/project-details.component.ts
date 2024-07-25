@@ -68,7 +68,7 @@ export class ProjectDetailsComponent {
   }
 
   loadProject() {
-    this.http.get("api/project-details/" + this.organizationId + "/" + this.projectId).subscribe((res) => {
+    this.http.get("api/organization/" + this.organizationId + "/project/" + this.projectId).subscribe((res) => {
       this.project = res;
     })
   }

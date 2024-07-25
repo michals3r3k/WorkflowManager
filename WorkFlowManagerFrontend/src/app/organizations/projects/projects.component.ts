@@ -25,7 +25,7 @@ export class ProjectsComponent implements OnInit {
   }
 
   private _loadProjects() {
-    var projects$: Observable<any[]> = this.http.get("api/project/" + this.organizationId);
+    var projects$: Observable<any[]> = this.http.get("api/organization/" + this.organizationId + "/projects");
     this.projectsOwning$ = projects$.pipe(
       map(projects => projects.filter(project => project.role === "OWNER"))
     );

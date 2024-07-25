@@ -1,9 +1,14 @@
 package com.example.workflowmanager.rest.organization;
 
-import com.example.workflowmanager.db.organization.role.OrganizationPermissionRepository;
 import com.example.workflowmanager.db.organization.role.OrganizationRoleRepository;
-import com.example.workflowmanager.entity.organization.role.*;
+import com.example.workflowmanager.entity.organization.role.OrganizationRole;
+import com.example.workflowmanager.entity.organization.role.OrganizationRoleId;
+import com.example.workflowmanager.rest.utils.RestServiceResult;
+import com.example.workflowmanager.service.organization.OrganizationRoleService;
+import com.example.workflowmanager.service.organization.OrganizationRoleService.OrganizationRoleError;
+import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -15,28 +20,35 @@ import java.util.stream.Collectors;
 @RestController
 public class OrganizationRoleController
 {
-    private final OrganizationRoleRepository organizationRoleRepository;
+    private final OrganizationRoleRepository roleRepository;
+    private final OrganizationRoleDetailsRestFactory roleDetailsRestFactory;
+    private final OrganizationRoleService organizationRoleService;
 
     public OrganizationRoleController(
-        OrganizationRoleRepository organizationRoleRepository)
+        OrganizationRoleRepository organizationRoleRepository,
+        OrganizationRoleDetailsRestFactory roleDetailsRestFactory,
+        OrganizationRoleService organizationRoleService)
     {
-        this.organizationRoleRepository = organizationRoleRepository;
+        this.roleRepository = organizationRoleRepository;
+        this.roleDetailsRestFactory = roleDetailsRestFactory;
+        this.organizationRoleService = organizationRoleService;
     }
 
-    @PostMapping("/api/organization/role/add")
-    public ResponseEntity<OrganizationRoleCreateServiceResult> addRole(@RequestBody OrganizationRoleRequest request)
+    @PostMapping("/api/organization/{organizationId}/role/create")
+    @PreAuthorize("hasAuthority('ROLE_C')")
+    public ResponseEntity<RestServiceResult> addRole(
+        @PathVariable Long organizationId, @RequestBody String role)
     {
-        // TODO: add service with validation
-        OrganizationRoleId organizationRoleId = new OrganizationRoleId(
-            request.getOrganizationId(), request.getRole());
-        OrganizationRole organizationRole = new OrganizationRole(organizationRoleId);
-        organizationRoleRepository.save(organizationRole);
-        return ResponseEntity.ok(new OrganizationRoleCreateServiceResult(true));
+        final ServiceResult<OrganizationRoleError> result = organizationRoleService
+            .create(new OrganizationRoleId(organizationId, role));
+        return ResponseEntity.ok(RestServiceResult.fromEnum(result));
     }
 
-    @GetMapping("api/organization/{organizationId}/roles")
-    public ResponseEntity<List<OrganizationRoleRest>> getOrganizationRoleList(@PathVariable Long organizationId) {
-        List<OrganizationRoleRest> roles = organizationRoleRepository
+    @GetMapping("/api/organization/{organizationId}/role/list")
+    @PreAuthorize("hasAuthority('ROLE_R')")
+    public ResponseEntity<List<OrganizationRoleRest>> getRoleList(@PathVariable Long organizationId)
+    {
+        List<OrganizationRoleRest> roles = roleRepository
             .getListByOrganization(Collections.singleton(organizationId)).stream()
             .map(OrganizationRoleRest::new)
             .sorted(Comparator.comparing(OrganizationRoleRest::getRole, Comparator.naturalOrder()))
@@ -50,6 +62,36 @@ public class OrganizationRoleController
                 .getListByOrganization(Collections.singleton(organizationId)).stream()
                 .anyMatch(r -> r.getId().getRole().equalsIgnoreCase(role));
         return ResponseEntity.ok(!isTaken);
+    }
+
+    @GetMapping("/api/organization/{organizationId}/role/{role}")
+    @PreAuthorize("hasAuthority('ROLE_U')")
+    public ResponseEntity<OrganizationRoleDetailsRest> getRoleDetails(
+        @PathVariable Long organizationId, @PathVariable String role)
+    {
+        final OrganizationRoleDetailsRest roleDetails = roleDetailsRestFactory
+            .getOrganizationRoleDetails(new OrganizationRoleId(organizationId, role));
+        return ResponseEntity.ok(roleDetails);
+    }
+
+    @PostMapping("/api/organization/{organizationId}/role/{role}/edit")
+    @PreAuthorize("hasAuthority('ROLE_U')")
+    public ResponseEntity<RestServiceResult> editRole(@PathVariable Long organizationId,
+        @PathVariable String role, @RequestBody OrganizationRoleDetailsRest roleDetails)
+    {
+        final ServiceResult<OrganizationRoleError> result = organizationRoleService
+            .edit(new OrganizationRoleId(organizationId, role), roleDetails);
+        return ResponseEntity.ok(RestServiceResult.fromEnum(result));
+    }
+
+    @GetMapping("/api/organization/{organizationId}/role/{role}/delete")
+    @PreAuthorize("hasAuthority('ROLE_D')")
+    public ResponseEntity<RestServiceResult> deleteRole(@PathVariable Long organizationId,
+        @PathVariable String role)
+    {
+        final ServiceResult<OrganizationRoleError> result = organizationRoleService
+            .delete(new OrganizationRoleId(organizationId, role));
+        return ResponseEntity.ok(RestServiceResult.fromEnum(result));
     }
 
     public static class OrganizationRoleCreateServiceResult
@@ -68,38 +110,6 @@ public class OrganizationRoleController
 
     }
 
-    public static class OrganizationRoleRequest
-    {
-        private Long organizationId;
-        private String role;
-
-        public OrganizationRoleRequest(Long organizationId, String role)
-        {
-            this.organizationId = organizationId;
-            this.role = role;
-        }
-
-        public Long getOrganizationId()
-        {
-            return organizationId;
-        }
-
-        public void setOrganizationId(Long organizationId)
-        {
-            this.organizationId = organizationId;
-        }
-
-        public String getRole()
-        {
-            return role;
-        }
-
-        public void setRole(String role)
-        {
-            this.role = role;
-        }
-    }
-
     public static class OrganizationRoleRest
     {
         private final OrganizationRole role;
@@ -111,7 +121,8 @@ public class OrganizationRoleController
 
         public String getRole()
         {
-            return this.role.getId().getRole();
+            return role.getId().getRole();
         }
     }
+
 }

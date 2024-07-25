@@ -1,12 +1,19 @@
 package com.example.workflowmanager.rest.login;
 
+import com.example.workflowmanager.service.auth.UserPermissionService;
 import com.example.workflowmanager.service.auth.jwt.JwtService;
 import com.example.workflowmanager.service.login.LoginService;
 import com.example.workflowmanager.service.login.LoginService.LoginServiceResult;
 import com.example.workflowmanager.service.login.RegisterService;
 import com.example.workflowmanager.service.login.RegisterService.RegisterServiceResult;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -15,13 +22,16 @@ public class LoginController
     private final LoginService loginService;
     private final RegisterService registerService;
     private final JwtService jwtService;
+    private final UserPermissionService permissionService;
 
     public LoginController(LoginService loginService,
-        RegisterService registerService, JwtService jwtService)
+        RegisterService registerService, JwtService jwtService,
+        UserPermissionService permissionService)
     {
         this.loginService = loginService;
         this.registerService = registerService;
         this.jwtService = jwtService;
+        this.permissionService = permissionService;
     }
 
     @PostMapping("api/login")
@@ -42,43 +52,38 @@ public class LoginController
         return ResponseEntity.ok(registerResult);
     }
 
-    @PostMapping("api/checkToken")
-    public ResponseEntity<Boolean> checkToken(
-        @RequestBody TokenCheckRequest tokenCheckRequest)
+    @PostMapping("api/permissions")
+    public ResponseEntity<List<String>> getPermissions(@RequestBody PermissionsRequest request)
     {
-        return ResponseEntity.ok(jwtService.isTokenValid(
-            tokenCheckRequest.getToken(), tokenCheckRequest.getEmail()));
+        final List<String> permissions = permissionService
+            .getCurrentUserPermissions(request.getOrganizationId()).stream()
+            .map(Enum::name)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(permissions);
     }
 
-    public static class TokenCheckRequest
+    public static class PermissionsRequest
     {
-        private String email;
-        private String token;
+        private Long organizationId;
 
-        public TokenCheckRequest(final String email, final String token)
+        public PermissionsRequest()
         {
-            this.email = email;
-            this.token = token;
+            // for spring
         }
 
-        public String getEmail()
+        public PermissionsRequest(Long organizationId)
         {
-            return email;
+            this.organizationId = organizationId;
         }
 
-        public void setEmail(String email)
+        public Long getOrganizationId()
         {
-            this.email = email;
+            return organizationId;
         }
 
-        public String getToken()
+        public void setOrganizationId(final Long organizationId)
         {
-            return token;
-        }
-
-        public void setToken(String token)
-        {
-            this.token = token;
+            this.organizationId = organizationId;
         }
 
     }

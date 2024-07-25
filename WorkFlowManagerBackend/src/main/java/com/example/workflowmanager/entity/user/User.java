@@ -15,6 +15,11 @@ public class User
     private Long id;
     private String email;
     private String password;
+    private String firstName;
+    private String secondName;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] imgContent;
 
     public Long getId()
     {
@@ -25,6 +30,7 @@ public class User
     {
         this.id = id;
     }
+
 
     public String getEmail()
     {
@@ -44,6 +50,36 @@ public class User
     public void setPassword(final String password)
     {
         this.password = password;
+    }
+
+    public String getFirstName()
+    {
+        return firstName;
+    }
+
+    public void setFirstName(final String firstName)
+    {
+        this.firstName = firstName;
+    }
+
+    public String getSecondName()
+    {
+        return secondName;
+    }
+
+    public void setSecondName(final String secondName)
+    {
+        this.secondName = secondName;
+    }
+
+    public byte[] getImgContent()
+    {
+        return imgContent;
+    }
+
+    public void setImgContent(final byte[] imgContent)
+    {
+        this.imgContent = imgContent;
     }
 
     @Override

@@ -9,6 +9,9 @@ import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.project.Project;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -33,11 +36,13 @@ public class ProjectController
         this.organizationInProjectRepository = organizationInProjectRepository;
     }
 
-    @PostMapping("/api/project/create/{organizationId}")
+    @PostMapping("/api/organization/{organizationId}/project/create")
+    @PreAuthorize("hasAuthority('PROJECT_C')")
     public ResponseEntity<ProjectServiceResult> create(
         @PathVariable Long organizationId,
         @RequestBody ProjectCreateRequest projectCreateRequest)
     {
+        final SecurityContext context = SecurityContextHolder.getContext();
         Organization organization = organizationRepository.getReferenceById(organizationId);
         Project project = new Project();
         project.setName(projectCreateRequest.getName());
@@ -50,7 +55,8 @@ public class ProjectController
         return ResponseEntity.ok(new ProjectServiceResult());
     }
 
-    @GetMapping("/api/project/{organizationId}")
+    @GetMapping("/api/organization/{organizationId}/projects")
+    @PreAuthorize("hasAuthority('PROJECT_R')")
     public ResponseEntity<List<ProjectRest>> getList(@PathVariable Long organizationId)
     {
         List<ProjectRest> projects = organizationInProjectRepository.getListByOrganizationIds(
@@ -62,7 +68,8 @@ public class ProjectController
         return ResponseEntity.ok(projects);
     }
 
-    @GetMapping("/api/project-details/{organizationId}/{projectId}")
+    @GetMapping("/api/organization/{organizationId}/project/{projectId}")
+    @PreAuthorize("hasAuthority('PROJECT_R')")
     public ResponseEntity<ProjectRest> getDetails(@PathVariable Long organizationId, @PathVariable Long projectId)
     {
         if(organizationId == null || projectId == null)

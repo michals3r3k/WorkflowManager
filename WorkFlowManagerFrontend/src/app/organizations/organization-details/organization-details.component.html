@@ -12,19 +12,19 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
-  
+
       <button class="add-btn" mat-flat-button color="primary" (click)="openAddUserDialg()">
         <span>Add user</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
-  
+
       <mat-list class="users-list" *ngIf="members$ | async as members">
         <mat-list-item *ngFor="let member of members | filter: searchUser">
           <span matListItemTitle>{{member.name}}</span>
         </mat-list-item>
       </mat-list>
     </div>
-  
+
     <div class="roles-panel" *ngIf="roleR">
       <div>
         <mat-form-field>
@@ -33,12 +33,12 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
-  
+
       <button class="add-btn" (click)="openAddRoleDialog()" mat-flat-button color="primary">
         <span>Create role</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
-     
+
       <mat-list class="roles-list">
         <mat-list-item *ngFor="let role of roles$ | async">
           <div class="roles-item">

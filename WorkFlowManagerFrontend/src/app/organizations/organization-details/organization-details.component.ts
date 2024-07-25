@@ -21,7 +21,7 @@ export class OrganizationDetailsComponent implements OnInit {
   organization: any = null;
   members$: Observable<any[] | null> = of(null);
   roles$: Observable<any[] | null> = of(null);
-  
+
   projectR: boolean = false;
   memberR: boolean = false;
   roleR: boolean = false;
@@ -29,7 +29,7 @@ export class OrganizationDetailsComponent implements OnInit {
   constructor(private route: ActivatedRoute, private http: HttpRequestService,
     private dialog: MatDialog, private resultToaster: ResultToasterService,
     private permissionService: PermissionService) {
-    
+
   }
 
   ngOnInit() {
@@ -45,13 +45,13 @@ export class OrganizationDetailsComponent implements OnInit {
         this.organization = res;
       })
       this.loadMembers();
-      this.loadRoles()
-    })    
+      this.loadRoles();
+    })
   }
 
   private loadMembers() {
     this.members$ = this.http.get("api/organization/" + this.organizationId + "/member/list");
-  } 
+  }
 
   private loadRoles() {
     this.roles$ = this.http.get("api/organization/" + this.organizationId + "/role/list");
@@ -89,7 +89,7 @@ export class OrganizationDetailsComponent implements OnInit {
 
   openRoleSettingsDialog(role: string) {
     let dialogRef = this.dialog.open(RoleSettingsComponent, {data: {
-      organizationId: this.organizationId, 
+      organizationId: this.organizationId,
       role: role
     }});
     dialogRef.componentInstance.onDelete.subscribe(() => {

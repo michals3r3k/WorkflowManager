@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
+import { Form, FormControl, ValidationErrors, Validators, AsyncValidatorFn, AbstractControl } from '@angular/forms';
 import { CustomValidators } from '../../validators/roleNameAvailable.validator';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Observable, of } from 'rxjs';
 import { RoleDetailsService } from '../../services/organizations/role-settings/role-details.service';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 
@@ -12,12 +13,13 @@ import { ServiceResultHelper } from '../../services/utils/service-result-helper'
 })
 export class RoleCreateComponent {
 
-  roleNameControl = new FormControl('', [Validators.required, CustomValidators.roleNameAvailable]);
+  roleNameControl = new FormControl('', [Validators.required], [this.cv.roleNameAvailable(this.data.organizationId)]);
 
   @Output() onCancel : EventEmitter<null> = new EventEmitter();
   @Output() onCreate : EventEmitter<string> = new EventEmitter();
 
-  constructor(private service: RoleDetailsService,
+  constructor(private cv: CustomValidators,
+    private service: RoleDetailsService,
     private serviceResultHelper: ServiceResultHelper,
     @Inject(MAT_DIALOG_DATA) public data: { organizationId: number}
   ) {}
@@ -27,7 +29,6 @@ export class RoleCreateComponent {
   }
 
   create() {
-    alert(this.data.organizationId)
     var valueStr = ""
     const value = this.roleNameControl.value;
     if (value !== null && value !== undefined) {

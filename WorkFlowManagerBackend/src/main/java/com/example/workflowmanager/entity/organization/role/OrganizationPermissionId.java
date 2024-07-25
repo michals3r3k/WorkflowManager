@@ -3,6 +3,7 @@ package com.example.workflowmanager.entity.organization.role;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrimaryKeyJoinColumns;
 
 import java.io.Serializable;
 import java.util.Objects;

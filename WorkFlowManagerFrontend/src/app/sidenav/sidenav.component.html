@@ -5,7 +5,9 @@
         <app-menu-item class="menu-item" matIcon="home" label="Home" [collapsed]="!opened" routerLink="/home"></app-menu-item>
         <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="business" label="Organizations" [collapsed]="!opened" routerLink="/organizations"></app-menu-item>
         <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="task" label="Task" [collapsed]="!opened"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="task_alt" label="Orders" [collapsed]="!opened" routerLink="/orders"></app-menu-item>
         <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="calendar_month" label="Calendar" [collapsed]="!opened"></app-menu-item>
+        <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="mail" label="Invitations" [collapsed]="!opened" routerLink="/invitations"></app-menu-item>
         <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="account_circle" label="My Account" [collapsed]="!opened" routerLink="/profile"></app-menu-item>
         <app-menu-item class="menu-item" *ngIf="!userLogged" matIcon="login" label="Login" [collapsed]="!opened" (click)="openLoginDialog()"></app-menu-item>
         <app-menu-item class="menu-item" *ngIf="userLogged" matIcon="logout" label="Logout" [collapsed]="!opened" (click)="logout()"></app-menu-item>
@@ -14,4 +16,3 @@
         <router-outlet />
     </mat-drawer-content>
 </mat-drawer-container>
-  

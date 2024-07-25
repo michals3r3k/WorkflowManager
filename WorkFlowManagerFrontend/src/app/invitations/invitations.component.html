@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="title">
+    <h1>Invitations</h1>
+  </div>
+  <div class="invitations">
+    <div class="invitation" *ngFor="let invitation of Invitations">
+      <div class="inv-content">
+        <div class="from-box">
+          <span>From:</span>
+          {{invitation.From}}
+        </div>
+        <div class="subject-container">
+          <span>{{invitation.Subject}}</span>
+        </div>
+        <div class="content-container">
+          <span>{{invitation.Content}}</span>
+        </div>
+      </div>
+      <div class="inv-buttons">
+        <button mat-raised-button class="accept" >Accpet</button>
+        <button mat-raised-button class="reject" >Reject</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -25,11 +25,11 @@ public class OrganizationRoleController
     private final OrganizationRoleService organizationRoleService;
 
     public OrganizationRoleController(
-        OrganizationRoleRepository organizationRoleRepository,
+        OrganizationRoleRepository roleRepository,
         OrganizationRoleDetailsRestFactory roleDetailsRestFactory,
         OrganizationRoleService organizationRoleService)
     {
-        this.roleRepository = organizationRoleRepository;
+        this.roleRepository = roleRepository;
         this.roleDetailsRestFactory = roleDetailsRestFactory;
         this.organizationRoleService = organizationRoleService;
     }
@@ -54,6 +54,14 @@ public class OrganizationRoleController
             .sorted(Comparator.comparing(OrganizationRoleRest::getRole, Comparator.naturalOrder()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(roles);
+    }
+
+    @GetMapping("api/organization/{organizationId}/role/{role}/available")
+    public ResponseEntity<Boolean> isRoleNameAvailable(@PathVariable Long organizationId, @PathVariable String role) {
+        boolean isTaken = roleRepository
+                .getListByOrganization(Collections.singleton(organizationId)).stream()
+                .anyMatch(r -> r.getId().getRole().equalsIgnoreCase(role));
+        return ResponseEntity.ok(!isTaken);
     }
 
     @GetMapping("/api/organization/{organizationId}/role/{role}")

@@ -7,6 +7,9 @@ import { OrganizationsComponent } from './organizations/organizations.component'
 import { OrganizationDetailsComponent } from './organizations/organization-details/organization-details.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ProjectDetailsComponent } from './organizations/projects/project-details/project-details.component';
+import { InvitationsComponent } from './invitations/invitations.component';
+import { OrdersListComponent } from './orders-list/orders-list.component';
+import { OrderComponent } from './order/order.component';
 
 const routes: Routes = [
   {
@@ -41,6 +44,18 @@ const routes: Routes = [
   {
     path: 'profile',
     component: ProfileComponent
+  },
+  {
+    path: 'invitations',
+    component: InvitationsComponent
+  },
+  {
+    path: 'orders',
+    component: OrdersListComponent
+  },
+  {
+    path: 'order/:orderId',
+    component: OrderComponent
   }
 ];
 

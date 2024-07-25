@@ -20,11 +20,4 @@ export class CustomValidators {
                 map((result: boolean) => (result ? null : {roleNameAvailable: "Role name is taken"})),
                 first());
       }
-    //   roleNameAvailable(organizationId: number): AsyncValidatorFn {
-    //     return (control: AbstractControl): Observable<ValidationErrors | null> => {
-    //       return this.httpService.get(`api/organization/${organizationId}/role/${control.value}/available`).pipe(
-    //         map(x => {return x ? null : {roleNameAvailable: "name taken"}})
-    //         );
-    //     };
-    //   }
 }

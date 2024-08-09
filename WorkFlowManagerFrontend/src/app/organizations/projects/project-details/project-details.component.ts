@@ -119,6 +119,10 @@ export class ProjectDetailsComponent {
     });
   }
 
+  edit(project: any) {
+    console.log(project);
+  }
+
 }
 
 interface TaskGroup {

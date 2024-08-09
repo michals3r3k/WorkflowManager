@@ -10,6 +10,7 @@ import { ProjectDetailsComponent } from './organizations/projects/project-detail
 import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
+import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
 
 const routes: Routes = [
   {
@@ -56,7 +57,11 @@ const routes: Routes = [
   {
     path: 'order/:orderId',
     component: OrderComponent
-  }
+  },
+  {
+    path: 'project-issues/:organizationId/:projectId',
+    component: IssueListComponent
+  },
 ];
 
 @NgModule({

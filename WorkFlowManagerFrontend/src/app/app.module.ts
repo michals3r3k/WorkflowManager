@@ -6,9 +6,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list'
 import { MatButtonModule } from '@angular/material/button'
+import { MatExpansionModule } from '@angular/material/expansion'; 
 import { MatIconModule } from "@angular/material/icon";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatCardModule } from "@angular/material/card"
+import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
@@ -46,6 +48,7 @@ import { OrganizationAddComponent } from './organizations/projects/organization-
 import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
+import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
 
 @NgModule({
   declarations: [			
@@ -71,7 +74,8 @@ import { OrderComponent } from './order/order.component';
     OrganizationAddComponent,
       InvitationsComponent,
       OrdersListComponent,
-      OrderComponent
+      OrderComponent,
+      IssueListComponent
    ],
   imports: [
     BrowserModule,
@@ -83,9 +87,11 @@ import { OrderComponent } from './order/order.component';
     MatSidenavModule,
     MatListModule,
     MatButtonModule,
+    MatExpansionModule,
     MatIconModule,
     MatDialogModule,
     MatCardModule,
+    MatChipsModule,
     MatInputModule,
     MatSnackBarModule,
     MatSelectModule,

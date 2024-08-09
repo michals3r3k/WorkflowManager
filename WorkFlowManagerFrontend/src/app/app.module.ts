@@ -36,6 +36,8 @@ import { Router } from '@angular/router';
 import { AuthInterceptorService } from './services/auth-interceptor/auth-interceptor.service';
 
 import { FilterPipe } from './Pipes/filter.pipe';
+import { NewlinePipe } from './Pipes/newline.pipe';
+import { TimeDiffToCurrentPipe } from './Pipes/timeDiffToCurrent.pipe';
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
 import { RoleCreateComponent } from './organizations/role-create/role-create.component';
 import { RoleSettingsComponent } from './organizations/role-settings/role-settings.component';
@@ -46,9 +48,10 @@ import { OrganizationAddComponent } from './organizations/projects/organization-
 import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
+import { ChatComponent } from './chat/chat.component';
 
 @NgModule({
-  declarations: [			
+  declarations: [				
     AppComponent,
     LoginComponent,
     SidenavComponent,
@@ -62,6 +65,8 @@ import { OrderComponent } from './order/order.component';
     AboutUsComponent,
     ProfileComponent,
     FilterPipe,
+    NewlinePipe,
+    TimeDiffToCurrentPipe,
     OrganizationMemberPickerComponent,
     RoleCreateComponent,
     RoleSettingsComponent,
@@ -71,7 +76,8 @@ import { OrderComponent } from './order/order.component';
     OrganizationAddComponent,
       InvitationsComponent,
       OrdersListComponent,
-      OrderComponent
+      OrderComponent,
+      ChatComponent
    ],
   imports: [
     BrowserModule,

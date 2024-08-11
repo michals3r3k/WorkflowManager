@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,6 +23,16 @@ public class IssueDefinitionController
     public IssueDefinitionController(final IssueFieldDefinitionRepository ifdRepository)
     {
         this.ifdRepository = ifdRepository;
+    }
+
+    @GetMapping("/api/organization/{organizationId}/issue-definition")
+    public List<IssueFieldDefinitionRest> get(@PathVariable Long organizationId)
+    {
+        return ifdRepository.getListByOrganizationId(Collections.singleton(organizationId)).stream()
+            .sorted(Comparator.comparing(field -> field.getId().getCol()))
+            .map(field -> new IssueFieldDefinitionRest(field.getName(),
+                field.getId().getCol(), field.getType(), field.isRequired(), field.isClientVisible()))
+            .collect(Collectors.toList());
     }
 
     @PostMapping("/api/organization/{organizationId}/issue-definition/create")
@@ -55,6 +66,17 @@ public class IssueDefinitionController
         private IssueFieldType type;
         private boolean required;
         private boolean clientVisible;
+
+        private IssueFieldDefinitionRest(final String name, final Byte column,
+            final IssueFieldType type, final boolean required,
+            final boolean clientVisible)
+        {
+            this.name = name;
+            this.column = column;
+            this.type = type;
+            this.required = required;
+            this.clientVisible = clientVisible;
+        }
 
         public IssueFieldDefinitionRest()
         {

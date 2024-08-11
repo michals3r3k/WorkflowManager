@@ -3,7 +3,7 @@
 
   <div class="buttons">
 
-    <button mat-flat-button color="primary" class="btn">
+    <button mat-flat-button color="primary" class="btn" (click)="refresh()">
       <mat-icon>refresh</mat-icon>
       Refresh
     </button>
@@ -115,7 +115,7 @@
           </div>
           
           <div class="order-field-row2">
-            <mat-checkbox class="checkbox-margin" color="primary">Required</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary" [(ngModel)]="field.required">Required</mat-checkbox>
             <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
             <div class="form-container">
               <mat-form-field>
@@ -128,7 +128,7 @@
           </div>
 
           <div class="order-field-row2">
-            <mat-checkbox class="checkbox-margin" color="primary">Client visible</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary" [(ngModel)]="field.clientVisible">Client visible</mat-checkbox>
             <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
             <div class="form-container">
               <mat-form-field>
@@ -174,7 +174,7 @@
           </div>
           
           <div class="order-field-row2">
-            <mat-checkbox class="checkbox-margin" color="primary">Required</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary" [(ngModel)]="field.required">Required</mat-checkbox>
             <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
             <div class="form-container">
               <mat-form-field>
@@ -187,7 +187,7 @@
           </div>
 
           <div class="order-field-row2">
-            <mat-checkbox class="checkbox-margin" color="primary">Client visible</mat-checkbox>
+            <mat-checkbox class="checkbox-margin" color="primary" [(ngModel)]="field.clientVisible">Client visible</mat-checkbox>
             <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
             <div class="form-container">
               <mat-form-field>

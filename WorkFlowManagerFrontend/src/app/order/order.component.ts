@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { HttpRequestService } from '../services/http/http-request.service';
 import { ServiceResultHelper } from '../services/utils/service-result-helper';
+import { ServiceResult } from '../services/utils/service-result';
 
 @Component({
   selector: 'app-order',
@@ -24,77 +25,40 @@ export class OrderComponent implements OnInit {
   newStatusName: string = "";
   newCategoryName: string = "";
 
-  order_data: OrderFieldModel[] = [
-    {
-      name: "field 1",
-      column: 1,
-      type: FieldType.TEXT,
-      required: false,
-      clientVisible: false
-    },
-    {
-      name: "field 2",
-      column: 1,
-      type: FieldType.NUMBER,
-      required: false,
-      clientVisible: false
-    },
-    {
-      name: "field 3",
-      column: 2,
-      type: FieldType.FLAG,
-      required: false,
-      clientVisible: false
-    },
-    {
-      name: "field 4",
-      column: 2,
-      type: FieldType.FLAG,
-      required: false,
-      clientVisible: false
-    },
-    {
-      name: "field 5",
-      column: 1,
-      type: FieldType.FLAG,
-      required: false,
-      clientVisible: false
-    },
-    {
-      name: "field 6",
-      column: 1,
-      type: FieldType.FLAG,
-      required: false,
-      clientVisible: false
-    }
-  ];
-
-  fields_column1: OrderFieldModel[] = [];
-  fields_column2: OrderFieldModel[] = [];
-
-  getColumn1Fields() {
-    return this.order_data.filter(field => field.column == 1)
-  }
-
-  getColumn2Fields() {
-    return this.order_data.filter(field => field.column == 2)
-  }
+  fields_column1: OrderFieldModel[];
+  fields_column2: OrderFieldModel[];
 
   constructor(private route: ActivatedRoute, private http: HttpRequestService,
-    private serviceResultHelper: ServiceResultHelper) { }
+    private serviceResultHelper: ServiceResultHelper) {
+    this.fields_column1 = [];
+    this.fields_column2 = [];
+  }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.organizationId = params.get("organizationId");
+      this._loadConfig();
     });
-    this.fields_column1 = this.getColumn1Fields();
-    this.fields_column2 = this.getColumn2Fields();
+  }
+
+  _loadConfig() {
+    this.http.getGeneric<OrderFieldModel[]>(`api/organization/${this.organizationId}/issue-definition`).subscribe(fields => {
+      this.fields_column1 = fields.filter(field => field.column == 1);
+      this.fields_column2 = fields.filter(field => field.column == 2);
+    })
+  }
+
+  refresh() {
+    this._loadConfig();
   }
 
   saveConfig() {
-    this.http.post(`api/organization/${this.organizationId}/issue-definition/create`, 
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/issue-definition/create`,
       [...this.fields_column1, ...this.fields_column2]).subscribe(result => {
         this.serviceResultHelper.handleServiceResult(result, "Config saved successfully", "Errors occured");
+        if (result.success) {
+          this._loadConfig();
+        }
       });
   }
 
@@ -130,16 +94,16 @@ export class OrderComponent implements OnInit {
     let count: number = 0;
     while (true) {
       if (!this.fields_column1.some(f => f.name === "new field" + (count === 0 ? "" : count.toString()))
-        && !this.fields_column2.some(f => f.name === "new field" + (count === 0 ? "" : count.toString()))){
-          break;
-        }
-        count++;
+        && !this.fields_column2.some(f => f.name === "new field" + (count === 0 ? "" : count.toString()))) {
+        break;
+      }
+      count++;
     }
     this.fields_column1.push({
-      name: "new field" + (count === 0 ? "" : count.toString()), 
-      column: 1, 
+      name: "new field" + (count === 0 ? "" : count.toString()),
+      column: 1,
       type: FieldType.TEXT,
-      required: false, 
+      required: false,
       clientVisible: false
     });
   }
@@ -147,13 +111,6 @@ export class OrderComponent implements OnInit {
   dropField(event: CdkDragDrop<OrderFieldModel[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-      // for (let i = 0; i < event.container.data.length; i++){
-      //   event.container.data[i].position = i;
-      // }
-      // event.container.data.forEach(f => {
-      //   console.log(f.name + " " + f.position);
-      // });
-
     } else {
       transferArrayItem(
         event.previousContainer.data,
@@ -161,26 +118,17 @@ export class OrderComponent implements OnInit {
         event.previousIndex,
         event.currentIndex,
       );
-      for (let i = 0; i < event.container.data.length; i++){
-        // event.container.data[i].position = i;
+      for (let i = 0; i < event.container.data.length; i++) {
         event.container.data[i].column = event.container.data === this.fields_column1 ? 1 : 2;
       }
-      for (let i = 0; i < event.previousContainer.data.length; i++){
-        // event.previousContainer.data[i].position = i;
+      for (let i = 0; i < event.previousContainer.data.length; i++) {
         event.previousContainer.data[i].column = event.previousContainer.data === this.fields_column1 ? 1 : 2;
       }
-
-      // event.container.data.forEach(f => {
-      //   console.log(f.name + " " + f.position + " " + f.column);
-      // });
-      // event.previousContainer.data.forEach(f => {
-      //   console.log(f.name + " " + f.position + " " + f.column);
-      // });
     }
   }
 }
 
-export class OrderFieldModel  { 
+export class OrderFieldModel {
   name: string;
   column: number;
   required: boolean;

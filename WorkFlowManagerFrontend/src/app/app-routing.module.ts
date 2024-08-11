@@ -11,11 +11,12 @@ import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
 import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
+import { ChatComponent } from './chat/chat.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'welcome', 
+    redirectTo: 'welcome',
     pathMatch: 'full'
   },
   {
@@ -62,6 +63,10 @@ const routes: Routes = [
     path: 'project-issues/:organizationId/:projectId',
     component: IssueListComponent
   },
+  {
+    path: 'chat',
+    component: ChatComponent
+  }
 ];
 
 @NgModule({

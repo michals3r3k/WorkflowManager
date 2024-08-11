@@ -1,0 +1,93 @@
+<div class="container">
+
+  <div class="border">
+
+    <div class="chat">
+      <div class="messages" #messagesScroll >
+
+        <div [ngClass]="message.own ? 'message own' : 'message' "
+          *ngFor="let message of messages">
+          <img class="profile-img" src="assets/images/creator-dummy-img.jpg" />
+          <div class="texts">
+            <span class="sender-name">{{message.sender}}</span>
+            <div class="message-border">
+              <p [innerHTML]="message.messa | newline"></p>
+              <div class="attachments" *ngFor="let attachment of message.attachments">
+                <button class="download-attach-btn"><mat-icon>download</mat-icon></button>
+                <span>{{attachment.name}}</span>
+              </div>
+            </div>
+            <span>{{message.send_date | timeDiffToCurrent}}</span> 
+          </div>
+        </div>
+        <div #endOfMessages></div>
+
+      </div>
+
+      <div class="add-attachments" *ngIf="attachments_to_send.length > 0">
+        <div class="attachment-to-send" *ngFor="let attachment of attachments_to_send">
+          <button class="delete-attach-btn" (click)="removeAttachment(attachment)">
+            <mat-icon>delete</mat-icon>
+          </button>  
+          <span>{{attachment.name}}</span>
+          <div class="add-attach-preview" *ngIf="attachment.canBeDisplayed" >
+            <img [src]="attachment.fileURL" alt="Image preview" *ngIf="attachment.fileURL">
+          </div>
+        </div>
+      </div>
+
+      <div class="message-input">
+        <input type="file" id="uploadAttachBtn" class="hidden-input" (change)="onFileChanged($event)" />
+        <label for="uploadAttachBtn">
+          <div class="add-attach-btn">
+            <mat-icon>attachment</mat-icon>
+          </div>
+        </label>
+          <textarea [(ngModel)]="message_text"
+          (keydown)="sendMessageArea($event)"
+          placeholder="Enter message..."
+          rows="3"
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="2"></textarea>
+       
+        <button class="send-button" (click)="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <div class="details">
+
+      <div class="chat-users">
+        <span>Chatters</span>
+        <hr />
+        <div class="users-list">
+          <div class="chat-user" *ngFor="let user of users">
+            <img class="profile-img" src="assets/images/creator-dummy-img.jpg" />
+            {{user.name}}
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-attachments">
+        <span>Files</span>
+        <hr />
+        <div class="attachments-list">
+          <div class="chat-attachment" *ngFor="let attachment of attachments">
+            <div class="attachment-header">
+              <button class="download-attach-btn" >
+                <mat-icon>download</mat-icon>
+              </button>  
+              {{attachment.name}}
+            </div>
+            <div class="show-attachment" *ngIf="attachment.canBeDisplayed" >
+              <img [src]="attachment.fileURL" alt="Image preview" *ngIf="attachment.fileURL">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

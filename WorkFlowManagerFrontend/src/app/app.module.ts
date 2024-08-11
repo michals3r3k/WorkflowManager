@@ -6,7 +6,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list'
 import { MatButtonModule } from '@angular/material/button'
-import { MatExpansionModule } from '@angular/material/expansion'; 
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from "@angular/material/icon";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatCardModule } from "@angular/material/card"
@@ -38,6 +38,8 @@ import { Router } from '@angular/router';
 import { AuthInterceptorService } from './services/auth-interceptor/auth-interceptor.service';
 
 import { FilterPipe } from './Pipes/filter.pipe';
+import { NewlinePipe } from './Pipes/newline.pipe';
+import { TimeDiffToCurrentPipe } from './Pipes/timeDiffToCurrent.pipe';
 import { OrganizationMemberPickerComponent } from './organizations/organization-member-picker/organization-member-picker.component';
 import { RoleCreateComponent } from './organizations/role-create/role-create.component';
 import { RoleSettingsComponent } from './organizations/role-settings/role-settings.component';
@@ -51,9 +53,10 @@ import { OrderComponent } from './order/order.component';
 import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
 import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
 import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
+import { ChatComponent } from './chat/chat.component';
 
 @NgModule({
-  declarations: [			
+  declarations: [
     AppComponent,
     LoginComponent,
     SidenavComponent,
@@ -67,6 +70,8 @@ import { FieldDefinitionEditComponent } from './order/field-definition-edit/fiel
     AboutUsComponent,
     ProfileComponent,
     FilterPipe,
+    NewlinePipe,
+    TimeDiffToCurrentPipe,
     OrganizationMemberPickerComponent,
     RoleCreateComponent,
     RoleSettingsComponent,
@@ -79,7 +84,8 @@ import { FieldDefinitionEditComponent } from './order/field-definition-edit/fiel
       OrderComponent,
       IssueListComponent,
       IssueDetailsComponent,
-      FieldDefinitionEditComponent
+      FieldDefinitionEditComponent,
+      ChatComponent
    ],
   imports: [
     BrowserModule,

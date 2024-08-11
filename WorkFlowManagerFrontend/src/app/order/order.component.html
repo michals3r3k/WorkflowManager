@@ -7,7 +7,7 @@
       <mat-icon>refresh</mat-icon>
       Refresh
     </button>
-    <button mat-flat-button color="primary" class="btn">
+    <button mat-flat-button color="primary" class="btn" (click)="saveConfig()">
       <mat-icon>save</mat-icon>
       Save Config
     </button>
@@ -104,7 +104,7 @@
             <div class="form-container">
               <mat-form-field>
                 <mat-label>Select</mat-label>
-                <mat-select required [(value)]="field.value_type">
+                <mat-select required [(value)]="field.type">
                   <mat-option value="TEXT">Text</mat-option>
                   <mat-option value="DATE">Date</mat-option>
                   <mat-option value="NUMBER">Number</mat-option>
@@ -163,7 +163,7 @@
             <div class="form-container">
               <mat-form-field>
                 <mat-label>Select</mat-label>
-                <mat-select required [(value)]="field.value_type">
+                <mat-select required [(value)]="field.type">
                   <mat-option value="TEXT">Text</mat-option>
                   <mat-option value="DATE">Date</mat-option>
                   <mat-option value="NUMBER">Number</mat-option>

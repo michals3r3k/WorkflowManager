@@ -9,6 +9,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { ActivatedRoute } from '@angular/router';
 import { HttpRequestService } from '../services/http/http-request.service';
+import { ServiceResultHelper } from '../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-order',
@@ -27,38 +28,44 @@ export class OrderComponent implements OnInit {
     {
       name: "field 1",
       column: 1,
-      position: 0,
-      value_type: FieldType.TEXT
+      type: FieldType.TEXT,
+      required: false,
+      clientVisible: false
     },
     {
       name: "field 2",
       column: 1,
-      position: 1,
-      value_type: FieldType.NUMBER
+      type: FieldType.NUMBER,
+      required: false,
+      clientVisible: false
     },
     {
       name: "field 3",
       column: 2,
-      position: 0,
-      value_type: FieldType.FLAG
+      type: FieldType.FLAG,
+      required: false,
+      clientVisible: false
     },
     {
       name: "field 4",
       column: 2,
-      position: 1,
-      value_type: FieldType.FLAG
+      type: FieldType.FLAG,
+      required: false,
+      clientVisible: false
     },
     {
       name: "field 5",
       column: 1,
-      position: 2,
-      value_type: FieldType.FLAG
+      type: FieldType.FLAG,
+      required: false,
+      clientVisible: false
     },
     {
       name: "field 6",
       column: 1,
-      position: 3,
-      value_type: FieldType.FLAG
+      type: FieldType.FLAG,
+      required: false,
+      clientVisible: false
     }
   ];
 
@@ -73,19 +80,22 @@ export class OrderComponent implements OnInit {
     return this.order_data.filter(field => field.column == 2)
   }
 
-  constructor(private route: ActivatedRoute, private http: HttpRequestService) { }
+  constructor(private route: ActivatedRoute, private http: HttpRequestService,
+    private serviceResultHelper: ServiceResultHelper) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.organizationId = params.get("id");
+      this.organizationId = params.get("organizationId");
     });
     this.fields_column1 = this.getColumn1Fields();
     this.fields_column2 = this.getColumn2Fields();
   }
 
   saveConfig() {
-    this.http.post(`/api/organization/${this.organizationId}/issue/create`, {});
-    
+    this.http.post(`api/organization/${this.organizationId}/issue-definition/create`, 
+      [...this.fields_column1, ...this.fields_column2]).subscribe(result => {
+        this.serviceResultHelper.handleServiceResult(result, "Config saved successfully", "Errors occured");
+      });
   }
 
   addCategory() {
@@ -125,19 +135,24 @@ export class OrderComponent implements OnInit {
         }
         count++;
     }
-    let field = new OrderFieldModel("new field" + (count === 0 ? "" : count.toString()), 1, this.fields_column1.length+1)
-    this.fields_column1.push(field);
+    this.fields_column1.push({
+      name: "new field" + (count === 0 ? "" : count.toString()), 
+      column: 1, 
+      type: FieldType.TEXT,
+      required: false, 
+      clientVisible: false
+    });
   }
 
   dropField(event: CdkDragDrop<OrderFieldModel[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-      for (let i = 0; i < event.container.data.length; i++){
-        event.container.data[i].position = i;
-      }
-      event.container.data.forEach(f => {
-        console.log(f.name + " " + f.position);
-      });
+      // for (let i = 0; i < event.container.data.length; i++){
+      //   event.container.data[i].position = i;
+      // }
+      // event.container.data.forEach(f => {
+      //   console.log(f.name + " " + f.position);
+      // });
 
     } else {
       transferArrayItem(
@@ -147,20 +162,20 @@ export class OrderComponent implements OnInit {
         event.currentIndex,
       );
       for (let i = 0; i < event.container.data.length; i++){
-        event.container.data[i].position = i;
+        // event.container.data[i].position = i;
         event.container.data[i].column = event.container.data === this.fields_column1 ? 1 : 2;
       }
       for (let i = 0; i < event.previousContainer.data.length; i++){
-        event.previousContainer.data[i].position = i;
+        // event.previousContainer.data[i].position = i;
         event.previousContainer.data[i].column = event.previousContainer.data === this.fields_column1 ? 1 : 2;
       }
 
-      event.container.data.forEach(f => {
-        console.log(f.name + " " + f.position + " " + f.column);
-      });
-      event.previousContainer.data.forEach(f => {
-        console.log(f.name + " " + f.position + " " + f.column);
-      });
+      // event.container.data.forEach(f => {
+      //   console.log(f.name + " " + f.position + " " + f.column);
+      // });
+      // event.previousContainer.data.forEach(f => {
+      //   console.log(f.name + " " + f.position + " " + f.column);
+      // });
     }
   }
 }
@@ -168,16 +183,9 @@ export class OrderComponent implements OnInit {
 export class OrderFieldModel  { 
   name: string;
   column: number;
-  position: number;
-  value_type: FieldType;
-
-  constructor(name: string, column: number, position: number) {
-    this.name = name;
-    this.column = column;
-    this.position = position;
-    this.value_type = FieldType.TEXT;
-  }
-
+  required: boolean;
+  clientVisible: boolean;
+  type: FieldType;
 }
 
 enum FieldType {

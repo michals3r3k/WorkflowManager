@@ -1,25 +1,57 @@
 package com.example.workflowmanager.rest.issue;
 
+import com.example.workflowmanager.db.issue.IssueFieldDefinitionRepository;
+import com.example.workflowmanager.entity.issue.IssueFieldDefinition;
+import com.example.workflowmanager.entity.issue.IssueFieldDefinitionId;
 import com.example.workflowmanager.entity.issue.IssueFieldType;
+import com.example.workflowmanager.service.utils.ServiceResult;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @CrossOrigin
 @RestController
 public class IssueDefinitionController
 {
-    @PostMapping("/api/organization/{organizationId}/issue/create")
-    public void save(@PathVariable Long organizationId,
+    private final IssueFieldDefinitionRepository ifdRepository;
+
+    public IssueDefinitionController(final IssueFieldDefinitionRepository ifdRepository)
+    {
+        this.ifdRepository = ifdRepository;
+    }
+
+    @PostMapping("/api/organization/{organizationId}/issue-definition/create")
+    public ResponseEntity<ServiceResult<?>> save(@PathVariable Long organizationId,
         @RequestBody List<IssueFieldDefinitionRest> fields)
     {
-        organizationId.hashCode();
+        ifdRepository.deleteAll(ifdRepository.getListByOrganizationId(Collections.singleton(organizationId)));
+        final List<IssueFieldDefinition> fieldsToSave = fields.stream()
+            .collect(Collectors.groupingBy(IssueFieldDefinitionRest::getColumn))
+            .values().stream()
+            .flatMap(colFields -> IntStream.range(0,colFields.size())
+                .mapToObj(i -> getIssueFieldDefinition(organizationId, colFields.get(i), i)))
+            .collect(Collectors.toList());
+        ifdRepository.saveAll(fieldsToSave);
+        return ResponseEntity.ok(ServiceResult.ok());
+    }
+
+    private static IssueFieldDefinition getIssueFieldDefinition(final Long organizationId,
+        final IssueFieldDefinitionRest field, final int row)
+    {
+        final IssueFieldDefinitionId id = new IssueFieldDefinitionId(
+            organizationId, (short) row, field.getColumn());
+        return new IssueFieldDefinition(id, field.getName(), field.getType(),
+            field.isRequired(), field.isClientVisible());
     }
 
     public static class IssueFieldDefinitionRest
     {
         private String name;
-        private Byte col;
+        private Byte column;
         private IssueFieldType type;
         private boolean required;
         private boolean clientVisible;
@@ -39,14 +71,14 @@ public class IssueDefinitionController
             this.name = name;
         }
 
-        public Byte getCol()
+        public Byte getColumn()
         {
-            return col;
+            return column;
         }
 
-        public void setCol(final Byte col)
+        public void setColumn(final Byte column)
         {
-            this.col = col;
+            this.column = column;
         }
 
         public IssueFieldType getType()

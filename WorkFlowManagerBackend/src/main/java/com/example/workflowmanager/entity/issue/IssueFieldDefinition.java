@@ -19,6 +19,22 @@ public class IssueFieldDefinition
     @JoinColumn(name = "organizationId", insertable = false, updatable = false)
     private Organization organization;
 
+    public IssueFieldDefinition(final IssueFieldDefinitionId id,
+        final String name, final IssueFieldType type,
+        final boolean required, final boolean clientVisible)
+    {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.required = required;
+        this.clientVisible = clientVisible;
+    }
+
+    protected IssueFieldDefinition()
+    {
+        // for Hibernate
+    }
+
     public IssueFieldDefinitionId getId()
     {
         return id;

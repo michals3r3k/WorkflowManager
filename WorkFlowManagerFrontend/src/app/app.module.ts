@@ -50,6 +50,7 @@ import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
 import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
 import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
+import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
 
 @NgModule({
   declarations: [			
@@ -77,7 +78,8 @@ import { IssueDetailsComponent } from './organizations/projects/issue/issue-deta
       OrdersListComponent,
       OrderComponent,
       IssueListComponent,
-      IssueDetailsComponent
+      IssueDetailsComponent,
+      FieldDefinitionEditComponent
    ],
   imports: [
     BrowserModule,

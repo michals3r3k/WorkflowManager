@@ -55,7 +55,7 @@ const routes: Routes = [
     component: OrdersListComponent
   },
   {
-    path: 'order/:orderId',
+    path: 'order/:organizationId',
     component: OrderComponent
   },
   {

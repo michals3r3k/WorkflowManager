@@ -53,5 +53,9 @@
       </mat-list>
     </div>
   </div>
+  <button mat-flat-button color="primary" [routerLink]="['/order', organizationId]">
+    <mat-icon>settings</mat-icon>
+    Settings
+  </button>
   <app-projects *ngIf="organizationId && projectR" [organizationId]="organizationId"></app-projects>
 </div>

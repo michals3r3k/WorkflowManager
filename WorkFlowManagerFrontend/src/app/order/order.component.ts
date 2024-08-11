@@ -7,6 +7,8 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
+import { ActivatedRoute } from '@angular/router';
+import { HttpRequestService } from '../services/http/http-request.service';
 
 @Component({
   selector: 'app-order',
@@ -15,47 +17,48 @@ import {
 })
 export class OrderComponent implements OnInit {
 
-  statuses = ["NEW", "PROCESSING", "FINISHED"]
-  categories = ["ERROR", "APP", "SERVICE"]
-  newStatusName: string = ""
-  newCategoryName: string = ""
+  organizationId: string | null;
+  statuses = ["NEW", "PROCESSING", "FINISHED"];
+  categories = ["ERROR", "APP", "SERVICE"];
+  newStatusName: string = "";
+  newCategoryName: string = "";
 
   order_data: OrderFieldModel[] = [
     {
       name: "field 1",
       column: 1,
       position: 0,
-      value_type: FieldType.Text
+      value_type: FieldType.TEXT
     },
     {
       name: "field 2",
       column: 1,
       position: 1,
-      value_type: FieldType.Number
+      value_type: FieldType.NUMBER
     },
     {
       name: "field 3",
       column: 2,
       position: 0,
-      value_type: FieldType.Date
+      value_type: FieldType.FLAG
     },
     {
       name: "field 4",
       column: 2,
       position: 1,
-      value_type: FieldType.Flag
+      value_type: FieldType.FLAG
     },
     {
       name: "field 5",
       column: 1,
       position: 2,
-      value_type: FieldType.Flag
+      value_type: FieldType.FLAG
     },
     {
       name: "field 6",
       column: 1,
       position: 3,
-      value_type: FieldType.Flag
+      value_type: FieldType.FLAG
     }
   ];
 
@@ -70,11 +73,19 @@ export class OrderComponent implements OnInit {
     return this.order_data.filter(field => field.column == 2)
   }
 
-  constructor() { }
+  constructor(private route: ActivatedRoute, private http: HttpRequestService) { }
 
   ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.organizationId = params.get("id");
+    });
     this.fields_column1 = this.getColumn1Fields();
     this.fields_column2 = this.getColumn2Fields();
+  }
+
+  saveConfig() {
+    this.http.post(`/api/organization/${this.organizationId}/issue/create`, {});
+    
   }
 
   addCategory() {
@@ -164,14 +175,14 @@ export class OrderFieldModel  {
     this.name = name;
     this.column = column;
     this.position = position;
-    this.value_type = FieldType.Text;
+    this.value_type = FieldType.TEXT;
   }
 
 }
 
 enum FieldType {
-  Text = "Text",
-  Date = "Date",
-  Number = "Number",
-  Flag = "Flag"
+  TEXT = "TEXT",
+  DATE = "DATE",
+  NUMBER = "NUMBER",
+  FLAG = "FLAG"
 }

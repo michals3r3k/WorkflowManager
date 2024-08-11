@@ -49,6 +49,7 @@ import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
 import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
+import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
 
 @NgModule({
   declarations: [			
@@ -75,7 +76,8 @@ import { IssueListComponent } from './organizations/projects/issue/issue-list/is
       InvitationsComponent,
       OrdersListComponent,
       OrderComponent,
-      IssueListComponent
+      IssueListComponent,
+      IssueDetailsComponent
    ],
   imports: [
     BrowserModule,

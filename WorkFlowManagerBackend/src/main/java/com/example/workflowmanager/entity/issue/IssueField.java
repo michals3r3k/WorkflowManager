@@ -1,12 +1,18 @@
 package com.example.workflowmanager.entity.issue;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Check;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
+@Check(name = "chk_value", constraints = "(" +
+    "(dateValue IS NOT NULL AND numberValue IS NULL AND textValue IS NULL AND flagValue IS NULL) " +
+    "OR (dateValue IS NULL AND numberValue IS NOT NULL AND textValue IS NULL AND flagValue IS NULL) " +
+    "OR (dateValue IS NULL AND numberValue IS NULL AND textValue IS NOT NULL AND flagValue IS NULL) " +
+    "OR (dateValue IS NULL AND numberValue IS NULL AND textValue IS NULL AND flagValue IS NOT NULL))")
 public class IssueField
 {
     @EmbeddedId
@@ -14,7 +20,7 @@ public class IssueField
     private LocalDateTime dateValue;
     private BigDecimal numberValue;
     private String textValue;
-    private boolean flagValue;
+    private Boolean flagValue;
     @ManyToOne()
     @JoinColumn(name = "issueId", insertable = false, updatable = false)
     private Issue issue;
@@ -25,6 +31,16 @@ public class IssueField
         @JoinColumn(name = "col", referencedColumnName = "col", insertable=false, updatable=false)
     })
     private IssueFieldDefinition definition;
+
+    public IssueField(IssueFieldId id)
+    {
+        this.id = id;
+    }
+
+    protected IssueField()
+    {
+        // for hibernate
+    }
 
     public IssueFieldId getId()
     {
@@ -66,12 +82,12 @@ public class IssueField
         this.textValue = textValue;
     }
 
-    public boolean isFlagValue()
+    public Boolean isFlagValue()
     {
         return flagValue;
     }
 
-    public void setFlagValue(final boolean flagValue)
+    public void setFlagValue(final Boolean flagValue)
     {
         this.flagValue = flagValue;
     }

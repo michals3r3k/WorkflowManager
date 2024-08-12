@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule} from '@angular/material/menu'
+import { MatDatepickerModule } from '@angular/material/datepicker'; 
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
@@ -54,6 +55,9 @@ import { IssueListComponent } from './organizations/projects/issue/issue-list/is
 import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
 import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
 import { ChatComponent } from './chat/chat.component';
+import { OrderCreateComponent } from './orders-list/order-create/order-create.component';
+import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -85,7 +89,9 @@ import { ChatComponent } from './chat/chat.component';
       IssueListComponent,
       IssueDetailsComponent,
       FieldDefinitionEditComponent,
-      ChatComponent
+      ChatComponent,
+      OrderCreateComponent,
+      OrganizationFilteringSelectComponent
    ],
   imports: [
     BrowserModule,
@@ -108,6 +114,8 @@ import { ChatComponent } from './chat/chat.component';
     MatCheckboxModule,
     MatAutocompleteModule,
     MatMenuModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     DragDropModule,
     HttpClientModule
   ],

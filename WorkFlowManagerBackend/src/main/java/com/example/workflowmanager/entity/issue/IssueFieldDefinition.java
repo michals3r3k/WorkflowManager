@@ -2,6 +2,7 @@ package com.example.workflowmanager.entity.issue;
 
 import com.example.workflowmanager.entity.organization.Organization;
 import jakarta.persistence.*;
+import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Objects;
 
@@ -10,8 +11,10 @@ public class IssueFieldDefinition
 {
     @EmbeddedId
     private IssueFieldDefinitionId id;
+    @NotNull
     private String name;
     @Enumerated(EnumType.STRING)
+    @NotNull
     private IssueFieldType type;
     private boolean required;
     private boolean clientVisible;

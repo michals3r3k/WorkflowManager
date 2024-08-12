@@ -13,6 +13,10 @@ public class Issue
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne()
+    @JoinColumn(name = "sourceOrganizationId")
+    private Organization sourceOrganization;
     @ManyToOne()
     @JoinColumn(name = "organizationId")
     private Organization organization;
@@ -30,6 +34,16 @@ public class Issue
     public void setId(final Long id)
     {
         this.id = id;
+    }
+
+    public Organization getSourceOrganization()
+    {
+        return sourceOrganization;
+    }
+
+    public void setSourceOrganization(final Organization sourceOrganization)
+    {
+        this.sourceOrganization = sourceOrganization;
     }
 
     public Organization getOrganization()

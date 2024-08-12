@@ -11,7 +11,7 @@ import { ResultToasterService } from '../../services/result-toaster/result-toast
   styleUrl: './projects.component.css'
 })
 export class ProjectsComponent implements OnInit {
-  @Input() organizationId: string;
+  @Input() organizationId: number;
   projectsOwning$: Observable<any[]>;
   projectsReporting$: Observable<any[]>;
 

@@ -1,0 +1,46 @@
+<div style="margin: 2em;">
+    <app-organization-filtering-select style="display: block; width: 100%;" [(value)]="pickedOrganizationId" (valueChange)="loadDefinition()" apiGetUrl="api/organizations/different-organization/{{organizationId}}/like"/>
+    <div style="display: flex;">
+        <div>
+            <div *ngFor="let field of fields_column1">
+                <mat-form-field *ngIf="field.type == 'TEXT'">
+                    <mat-label>{{field.name}}</mat-label>
+                    <input matInput [(ngModel)]="field.value">
+                </mat-form-field>
+                <mat-form-field *ngIf="field.type == 'NUMBER'">
+                    <mat-label>{{field.name}}</mat-label>
+                    <input type="number" matInput [(ngModel)]="field.value">
+                </mat-form-field>
+                <mat-form-field *ngIf="field.type == 'DATE'">
+                    <mat-label>{{field.name}}</mat-label>
+                    <input matInput [matDatepicker]="picker" value="" (dateInput)="setDate($event, field)">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                @if(field.type == 'FLAG') {
+                    {{field.name}}: <mat-checkbox *ngIf="field.type == 'FLAG'" color="primary" [(ngModel)]="field.value"/>
+                }
+            </div>
+        </div>
+        <div>
+            <div *ngFor="let field of fields_column2">
+                <mat-form-field *ngIf="field.type == 'TEXT'">
+                    <mat-label>{{field.name}}</mat-label>
+                    <input matInput value="">
+                </mat-form-field>
+                <mat-form-field *ngIf="field.type == 'DATE'">
+                    <mat-label>{{field.name}}</mat-label>
+                    <input matInput [matDatepicker]="picker">
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                @if(field.type == 'FLAG') {
+                    {{field.name}}: <mat-checkbox *ngIf="field.type == 'FLAG'" color="primary"/>
+                }
+            </div>
+        </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="sendReport()">Send report</button>
+</div>

@@ -136,7 +136,7 @@ export class OrderFieldModel {
   type: FieldType;
 }
 
-enum FieldType {
+export enum FieldType {
   TEXT = "TEXT",
   DATE = "DATE",
   NUMBER = "NUMBER",

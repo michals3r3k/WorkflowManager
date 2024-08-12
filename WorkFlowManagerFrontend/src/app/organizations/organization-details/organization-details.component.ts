@@ -6,7 +6,6 @@ import { ResultToasterService } from '../../services/result-toaster/result-toast
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationMemberPickerComponent } from '../organization-member-picker/organization-member-picker.component';
 import { RoleSettingsComponent } from '../role-settings/role-settings.component';
-import { OrganizationCreateComponent } from '../organization-create/organization-create.component';
 import { RoleCreateComponent } from '../role-create/role-create.component';
 import { PermissionService } from '../../services/permission/permission.service';
 
@@ -16,7 +15,7 @@ import { PermissionService } from '../../services/permission/permission.service'
   styleUrls: ['./organization-details.component.css']
 })
 export class OrganizationDetailsComponent implements OnInit {
-  organizationId: string | null;
+  organizationId: number | null;
   searchUser: string = "";
   organization: any = null;
   members$: Observable<any[] | null> = of(null);
@@ -34,7 +33,8 @@ export class OrganizationDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.organizationId = params.get("id");
+      const idParam = params.get("id");
+      this.organizationId = idParam == null ? null: +idParam;
       this.permissionService.getPermissions(this.organizationId).subscribe(res => {
         let permissions = new Set(res);
         this.projectR = permissions.has("PROJECT_R");

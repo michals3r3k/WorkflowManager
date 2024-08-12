@@ -1,15 +1,5 @@
 <div class="organization-picker-container">
-    <div>
-        <mat-form-field class="example-full-width">
-            <input matInput type="text" placeholder="Pick organization" aria-label="Number"
-                [formControl]="organizationNameControl" [matAutocomplete]="organizationAutocomplete"/>
-            <mat-autocomplete #organizationAutocomplete="matAutocomplete">
-                <mat-option *ngFor="let organizationOption of organizationOptions$ | async" [value]="organizationOption.name">
-                    {{organizationOption.name}}
-                </mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
-    </div>
+    <app-organization-filtering-select [(value)]="organizationId" apiGetUrl="api/organizations/not-in-project/{{projectId}}/like"/>
     <div>
         <button class="add-btn" (click)="inviteOrganization()" mat-raised-button color="primary">
             <mat-icon>add</mat-icon>

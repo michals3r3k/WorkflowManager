@@ -67,7 +67,7 @@ public class IssueDefinitionController
         private boolean required;
         private boolean clientVisible;
 
-        private IssueFieldDefinitionRest(final String name, final Byte column,
+        protected IssueFieldDefinitionRest(final String name, final Byte column,
             final IssueFieldType type, final boolean required,
             final boolean clientVisible)
         {

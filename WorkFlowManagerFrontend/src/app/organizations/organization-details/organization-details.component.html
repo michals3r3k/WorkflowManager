@@ -57,5 +57,6 @@
     <mat-icon>settings</mat-icon>
     Settings
   </button>
-  <app-projects *ngIf="organizationId && projectR" [organizationId]="organizationId"></app-projects>
+  <app-projects *ngIf="organizationId && projectR" [organizationId]="organizationId"/>
+  <app-orders *ngIf="organizationId" [organizationId]="organizationId"/>
 </div>

@@ -1,7 +1,11 @@
 <div class="container">
 
   <div class="orders-header">
-    <h1>Your orders</h1>
+    <h1>Your orders</h1> 
+    <button mat-flat-button color="primary" (click)="openAddOrderDialog()">
+      <mat-icon>add</mat-icon>
+      Create order
+    </button>
   </div>
 
   <div class="your-orders">

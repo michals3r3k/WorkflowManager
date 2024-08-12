@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @CrossOrigin
@@ -27,18 +28,32 @@ public class OrganizationInviteController
         this.organizationInProjectRepository = organizationInProjectRepository;
     }
 
-    @GetMapping("/api/organizations/like/{projectId}/{searchValue}")
-    public ResponseEntity<List<OrganizationRest>> getList(@PathVariable Long projectId,
+    @GetMapping("/api/organizations/not-in-project/{projectId}/like/{searchValue}")
+    public ResponseEntity<List<OrganizationRest>> getOrganizationNotInProject(@PathVariable Long projectId,
         @PathVariable String searchValue)
+    {
+        Supplier<Set<Long>> organizationIdsSupplier = () -> organizationInProjectRepository
+            .getIdListByProjectIds(Collections.singleton(projectId)).stream()
+            .map(OrganizationInProjectId::getOrganizationId)
+            .collect(Collectors.toSet());
+        return searchOrganizations(searchValue, organizationIdsSupplier);
+    }
+
+    @GetMapping("/api/organizations/different-organization/{organizationId}/like/{searchValue}")
+    public ResponseEntity<List<OrganizationRest>> getOrganizationDifferent(@PathVariable Long organizationId,
+        @PathVariable String searchValue)
+    {
+        return searchOrganizations(searchValue, () -> Collections.singleton(organizationId));
+    }
+
+    private ResponseEntity<List<OrganizationRest>> searchOrganizations(
+        final String searchValue, final Supplier<Set<Long>> excludedOrganizationIdsSupplier)
     {
         if(StringUtils.isBlank(searchValue))
         {
             return ResponseEntity.ok(Collections.emptyList());
         }
-        Set<Long> organizationIds = organizationInProjectRepository
-            .getIdListByProjectIds(Collections.singleton(projectId)).stream()
-            .map(OrganizationInProjectId::getOrganizationId)
-            .collect(Collectors.toSet());
+        final Set<Long> organizationIds = excludedOrganizationIdsSupplier.get();
         List<OrganizationRest> organizations = organizationRepository.getListByNameLike('%' + searchValue + '%').stream()
             .filter(organization -> !organizationIds.contains(organization.getId()))
             .map(OrganizationRest::new)

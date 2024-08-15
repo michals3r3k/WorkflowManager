@@ -20,7 +20,7 @@
                         </mat-option>
                     </mat-autocomplete>
                 </mat-form-field> <br/>
-                <button mat-flat-button color="primary">
+                <button mat-flat-button color="primary" (click)="toExistingProject(issue)">
                     <mat-icon>add</mat-icon>
                     Add to existing project
                 </button>
@@ -28,13 +28,13 @@
             @else {
                 <mat-form-field>
                     <mat-label>Project name</mat-label>
-                    <input matInput name="name"/>
+                    <input matInput name="name" [(ngModel)]="projectCreateModel.name"/>
                 </mat-form-field> <br/>
                 <mat-form-field>
                     <mat-label>Project description</mat-label>
-                    <input matInput name="description"/>
+                    <input matInput name="description" [(ngModel)]="projectCreateModel.description"/>
                 </mat-form-field> <br/>
-                <button mat-raised-button color="primary">
+                <button mat-raised-button color="primary" (click)="toNewProject(organizationId, issue)">
                     <mat-icon>add</mat-icon>
                     Add to new project
                 </button>

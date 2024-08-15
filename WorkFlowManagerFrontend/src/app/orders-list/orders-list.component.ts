@@ -45,6 +45,10 @@ export class OrdersListComponent implements OnInit {
       organizationId: this.organizationId,
       issueDetailsUrl: `api/organization/${this.organizationId}/client-issue/${issueId}`
     }});
+    dialogRef.componentInstance.closeDialog.subscribe(() => {
+      this._loadIssues();
+      dialogRef.close();
+    });
   }
 
   openMyIssueDetails(issue: IssueName) {

@@ -4,8 +4,15 @@ import com.example.workflowmanager.db.issue.IssueFieldDefinitionRepository;
 import com.example.workflowmanager.db.issue.IssueFieldRepository;
 import com.example.workflowmanager.db.issue.IssueRepository;
 import com.example.workflowmanager.db.organization.OrganizationRepository;
+import com.example.workflowmanager.db.organization.project.ProjectRepository;
 import com.example.workflowmanager.entity.issue.*;
-import com.example.workflowmanager.rest.issue.IssueDefinitionController.IssueFieldDefinitionRest;
+import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
+import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
+import com.example.workflowmanager.entity.organization.OrganizationInvitationStatus;
+import com.example.workflowmanager.service.organization.OrganizationInProjectService;
+import com.example.workflowmanager.service.project.ProjectCreateService;
+import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateRest;
+import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateResult;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
@@ -31,16 +38,57 @@ public class IssueController
     private final IssueRepository issueRepository;
     private final IssueFieldRepository fieldRepository;
     private final IssueFieldDefinitionRepository ifdRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectCreateService projectService;
+    private final OrganizationInProjectService oipService;
 
     public IssueController(OrganizationRepository organizationRepository,
         final IssueRepository issueRepository,
         final IssueFieldRepository fieldRepository,
-        final IssueFieldDefinitionRepository ifdRepository)
+        final IssueFieldDefinitionRepository ifdRepository,
+        final ProjectRepository projectRepository,
+        final ProjectCreateService projectService,
+        final OrganizationInProjectService oipService)
     {
         this.organizationRepository = organizationRepository;
         this.issueRepository = issueRepository;
         this.fieldRepository = fieldRepository;
         this.ifdRepository = ifdRepository;
+        this.projectRepository = projectRepository;
+        this.projectService = projectService;
+        this.oipService = oipService;
+    }
+
+    @GetMapping("/api/organization/{organizationId}/issue/{issueId}/to-existing-project/{projectId}")
+    public ResponseEntity<ServiceResult<?>> addToProject(@PathVariable Long organizationId,
+        @PathVariable Long issueId, @PathVariable Long projectId)
+    {
+        addToProject(issueId, projectId);
+        return ResponseEntity.ok(ServiceResult.ok());
+    }
+
+    @PostMapping("/api/organization/{organizationId}/issue/{issueId}/to-new-project")
+    public ResponseEntity<ServiceResult<?>> addToProject(@PathVariable Long organizationId,
+        @PathVariable Long issueId, @RequestBody ProjectCreateRest req)
+    {
+        final ProjectCreateResult result = projectService.create(organizationId, req);
+        if(!result.isSuccess())
+        {
+            return ResponseEntity.ok(result);
+        }
+        addToProject(issueId, result.getProjectId());
+        return ResponseEntity.ok(ServiceResult.ok());
+    }
+
+    private void addToProject(final Long issueId, Long projectId)
+    {
+        final Issue issue = issueRepository.getReferenceById(issueId);
+        final Long organizationId = issue.getSourceOrganization().getId();
+        final OrganizationInProjectId oipId =
+            new OrganizationInProjectId(organizationId, projectId);
+        oipService.create(oipId, OrganizationInProjectRole.REPORTER, OrganizationInvitationStatus.ACCEPTED);
+        issue.setProject(projectRepository.getReferenceById(projectId));
+        issueRepository.save(issue);
     }
 
     //TODO: Zastanowić się nad URLem, bo przedrostek api/organization/{organizationId} jest uzywany do sprawdzania uprawnien zalogowanego uzytkownika
@@ -179,59 +227,6 @@ public class IssueController
             return null;
         }
         return mapper.apply(value);
-    }
-
-    public static class IssueFieldEditRest extends IssueFieldDefinitionRest
-    {
-        private Long organizationId;
-        private String value;
-        private Short row;
-
-        private IssueFieldEditRest(Long organizationId, String value, Short row,
-            final String name, final Byte column, final IssueFieldType type,
-            final boolean required, final boolean clientVisible)
-        {
-            super(name, column, type, required, clientVisible);
-            this.organizationId = organizationId;
-            this.value = value;
-            this.row = row;
-        }
-
-        public IssueFieldEditRest()
-        {
-            // for Spring
-        }
-
-        public Long getOrganizationId()
-        {
-            return organizationId;
-        }
-
-        public void setOrganizationId(final Long organizationId)
-        {
-            this.organizationId = organizationId;
-        }
-
-        public String getValue()
-        {
-            return value;
-        }
-
-        public void setValue(final String value)
-        {
-            this.value = value;
-        }
-
-        public Short getRow()
-        {
-            return row;
-        }
-
-        public void setRow(final Short row)
-        {
-            this.row = row;
-        }
-
     }
 
     public static class IssueNameRest

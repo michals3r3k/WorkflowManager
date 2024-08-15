@@ -1,31 +1,37 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { HttpRequestService } from '../../services/http/http-request.service';
-import { filter, map, Observable } from 'rxjs';
+import { filter, map, Observable, Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectCreateComponent } from './project-create/project-create.component';
-import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
+import { ProjectRest, ProjectService } from '../../services/project/project.service';
 
 @Component({
   selector: 'app-projects',
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.css'
 })
-export class ProjectsComponent implements OnInit {
+export class ProjectsComponent implements OnInit, OnDestroy {
   @Input() organizationId: number;
-  projectsOwning$: Observable<any[]>;
-  projectsReporting$: Observable<any[]>;
+  projectsOwning$: Observable<ProjectRest[]>;
+  projectsReporting$: Observable<ProjectRest[]>;
+
+  private projectChangeSubscription: Subscription;
 
   constructor(private dialog: MatDialog, private http: HttpRequestService,
-    private resultToaster: ResultToasterService) {
-    // itentionally empty
+    private projectService: ProjectService) {
+    this.projectChangeSubscription = projectService.getProjectsChangeEvent().subscribe(() => this._loadProjects());
   }
   
   ngOnInit() {
     this._loadProjects();
   }
 
+  ngOnDestroy() {
+    this.projectChangeSubscription.unsubscribe();
+  }
+
   private _loadProjects() {
-    var projects$: Observable<any[]> = this.http.get("api/organization/" + this.organizationId + "/projects");
+    var projects$ = this.projectService.getAll(this.organizationId);
     this.projectsOwning$ = projects$.pipe(
       map(projects => projects.filter(project => project.role === "OWNER"))
     );
@@ -38,10 +44,7 @@ export class ProjectsComponent implements OnInit {
     const dialogRef = this.dialog.open(ProjectCreateComponent, {
       data: {organizationId: this.organizationId}
     });
-    const createComponent = dialogRef.componentInstance;
-    createComponent.onSuccess.subscribe(() => {
-      this._loadProjects();
-      this.resultToaster.success("Project created successfully");
+    dialogRef.componentInstance.onSuccess.subscribe(() => {
       dialogRef.close();
     })
   }

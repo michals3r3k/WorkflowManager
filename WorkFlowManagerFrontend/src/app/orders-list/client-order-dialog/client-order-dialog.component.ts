@@ -1,9 +1,13 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { IssueFieldEditRest } from '../issue-field/issue-field.component';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { ServiceResult } from '../../services/utils/service-result';
+import { ServiceResultHelper } from '../../services/utils/service-result-helper';
+import { ProjectCreateModel, ProjectService } from '../../services/project/project.service';
+import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
 
 @Component({
   selector: 'app-client-order-dialog',
@@ -21,16 +25,30 @@ export class ClientOrderDialogComponent implements OnInit{
   projectOptions$: Observable<ProjectOptionRest[]>;
 
   existingProject: boolean = true;
+  projectCreateModel: ProjectCreateModel = new ProjectCreateModel();
+
+  @Output() closeDialog = new EventEmitter<null>();
   
-  constructor(@Inject(MAT_DIALOG_DATA) private data: {organizationId?: number
-    issueDetailsUrl: string
-  },
-    private http: HttpRequestService) {
+  constructor(private http: HttpRequestService, 
+    private serviceResultHelper: ServiceResultHelper,
+    private projectService: ProjectService,
+    private resultToasterService: ResultToasterService,
+    @Inject(MAT_DIALOG_DATA) private data: {
+      organizationId?: number
+      issueDetailsUrl: string
+    }) {
     this.organizationId = data.organizationId || null;
     this.issueDetailsUrl = data.issueDetailsUrl;
 
     if(this.organizationId) {
-      this.projectOptions = [{id: 1, name: "bbb"}, {id: 2, name: "ccc"}]
+      projectService.getOwned(this.organizationId).subscribe(projects => {
+        this.projectOptions = projects.map(project => {
+          return {
+            id: project.projectId, 
+            name: project.name}
+        });
+      });
+
       this.projectOptions$ = this.projectNameControl.valueChanges
       .pipe(
         startWith(''),
@@ -45,6 +63,32 @@ export class ClientOrderDialogComponent implements OnInit{
 
   ngOnInit(): void {
     this.issue$ = this.http.getGeneric<IssueDetailsRest>(this.issueDetailsUrl);
+  }
+
+  toExistingProject(issue: IssueDetailsRest) {
+    const project = this.projectOptions.filter(project => project.name == this.projectNameControl.value)[0];
+    if(!project) {
+      this.resultToasterService.error("Project isn't in the list");
+    }
+    this.http.getGeneric<ServiceResult>(`api/organization/${this.organizationId}/issue/${issue.id}/to-existing-project/${project.id}`).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Issue added to project successfully", "Errors occured");
+      if(res.success) {
+        this.close();
+      }
+    });
+  }
+
+  toNewProject(organizationId: number, issue: IssueDetailsRest) {
+    this.projectService.createWithIssue(organizationId, issue.id, this.projectCreateModel).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Project created successfully", "Errors occured");
+      if(res.success) {
+        this.close();
+      }
+    });
+  }
+
+  close() {
+    this.closeDialog.emit();
   }
 
 }

@@ -8,6 +8,7 @@ import { OrganizationMemberPickerComponent } from '../organization-member-picker
 import { RoleSettingsComponent } from '../role-settings/role-settings.component';
 import { RoleCreateComponent } from '../role-create/role-create.component';
 import { PermissionService } from '../../services/permission/permission.service';
+import { ProjectService } from '../../services/project/project.service';
 
 @Component({
   selector: 'app-organization-details',
@@ -28,7 +29,6 @@ export class OrganizationDetailsComponent implements OnInit {
   constructor(private route: ActivatedRoute, private http: HttpRequestService,
     private dialog: MatDialog, private resultToaster: ResultToasterService,
     private permissionService: PermissionService) {
-
   }
 
   ngOnInit() {

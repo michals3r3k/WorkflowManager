@@ -1,71 +1,65 @@
 package com.example.workflowmanager.rest.organization.project;
 
 import com.example.workflowmanager.db.organization.OrganizationInProjectRepository;
-import com.example.workflowmanager.db.organization.OrganizationRepository;
-import com.example.workflowmanager.db.organization.project.ProjectRepository;
-import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.OrganizationInProject;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.project.Project;
+import com.example.workflowmanager.service.project.ProjectCreateService;
+import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateRest;
+import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
 public class ProjectController
 {
-    private final ProjectRepository projectRepository;
-    private final OrganizationRepository organizationRepository;
     private final OrganizationInProjectRepository organizationInProjectRepository;
+    private final ProjectCreateService projectService;
 
-    public ProjectController(ProjectRepository projectRepository,
-        OrganizationRepository organizationRepository,
-        OrganizationInProjectRepository organizationInProjectRepository)
+    public ProjectController(OrganizationInProjectRepository organizationInProjectRepository,
+        ProjectCreateService projectService)
     {
-        this.projectRepository = projectRepository;
-        this.organizationRepository = organizationRepository;
         this.organizationInProjectRepository = organizationInProjectRepository;
+        this.projectService = projectService;
     }
 
     @PostMapping("/api/organization/{organizationId}/project/create")
     @PreAuthorize("hasAuthority('PROJECT_C')")
-    public ResponseEntity<ProjectServiceResult> create(
+    public ResponseEntity<ServiceResult<?>> create(
         @PathVariable Long organizationId,
-        @RequestBody ProjectCreateRequest projectCreateRequest)
+        @RequestBody ProjectCreateRest projectCreateRequest)
     {
-        final SecurityContext context = SecurityContextHolder.getContext();
-        Organization organization = organizationRepository.getReferenceById(organizationId);
-        Project project = new Project();
-        project.setName(projectCreateRequest.getName());
-        project.setDescription(projectCreateRequest.getDescription());
-        projectRepository.save(project);
-        OrganizationInProject organizationInProject = new OrganizationInProject(
-            new OrganizationInProjectId(organizationId, project.getId()));
-        organizationInProject.setRole(OrganizationInProjectRole.OWNER);
-        organizationInProjectRepository.save(organizationInProject);
-        return ResponseEntity.ok(new ProjectServiceResult());
+        return ResponseEntity.ok(projectService.create(organizationId, projectCreateRequest));
     }
 
     @GetMapping("/api/organization/{organizationId}/projects")
     @PreAuthorize("hasAuthority('PROJECT_R')")
     public ResponseEntity<List<ProjectRest>> getList(@PathVariable Long organizationId)
     {
-        List<ProjectRest> projects = organizationInProjectRepository.getListByOrganizationIds(
-            Collections.singleton(organizationId)).stream()
+        return ResponseEntity.ok(getProjects(organizationId, EnumSet.allOf(OrganizationInProjectRole.class)));
+    }
+
+    @GetMapping("/api/organization/{organizationId}/projects-owned")
+    @PreAuthorize("hasAuthority('PROJECT_R')")
+    public ResponseEntity<List<ProjectRest>> getOwnedList(@PathVariable Long organizationId)
+    {
+        return ResponseEntity.ok(getProjects(organizationId, Collections.singleton(OrganizationInProjectRole.OWNER)));
+    }
+
+    public List<ProjectRest> getProjects(Long organizationId, Collection<OrganizationInProjectRole> roles)
+    {
+        return organizationInProjectRepository.getListByOrganizationIds(
+                Collections.singleton(organizationId), roles).stream()
             .map(ProjectRest::new)
             .sorted(Comparator.comparing(ProjectRest::getName, Comparator.naturalOrder())
                 .thenComparing(ProjectRest::getProjectId))
             .collect(Collectors.toList());
-        return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}")
@@ -79,47 +73,6 @@ public class ProjectController
         ProjectRest projectRest = new ProjectRest(organizationInProjectRepository
             .getReferenceById(new OrganizationInProjectId(organizationId, projectId)));
         return ResponseEntity.ok(projectRest);
-    }
-
-    public static class ProjectCreateRequest
-    {
-        private String name;
-        private String description;
-
-        public String getName()
-        {
-            return name;
-        }
-
-        public void setName(String name)
-        {
-            this.name = name;
-        }
-
-        public String getDescription()
-        {
-            return description;
-        }
-
-        public void setDescription(String description)
-        {
-            this.description = description;
-        }
-
-    }
-
-    public static class ProjectServiceResult
-    {
-        private ProjectServiceResult()
-        {
-            // TODO:
-        }
-
-        public boolean isSuccess()
-        {
-            return true;
-        }
-
     }
 
     public static class ProjectRest

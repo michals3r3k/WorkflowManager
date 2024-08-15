@@ -7,29 +7,16 @@ import { ServiceResult } from '../utils/service-result';
   providedIn: 'root'
 })
 export class ProjectService {
-  
   private projectChangeSubject = new Subject<null>();
 
   constructor(private http: HttpRequestService) { }
 
   create(organizationId: number, model: ProjectCreateModel): Observable<ServiceResult> {
-    return this.http.postGeneric<ServiceResult>(`api/organization/${organizationId}/project/create`, model).pipe(
-      tap(res => {
-        if(res.success) {
-          this.projectChangeSubject.next(null);
-        }
-      })
-    );
+    return this._create(`api/organization/${organizationId}/project/create`, model);
   }
 
   createWithIssue(organizationId: number, issueId: number, model: ProjectCreateModel): Observable<ServiceResult> {
-    return this.http.postGeneric<ServiceResult>(`api/organization/${organizationId}/issue/${issueId}/to-new-project`, model).pipe(
-      tap(res => {
-        if(res.success) {
-          this.projectChangeSubject.next(null);
-        }
-      })
-    );
+    return this._create(`api/organization/${organizationId}/issue/${issueId}/to-new-project`, model);
   }
 
   getAll(organizationId: number): Observable<ProjectRest[]> {
@@ -43,6 +30,17 @@ export class ProjectService {
   getProjectsChangeEvent(): Observable<null>{
     return this.projectChangeSubject.asObservable();
   }
+
+  private _create(url: string, model: ProjectCreateModel): Observable<ServiceResult> {
+    return this.http.postGeneric<ServiceResult>(url, model).pipe(
+      tap(res => {
+        if(res.success) {
+          this.projectChangeSubject.next(null);
+        }
+      })
+    );
+  }
+
 }
 
 export interface ProjectRest {
@@ -61,4 +59,5 @@ export class ProjectCreateModel  {
     this.name = "";
     this.description = "";
   }
+  
 }

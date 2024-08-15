@@ -10,8 +10,8 @@ import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.OrganizationInvitationStatus;
 import com.example.workflowmanager.service.organization.OrganizationInProjectService;
+import com.example.workflowmanager.service.project.ProjectCreateRest;
 import com.example.workflowmanager.service.project.ProjectCreateService;
-import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateRest;
 import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateResult;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.base.Preconditions;
@@ -69,9 +69,9 @@ public class IssueController
 
     @PostMapping("/api/organization/{organizationId}/issue/{issueId}/to-new-project")
     public ResponseEntity<ServiceResult<?>> addToProject(@PathVariable Long organizationId,
-        @PathVariable Long issueId, @RequestBody ProjectCreateRest req)
+        @PathVariable Long issueId, @RequestBody ProjectCreateRest projectRest)
     {
-        final ProjectCreateResult result = projectService.create(organizationId, req);
+        final ProjectCreateResult result = projectService.create(organizationId, projectRest);
         if(!result.isSuccess())
         {
             return ResponseEntity.ok(result);

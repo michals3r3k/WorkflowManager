@@ -1,0 +1,23 @@
+@if(editable) {
+    <mat-form-field *ngIf="field.type == 'TEXT'">
+        <mat-label>{{field.name}}</mat-label>
+        <input matInput [(ngModel)]="field.value">
+    </mat-form-field>
+    <mat-form-field *ngIf="field.type == 'NUMBER'">
+        <mat-label>{{field.name}}</mat-label>
+        <input type="number" matInput [(ngModel)]="field.value">
+    </mat-form-field>
+    <mat-form-field *ngIf="field.type == 'DATE'">
+        <mat-label>{{field.name}}</mat-label>
+        <input matInput [matDatepicker]="picker" value="" (dateInput)="setDate($event, field)">
+        <mat-hint>MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+    @if(field.type == 'FLAG') {
+        {{field.name}}: <mat-checkbox *ngIf="field.type == 'FLAG'" color="primary" [(ngModel)]="field.value"/>
+    }
+}
+@else {
+    {{field.name}}: {{field.value}}
+}

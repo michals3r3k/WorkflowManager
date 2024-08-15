@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FieldType } from '../../order/order.component';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { ServiceResult } from '../../services/utils/service-result';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
+import { IssueFieldEditRest } from '../issue-field/issue-field.component';
 
 @Component({
   selector: 'app-order-create',
@@ -45,23 +45,4 @@ export class OrderCreateComponent {
     })
   }
 
-  setDate(event:any, field: IssueFieldEditRest) {
-    const date = event.value;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    field.value = `${year}-${month}-${day} 00:00:00`;
-  }
-
-}
-
-export interface IssueFieldEditRest {
-  organizationId: number,
-  value: any,
-  row: number,
-  name: string;
-  column: number;
-  required: boolean;
-  clientVisible: boolean;
-  type: FieldType;
 }

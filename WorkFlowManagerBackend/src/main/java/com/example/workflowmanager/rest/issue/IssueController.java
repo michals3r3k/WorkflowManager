@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class IssueController
 {
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     private final OrganizationRepository organizationRepository;
     private final IssueRepository issueRepository;
@@ -46,14 +47,9 @@ public class IssueController
     @GetMapping("/api/organization/{organizationId}/issue-template")
     public List<IssueFieldEditRest> getTemplate(@PathVariable Long organizationId)
     {
-        return ifdRepository.getListByOrganizationId(
-                Collections.singleton(organizationId)).stream()
-            .sorted(Comparator.comparing(field -> field.getId().getCol()))
-            .map(field -> new IssueFieldEditRest(organizationId, null,
-                field.getId().getRow(),
-                field.getName(), field.getId().getCol(), field.getType(),
-                field.isRequired(), field.isClientVisible()))
-            .collect(Collectors.toList());
+        final List<IssueFieldDefinition> definitions = ifdRepository.getListByOrganizationId(
+            Collections.singleton(organizationId));
+        return getFields(organizationId, definitions, Collections.emptySet());
     }
 
     @GetMapping("/api/organization/{organizationId}/issue-names")
@@ -66,18 +62,18 @@ public class IssueController
             .collect(Collectors.toList());
     }
 
-//    @GetMapping("/api/organization/{organizationId}/client-issue/{issueId}")
-//    public List<IssueFieldEditRest> getClientIssue(@PathVariable Long organizationId, @PathVariable Long issueId)
-//    {
-//        final Issue issue = issueRepository.getReferenceById(issueId);
-//
-//        return issueRepository.getAllOrganizationIssues(Collections.singleton(organizationId)).stream()
-//            .filter()
-//            .sorted(Comparator.comparing(Issue::getId))
-//            .map(issue -> new IssueNameRest(issue,
-//                issue.getSourceOrganization().getId().equals(organizationId)))
-//            .collect(Collectors.toList());
-//    }
+    @GetMapping("/api/organization/{organizationId}/client-issue/{issueId}")
+    public IssueDetailsRest getClientIssueDetails(@PathVariable Long organizationId, @PathVariable Long issueId)
+    {
+        final Issue issue = issueRepository.getReferenceById(issueId);
+        final String organizationName = issue.getSourceOrganization().getName();
+        final List<IssueFieldDefinition> definitions = issue.getFields().stream()
+            .map(IssueField::getDefinition)
+            .collect(Collectors.toList());
+        final List<IssueFieldEditRest> fields =
+            getFields(organizationId, definitions, issue.getFields());
+        return getIssueDetailsRest(issue.getId(), organizationName, fields);
+    }
 
     @PostMapping("/api/organization/{sourceOrganizationId}/issue-send-report")
     public ResponseEntity<ServiceResult<?>> sendReport(@PathVariable Long sourceOrganizationId,
@@ -124,6 +120,56 @@ public class IssueController
             fieldRepository.save(issueField);
         }
         return ResponseEntity.ok(ServiceResult.ok());
+    }
+
+    private List<IssueFieldEditRest> getFields(final Long organizationId,
+        final List<IssueFieldDefinition> definitions, final Set<IssueField> issueFields)
+    {
+        Map<IssueFieldDefinitionId, IssueField> issueFieldMap = Maps.uniqueIndex(issueFields, field -> field.getDefinition().getId());
+        return definitions.stream()
+            .sorted(Comparator.comparing(field -> field.getId().getCol()))
+            .map(definition ->
+            {
+                final IssueField fieldOrNull = issueFieldMap.get(definition.getId());
+                return new IssueFieldEditRest(
+                    organizationId,
+                    getValue(definition, fieldOrNull),
+                    definition.getId().getRow(),
+                    definition.getName(),
+                    definition.getId().getCol(),
+                    definition.getType(),
+                    definition.isRequired(),
+                    definition.isClientVisible());
+            })
+            .collect(Collectors.toList());
+    }
+
+    private static String getValue(final IssueFieldDefinition definition,
+        final IssueField fieldOrNull)
+    {
+        if(fieldOrNull == null)
+        {
+            return null;
+        }
+        return switch(definition.getType())
+            {
+                case TEXT -> fieldOrNull.getTextValue();
+                case DATE -> fieldOrNull.getDateValue().format(DTF_VAL);
+                case NUMBER -> fieldOrNull.getNumberValue().toString();
+                case FLAG -> Boolean.toString(fieldOrNull.isFlagValue());
+            };
+    }
+
+    private static IssueDetailsRest getIssueDetailsRest(Long issueId,
+        final String organizationName, final List<IssueFieldEditRest> fields)
+    {
+        final List<IssueFieldEditRest> col1Fields = fields.stream()
+            .filter(field -> field.getColumn() == (byte) 1)
+            .collect(Collectors.toList());
+        final List<IssueFieldEditRest> col2Fields = fields.stream()
+            .filter(field -> field.getColumn() == (byte) 2)
+            .collect(Collectors.toList());
+        return new IssueDetailsRest(issueId, organizationName, col1Fields, col2Fields);
     }
 
     private static <T> T accessNullable(String value, Function<String, T> mapper)
@@ -213,6 +259,46 @@ public class IssueController
         public boolean isMyIssue()
         {
             return myIssue;
+        }
+
+    }
+
+    public static class IssueDetailsRest
+    {
+        private final Long id;
+        private final String organizationName;
+        private final List<IssueFieldEditRest> col1Fields;
+        private final List<IssueFieldEditRest> col2Fields;
+
+        private IssueDetailsRest(final Long id,
+            final String organizationName,
+            final List<IssueFieldEditRest> col1Fields,
+            final List<IssueFieldEditRest> col2Fields)
+        {
+            this.id = id;
+            this.organizationName = organizationName;
+            this.col1Fields = col1Fields;
+            this.col2Fields = col2Fields;
+        }
+
+        public Long getId()
+        {
+            return id;
+        }
+
+        public String getOrganizationName()
+        {
+            return organizationName;
+        }
+
+        public List<IssueFieldEditRest> getCol1Fields()
+        {
+            return col1Fields;
+        }
+
+        public List<IssueFieldEditRest> getCol2Fields()
+        {
+            return col2Fields;
         }
 
     }

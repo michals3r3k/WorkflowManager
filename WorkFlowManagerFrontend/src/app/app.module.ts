@@ -14,6 +14,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle'; 
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule} from '@angular/material/menu'
@@ -60,6 +61,7 @@ import { OrderCreateComponent } from './orders-list/order-create/order-create.co
 import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ClientOrderDialogComponent } from './orders-list/client-order-dialog/client-order-dialog.component';
+import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +97,8 @@ import { ClientOrderDialogComponent } from './orders-list/client-order-dialog/cl
       ChatComponent,
       OrderCreateComponent,
       OrganizationFilteringSelectComponent,
-      ClientOrderDialogComponent
+      ClientOrderDialogComponent,
+      IssueFieldComponent
    ],
   imports: [
     BrowserModule,
@@ -115,6 +118,7 @@ import { ClientOrderDialogComponent } from './orders-list/client-order-dialog/cl
     MatInputModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatSlideToggleModule,
     MatCheckboxModule,
     MatAutocompleteModule,
     MatMenuModule,

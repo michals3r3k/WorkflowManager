@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrderCreateComponent } from './order-create/order-create.component';
 import { HttpRequestService } from '../services/http/http-request.service';
 import { map, Observable } from 'rxjs';
+import { ClientOrderDialogComponent } from './client-order-dialog/client-order-dialog.component';
 
 @Component({
   selector: 'app-orders',
@@ -36,6 +37,21 @@ export class OrdersListComponent implements OnInit {
       this._loadIssues();
       dialogRef.close();
     });
+  }
+
+  openClientsIssueDetails(issue: IssueName) {
+    const issueId = issue.id;
+    const dialogRef = this.dialog.open(ClientOrderDialogComponent, {data: {
+      organizationId: this.organizationId,
+      issueDetailsUrl: `api/organization/${this.organizationId}/client-issue/${issueId}`
+    }});
+  }
+
+  openMyIssueDetails(issue: IssueName) {
+    const issueId = issue.id;
+    this.dialog.open(ClientOrderDialogComponent, {data: {
+      issueDetailsUrl: `api/organization/${this.organizationId}/client-issue/${issueId}`
+    }});
   }
 
 }

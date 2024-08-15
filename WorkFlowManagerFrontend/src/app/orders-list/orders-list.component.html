@@ -7,9 +7,8 @@
       Create order
     </button>
   </div>
-
   <div class="your-orders">
-
+    <app-order-list-card *ngFor="let issue of myIssues" title="#{{issue.id}} {{issue.organizationName}}" style="margin: 0 1em;"/>
   </div>  
 
   <div class="orders-header">
@@ -17,7 +16,7 @@
   </div>
 
   <div class="clients-orders">
-    
+    <app-order-list-card *ngFor="let issue of clientsIssues" title="#{{issue.id}} {{issue.organizationName}}" style="margin: 0 1em;" (click)="openClientsIssueDetails(issue)"/>
   </div>
 
 </div>

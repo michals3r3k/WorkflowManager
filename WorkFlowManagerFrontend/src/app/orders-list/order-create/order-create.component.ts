@@ -1,4 +1,4 @@
-import { Component, Inject, Input } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FieldType } from '../../order/order.component';
 import { HttpRequestService } from '../../services/http/http-request.service';
@@ -13,6 +13,7 @@ import { ServiceResultHelper } from '../../services/utils/service-result-helper'
 export class OrderCreateComponent {
   organizationId: number;
   pickedOrganizationId: number | null;
+  @Output() afterSendReport = new EventEmitter();
   
   fields_column1: IssueFieldEditRest[];
   fields_column2: IssueFieldEditRest[];
@@ -38,6 +39,9 @@ export class OrderCreateComponent {
   sendReport() {
     this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/issue-send-report`, [...this.fields_column1, ...this.fields_column2]).subscribe(result => {
       this.serviceResultHelper.handleServiceResult(result, "Raport has been send succefully", "Errors occured");
+      if(result.success) {
+        this.afterSendReport.emit();
+      }
     })
   }
 
@@ -51,7 +55,7 @@ export class OrderCreateComponent {
 
 }
 
-interface IssueFieldEditRest {
+export interface IssueFieldEditRest {
   organizationId: number,
   value: any,
   row: number,

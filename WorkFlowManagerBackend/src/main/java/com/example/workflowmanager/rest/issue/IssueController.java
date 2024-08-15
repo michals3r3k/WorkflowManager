@@ -56,6 +56,29 @@ public class IssueController
             .collect(Collectors.toList());
     }
 
+    @GetMapping("/api/organization/{organizationId}/issue-names")
+    public List<IssueNameRest> getList(@PathVariable Long organizationId)
+    {
+        return issueRepository.getAllOrganizationIssues(Collections.singleton(organizationId)).stream()
+            .sorted(Comparator.comparing(Issue::getId))
+            .map(issue -> new IssueNameRest(issue,
+                issue.getSourceOrganization().getId().equals(organizationId)))
+            .collect(Collectors.toList());
+    }
+
+//    @GetMapping("/api/organization/{organizationId}/client-issue/{issueId}")
+//    public List<IssueFieldEditRest> getClientIssue(@PathVariable Long organizationId, @PathVariable Long issueId)
+//    {
+//        final Issue issue = issueRepository.getReferenceById(issueId);
+//
+//        return issueRepository.getAllOrganizationIssues(Collections.singleton(organizationId)).stream()
+//            .filter()
+//            .sorted(Comparator.comparing(Issue::getId))
+//            .map(issue -> new IssueNameRest(issue,
+//                issue.getSourceOrganization().getId().equals(organizationId)))
+//            .collect(Collectors.toList());
+//    }
+
     @PostMapping("/api/organization/{sourceOrganizationId}/issue-send-report")
     public ResponseEntity<ServiceResult<?>> sendReport(@PathVariable Long sourceOrganizationId,
         @RequestBody List<IssueFieldEditRest> fields)
@@ -161,6 +184,35 @@ public class IssueController
         public void setRow(final Short row)
         {
             this.row = row;
+        }
+
+    }
+
+    public static class IssueNameRest
+    {
+        private final Long id;
+        private final String organizationName;
+        private final boolean myIssue;
+
+        private IssueNameRest(Issue issue, boolean myIssue) {
+            this.id = issue.getId();
+            this.organizationName = (myIssue ? issue.getOrganization() : issue.getSourceOrganization()).getName();
+            this.myIssue = myIssue;
+        }
+
+        public Long getId()
+        {
+            return id;
+        }
+
+        public String getOrganizationName()
+        {
+            return organizationName;
+        }
+
+        public boolean isMyIssue()
+        {
+            return myIssue;
         }
 
     }

@@ -9,10 +9,10 @@ import java.util.Objects;
 
 @Entity
 @Check(name = "chk_value", constraints = "(" +
-    "(dateValue IS NOT NULL AND numberValue IS NULL AND textValue IS NULL AND flagValue IS NULL) " +
-    "OR (dateValue IS NULL AND numberValue IS NOT NULL AND textValue IS NULL AND flagValue IS NULL) " +
-    "OR (dateValue IS NULL AND numberValue IS NULL AND textValue IS NOT NULL AND flagValue IS NULL) " +
-    "OR (dateValue IS NULL AND numberValue IS NULL AND textValue IS NULL AND flagValue IS NOT NULL))")
+    "(date_value IS NOT NULL AND number_value IS NULL AND text_value IS NULL AND flag_value IS NULL) " +
+    "OR (date_value IS NULL AND number_value IS NOT NULL AND text_value IS NULL AND flag_value IS NULL) " +
+    "OR (date_value IS NULL AND number_value IS NULL AND text_value IS NOT NULL AND flag_value IS NULL) " +
+    "OR (date_value IS NULL AND number_value IS NULL AND text_value IS NULL AND flag_value IS NOT NULL))")
 public class IssueField
 {
     @EmbeddedId

@@ -50,6 +50,7 @@ import { ProjectDetailsComponent } from './organizations/projects/project-detail
 import { OrganizationAddComponent } from './organizations/projects/organization-add/organization-add.component';
 import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
+import { OrderListCardComponent } from './orders-list/order-list-card.component';
 import { OrderComponent } from './order/order.component';
 import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
 import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
@@ -58,6 +59,7 @@ import { ChatComponent } from './chat/chat.component';
 import { OrderCreateComponent } from './orders-list/order-create/order-create.component';
 import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
 import { MatNativeDateModule } from '@angular/material/core';
+import { ClientOrderDialogComponent } from './orders-list/client-order-dialog/client-order-dialog.component';
 
 @NgModule({
   declarations: [
@@ -85,13 +87,15 @@ import { MatNativeDateModule } from '@angular/material/core';
     OrganizationAddComponent,
       InvitationsComponent,
       OrdersListComponent,
+      OrderListCardComponent,
       OrderComponent,
       IssueListComponent,
       IssueDetailsComponent,
       FieldDefinitionEditComponent,
       ChatComponent,
       OrderCreateComponent,
-      OrganizationFilteringSelectComponent
+      OrganizationFilteringSelectComponent,
+      ClientOrderDialogComponent
    ],
   imports: [
     BrowserModule,

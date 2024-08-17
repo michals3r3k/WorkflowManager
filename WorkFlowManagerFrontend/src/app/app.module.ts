@@ -18,6 +18,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule} from '@angular/material/menu'
+import { MatTooltipModule } from '@angular/material/tooltip'; 
 import { MatDatepickerModule } from '@angular/material/datepicker'; 
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
@@ -124,6 +125,7 @@ import { IssueFieldComponent } from './orders-list/issue-field/issue-field.compo
     MatMenuModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTooltipModule,
     DragDropModule,
     HttpClientModule
   ],

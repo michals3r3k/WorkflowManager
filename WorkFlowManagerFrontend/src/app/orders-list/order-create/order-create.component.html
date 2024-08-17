@@ -1,11 +1,15 @@
 <div style="margin: 2em;">
     <app-organization-filtering-select style="display: block; width: 100%;" [(value)]="pickedOrganizationId" (valueChange)="loadDefinition()" apiGetUrl="api/organizations/different-organization/{{organizationId}}/like"/>
-    <div style="display: flex;">
-        <div *ngFor="let fields_column of [fields_column1, fields_column2]" style="margin: 1em;">
-            <div *ngFor="let field of fields_column">
-                <issue-field [field]="field" [editable]="true"/>
+    @if(formGroup) {
+        <div style="display: flex;" [formGroup]="formGroup">
+            <div *ngFor="let fields_column of [fields_column1, fields_column2]" style="margin: 1em;">
+                <div *ngFor="let field of fields_column">
+                    <issue-field [field]="field" [form]="formGroup"/>
+                </div>
             </div>
         </div>
-    </div>
-    <button mat-raised-button color="primary" (click)="sendReport()">Send report</button>
+        <div style="width: fit-content" matTooltipPosition="above" [matTooltip]="!formGroup.valid ? 'Form is not valid' : ''">
+            <button mat-raised-button color="primary" [disabled]="!formGroup.valid" (click)="sendReport()">Send report</button>
+        </div>
+    }
 </div>

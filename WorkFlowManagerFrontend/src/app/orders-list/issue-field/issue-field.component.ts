@@ -1,32 +1,50 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FieldType } from '../../order/order.component';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'issue-field',
   templateUrl: './issue-field.component.html',
   styleUrl: './issue-field.component.css'
 })
-export class IssueFieldComponent {
+export class IssueFieldComponent implements OnInit {
   @Input() field: IssueFieldEditRest;
-  @Input() editable?: boolean = false;
+  @Input() form?: FormGroup;
 
-  setDate(event:any, field: IssueFieldEditRest) {
-    const date = event.value;
+  valueControl: FormControl;
+
+  ngOnInit() {
+    if(!this.form) {
+      return;
+    }
+    this.valueControl = this.form.get(this.field.key) as FormControl;
+    this.valueControl.valueChanges.subscribe(value => {
+      if(this.field.type === FieldType.DATE) {
+        this.field.value = this.getDateString(value);
+      }
+      else {
+        this.field.value = value; 
+      }
+    });
+  }
+
+  getDateString(date: any): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    field.value = `${year}-${month}-${day} 00:00:00`;
+    return `${year}-${month}-${day} 00:00:00`;
   }
   
 }
 
 export interface IssueFieldEditRest {
   organizationId: number,
-  value: any,
   row: number,
-  name: string;
-  column: number;
-  required: boolean;
-  clientVisible: boolean;
-  type: FieldType;
+  column: number,
+  key: string,
+  value: any,
+  name: string,
+  required: boolean,
+  clientVisible: boolean,
+  type: FieldType
 }

@@ -9,7 +9,8 @@ import java.util.Objects;
 
 @Entity
 @Check(name = "chk_value", constraints = "(" +
-    "(date_value IS NOT NULL AND number_value IS NULL AND text_value IS NULL AND flag_value IS NULL) " +
+    "(date_value IS NULL AND number_value IS NULL AND text_value IS NULL AND flag_value IS NULL) " +
+    "OR (date_value IS NOT NULL AND number_value IS NULL AND text_value IS NULL AND flag_value IS NULL) " +
     "OR (date_value IS NULL AND number_value IS NOT NULL AND text_value IS NULL AND flag_value IS NULL) " +
     "OR (date_value IS NULL AND number_value IS NULL AND text_value IS NOT NULL AND flag_value IS NULL) " +
     "OR (date_value IS NULL AND number_value IS NULL AND text_value IS NULL AND flag_value IS NOT NULL))")

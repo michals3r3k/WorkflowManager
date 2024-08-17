@@ -5,10 +5,11 @@ import com.example.workflowmanager.entity.issue.IssueFieldType;
 public class IssueFieldEditRest extends IssueFieldDefinitionRest
 {
     private Long organizationId;
-    private String value;
+    private Object value;
     private Short row;
+    private String key;
 
-    IssueFieldEditRest(Long organizationId, String value, Short row,
+    IssueFieldEditRest(Long organizationId, Object value, Short row, String key,
         final String name, final Byte column, final IssueFieldType type,
         final boolean required, final boolean clientVisible)
     {
@@ -16,6 +17,7 @@ public class IssueFieldEditRest extends IssueFieldDefinitionRest
         this.organizationId = organizationId;
         this.value = value;
         this.row = row;
+        this.key = key;
     }
 
     public IssueFieldEditRest()
@@ -33,12 +35,12 @@ public class IssueFieldEditRest extends IssueFieldDefinitionRest
         this.organizationId = organizationId;
     }
 
-    public String getValue()
+    public Object getValue()
     {
         return value;
     }
 
-    public void setValue(final String value)
+    public void setValue(final Object value)
     {
         this.value = value;
     }
@@ -51,6 +53,16 @@ public class IssueFieldEditRest extends IssueFieldDefinitionRest
     public void setRow(final Short row)
     {
         this.row = row;
+    }
+
+    public String getKey()
+    {
+        return key;
+    }
+
+    public void setKey(final String key)
+    {
+        this.key = key;
     }
 
 }

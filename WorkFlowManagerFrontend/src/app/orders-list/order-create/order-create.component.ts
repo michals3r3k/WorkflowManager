@@ -4,6 +4,7 @@ import { HttpRequestService } from '../../services/http/http-request.service';
 import { ServiceResult } from '../../services/utils/service-result';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 import { IssueFieldEditRest } from '../issue-field/issue-field.component';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-order-create',
@@ -17,6 +18,8 @@ export class OrderCreateComponent {
   
   fields_column1: IssueFieldEditRest[];
   fields_column2: IssueFieldEditRest[];
+
+  formGroup: FormGroup;
 
   constructor(private http: HttpRequestService, 
     @Inject(MAT_DIALOG_DATA) private data: {organizationId: number},
@@ -33,7 +36,16 @@ export class OrderCreateComponent {
     this.http.getGeneric<IssueFieldEditRest[]>(`api/organization/${this.pickedOrganizationId}/issue-template`).subscribe(fields => {
       this.fields_column1 = fields.filter(field => field.clientVisible && field.column == 1);
       this.fields_column2 = fields.filter(field => field.clientVisible && field.column == 2);
-    })
+
+      const group: any = {};
+      this.fields_column1.forEach(field => {
+        group[field.key] = new FormControl(field.value === null ? '' : field.value, field.required ? [Validators.required] : []);
+      });
+      this.fields_column2.forEach(field => {
+        group[field.key] = new FormControl(field.value === null ? '' : field.value, field.required ? [Validators.required] : []);
+      });
+      this.formGroup = new FormGroup(group);
+    });
   }
 
   sendReport() {

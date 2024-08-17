@@ -9,29 +9,25 @@ import com.example.workflowmanager.entity.issue.*;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.OrganizationInvitationStatus;
+import com.example.workflowmanager.service.issue.OrganizationIssueCreateService;
 import com.example.workflowmanager.service.organization.OrganizationInProjectService;
 import com.example.workflowmanager.service.project.ProjectCreateRest;
 import com.example.workflowmanager.service.project.ProjectCreateService;
 import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateResult;
+import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
 public class IssueController
 {
-    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     private final OrganizationRepository organizationRepository;
@@ -41,6 +37,7 @@ public class IssueController
     private final ProjectRepository projectRepository;
     private final ProjectCreateService projectService;
     private final OrganizationInProjectService oipService;
+    private final OrganizationIssueCreateService organizationIssueCreateService;
 
     public IssueController(OrganizationRepository organizationRepository,
         final IssueRepository issueRepository,
@@ -48,7 +45,8 @@ public class IssueController
         final IssueFieldDefinitionRepository ifdRepository,
         final ProjectRepository projectRepository,
         final ProjectCreateService projectService,
-        final OrganizationInProjectService oipService)
+        final OrganizationInProjectService oipService,
+        final OrganizationIssueCreateService organizationIssueCreateService)
     {
         this.organizationRepository = organizationRepository;
         this.issueRepository = issueRepository;
@@ -57,6 +55,7 @@ public class IssueController
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.oipService = oipService;
+        this.organizationIssueCreateService = organizationIssueCreateService;
     }
 
     @GetMapping("/api/organization/{organizationId}/issue/{issueId}/to-existing-project/{projectId}")
@@ -127,47 +126,7 @@ public class IssueController
     public ResponseEntity<ServiceResult<?>> sendReport(@PathVariable Long sourceOrganizationId,
         @RequestBody List<IssueFieldEditRest> fields)
     {
-        if(fields.isEmpty())
-        {
-            return ResponseEntity.ok(ServiceResult.ok());
-        }
-        final Set<Long> destinationOrganizationIds = fields.stream()
-            .map(IssueFieldEditRest::getOrganizationId)
-            .collect(Collectors.toSet());
-        if(destinationOrganizationIds.size() != 1)
-        {
-            // TODO: ERROR
-            return ResponseEntity.ok(ServiceResult.ok());
-        }
-        final Long destinationOrganizationId =
-            Iterables.getOnlyElement(destinationOrganizationIds);
-        final Issue issue = new Issue();
-        issue.setSourceOrganization(organizationRepository.getReferenceById(sourceOrganizationId));
-        issue.setOrganization(organizationRepository.getReferenceById(destinationOrganizationId));
-        issueRepository.save(issue);
-        final Map<IssueFieldDefinitionId, IssueFieldDefinition> fieldDefinitionMap = Maps.uniqueIndex(
-            ifdRepository.getListByOrganizationId(Collections.singleton(destinationOrganizationId)),
-            IssueFieldDefinition::getId);
-        for(IssueFieldEditRest field : fields)
-        {
-            final IssueFieldDefinitionId definitionId = new IssueFieldDefinitionId(
-                field.getOrganizationId(), field.getRow(), field.getColumn());
-            final IssueFieldDefinition definition = Preconditions.checkNotNull(
-                fieldDefinitionMap.get(definitionId));
-            final IssueField issueField = new IssueField(new IssueFieldId(issue.getId(), definitionId));
-            switch(definition.getType())
-            {
-                case TEXT -> issueField.setTextValue(field.getValue());
-                case DATE -> issueField.setDateValue(accessNullable(
-                    field.getValue(), value -> LocalDateTime.parse(field.getValue(), DTF)));
-                case NUMBER -> issueField.setNumberValue(accessNullable(
-                    field.getValue(), BigDecimal::new));
-                case FLAG -> issueField.setFlagValue(accessNullable(
-                    field.getValue(), Boolean::valueOf));
-            }
-            fieldRepository.save(issueField);
-        }
-        return ResponseEntity.ok(ServiceResult.ok());
+        return ResponseEntity.ok(organizationIssueCreateService.create(sourceOrganizationId, fields));
     }
 
     private List<IssueFieldEditRest> getFields(final Long organizationId,
@@ -179,12 +138,15 @@ public class IssueController
             .map(definition ->
             {
                 final IssueField fieldOrNull = issueFieldMap.get(definition.getId());
+                final Short row = definition.getId().getRow();
+                final Byte col = definition.getId().getCol();
                 return new IssueFieldEditRest(
                     organizationId,
                     getValue(definition, fieldOrNull),
-                    definition.getId().getRow(),
+                    row,
+                    organizationId + "-" + row + "-" + col,
                     definition.getName(),
-                    definition.getId().getCol(),
+                    col,
                     definition.getType(),
                     definition.isRequired(),
                     definition.isClientVisible());
@@ -192,9 +154,13 @@ public class IssueController
             .collect(Collectors.toList());
     }
 
-    private static String getValue(final IssueFieldDefinition definition,
+    private static Object getValue(final IssueFieldDefinition definition,
         final IssueField fieldOrNull)
     {
+        if(definition.isRequired() && definition.getType() == IssueFieldType.FLAG && fieldOrNull == null)
+        {
+            return false;
+        }
         if(fieldOrNull == null)
         {
             return null;
@@ -202,9 +168,9 @@ public class IssueController
         return switch(definition.getType())
             {
                 case TEXT -> fieldOrNull.getTextValue();
-                case DATE -> fieldOrNull.getDateValue().format(DTF_VAL);
-                case NUMBER -> fieldOrNull.getNumberValue().toString();
-                case FLAG -> Boolean.toString(fieldOrNull.isFlagValue());
+                case DATE -> ObjectUtils.accessNullable(fieldOrNull.getDateValue(), date -> date.format(DTF_VAL));
+                case NUMBER -> Objects.toString(fieldOrNull.getNumberValue());
+                case FLAG -> fieldOrNull.isFlagValue();
             };
     }
 
@@ -218,15 +184,6 @@ public class IssueController
             .filter(field -> field.getColumn() == (byte) 2)
             .collect(Collectors.toList());
         return new IssueDetailsRest(issueId, organizationName, col1Fields, col2Fields);
-    }
-
-    private static <T> T accessNullable(String value, Function<String, T> mapper)
-    {
-        if(value == null)
-        {
-            return null;
-        }
-        return mapper.apply(value);
     }
 
     public static class IssueNameRest

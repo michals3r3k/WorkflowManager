@@ -1,9 +1,7 @@
 package com.example.workflowmanager.rest.issue;
 
 import com.example.workflowmanager.db.issue.IssueFieldDefinitionRepository;
-import com.example.workflowmanager.db.issue.IssueFieldRepository;
 import com.example.workflowmanager.db.issue.IssueRepository;
-import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.db.organization.project.ProjectRepository;
 import com.example.workflowmanager.entity.issue.*;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
@@ -30,27 +28,22 @@ public class IssueController
 {
     private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-    private final OrganizationRepository organizationRepository;
     private final IssueRepository issueRepository;
-    private final IssueFieldRepository fieldRepository;
     private final IssueFieldDefinitionRepository ifdRepository;
     private final ProjectRepository projectRepository;
     private final ProjectCreateService projectService;
     private final OrganizationInProjectService oipService;
     private final OrganizationIssueCreateService organizationIssueCreateService;
 
-    public IssueController(OrganizationRepository organizationRepository,
+    public IssueController(
         final IssueRepository issueRepository,
-        final IssueFieldRepository fieldRepository,
         final IssueFieldDefinitionRepository ifdRepository,
         final ProjectRepository projectRepository,
         final ProjectCreateService projectService,
         final OrganizationInProjectService oipService,
         final OrganizationIssueCreateService organizationIssueCreateService)
     {
-        this.organizationRepository = organizationRepository;
         this.issueRepository = issueRepository;
-        this.fieldRepository = fieldRepository;
         this.ifdRepository = ifdRepository;
         this.projectRepository = projectRepository;
         this.projectService = projectService;

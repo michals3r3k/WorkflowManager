@@ -36,12 +36,8 @@ export class OrderCreateComponent {
     this.http.getGeneric<IssueFieldEditRest[]>(`api/organization/${this.pickedOrganizationId}/issue-template`).subscribe(fields => {
       this.fields_column1 = fields.filter(field => field.clientVisible && field.column == 1);
       this.fields_column2 = fields.filter(field => field.clientVisible && field.column == 2);
-
       const group: any = {};
-      this.fields_column1.forEach(field => {
-        group[field.key] = new FormControl(field.value === null ? '' : field.value, field.required ? [Validators.required] : []);
-      });
-      this.fields_column2.forEach(field => {
+      [...this.fields_column1, ...this.fields_column2].forEach(field => {
         group[field.key] = new FormControl(field.value === null ? '' : field.value, field.required ? [Validators.required] : []);
       });
       this.formGroup = new FormGroup(group);

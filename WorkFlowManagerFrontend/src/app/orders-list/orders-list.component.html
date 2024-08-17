@@ -1,11 +1,14 @@
 <div class="container">
 
   <div class="orders-header">
-    <h1>Your orders</h1>
+    <h1>Your orders</h1> 
+    <button mat-flat-button color="primary" (click)="openAddOrderDialog()">
+      <mat-icon>add</mat-icon>
+      Create order
+    </button>
   </div>
-
   <div class="your-orders">
-
+    <app-order-list-card class="hover-shadow" *ngFor="let issue of myIssues" title="#{{issue.id}} {{issue.organizationName}}" (click)="openMyIssueDetails(issue)"/>
   </div>  
 
   <div class="orders-header">
@@ -13,7 +16,7 @@
   </div>
 
   <div class="clients-orders">
-    
+    <app-order-list-card class="hover-shadow" *ngFor="let issue of clientsIssues" title="#{{issue.id}} {{issue.organizationName}}" (click)="openClientsIssueDetails(issue)"/>
   </div>
 
 </div>

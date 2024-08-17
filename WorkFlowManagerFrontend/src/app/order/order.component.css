@@ -101,24 +101,6 @@
     padding: 5px;
 }
 
-.order-field-row1 {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-}
-
-.order-field-row2 {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: 150px auto 1fr;
-    align-items: center;
-}
-
-.checkbox-margin {
-    margin: 0px 10px;
-}
-
 .form-container{
     height: 55px;
     margin: 0 10px;

@@ -6,9 +6,9 @@ import { ResultToasterService } from '../../services/result-toaster/result-toast
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationMemberPickerComponent } from '../organization-member-picker/organization-member-picker.component';
 import { RoleSettingsComponent } from '../role-settings/role-settings.component';
-import { OrganizationCreateComponent } from '../organization-create/organization-create.component';
 import { RoleCreateComponent } from '../role-create/role-create.component';
 import { PermissionService } from '../../services/permission/permission.service';
+import { ProjectService } from '../../services/project/project.service';
 
 @Component({
   selector: 'app-organization-details',
@@ -16,7 +16,7 @@ import { PermissionService } from '../../services/permission/permission.service'
   styleUrls: ['./organization-details.component.css']
 })
 export class OrganizationDetailsComponent implements OnInit {
-  organizationId: string | null;
+  organizationId: number | null;
   searchUser: string = "";
   organization: any = null;
   members$: Observable<any[] | null> = of(null);
@@ -29,12 +29,12 @@ export class OrganizationDetailsComponent implements OnInit {
   constructor(private route: ActivatedRoute, private http: HttpRequestService,
     private dialog: MatDialog, private resultToaster: ResultToasterService,
     private permissionService: PermissionService) {
-
   }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.organizationId = params.get("id");
+      const idParam = params.get("id");
+      this.organizationId = idParam == null ? null: +idParam;
       this.permissionService.getPermissions(this.organizationId).subscribe(res => {
         let permissions = new Set(res);
         this.projectR = permissions.has("PROJECT_R");

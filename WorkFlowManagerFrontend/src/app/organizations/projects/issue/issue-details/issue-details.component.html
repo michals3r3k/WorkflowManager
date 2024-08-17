@@ -1,0 +1,40 @@
+<div class="issue-details-container">
+    <h1>Title</h1>
+    <div class="custom-fields">
+        <div class="field-column">
+            <div>
+                <span style="width: 4em;">Name: </span>
+                <span style="width: 4em;">Value</span>
+            </div>
+            <div>
+                <span style="width: 4em;">Name: </span>
+                <span style="width: 4em;">Value</span>
+            </div>
+            <div>
+                <span style="width: 4em;">Name: </span>
+                <span style="width: 4em;">Value</span>
+            </div>
+        </div>
+        <div class="field-column">
+            <div>
+                <span style="width: 4em;">Name: </span>
+                <span style="width: 4em;">Value</span>
+            </div>
+        </div>
+    </div>
+    <div class="task-list">
+        @for (task of tasks; track task) {
+            <mat-card>
+                <mat-card-header>
+                    <mat-card-title>{{task.name}}</mat-card-title>
+                    <mat-card-subtitle>{{task.description}}</mat-card-subtitle>
+                </mat-card-header>
+            </mat-card>
+        }
+        <button class="add-btn" mat-flat-button color="primary" (click)="addTask()">
+            <span>Add task</span>
+            <mat-icon>add</mat-icon>
+        </button>
+        
+    </div>
+</div>

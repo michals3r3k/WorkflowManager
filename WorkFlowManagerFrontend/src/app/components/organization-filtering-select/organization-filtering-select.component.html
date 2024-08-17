@@ -1,0 +1,9 @@
+<mat-form-field style="width: 100%;">
+    <input matInput type="text" placeholder="Pick organization" aria-label="Number"
+        [formControl]="organizationNameControl" [matAutocomplete]="organizationAutocomplete"/>
+    <mat-autocomplete #organizationAutocomplete="matAutocomplete">
+        <mat-option *ngFor="let organizationOption of organizationOptions$ | async" [value]="organizationOption.name">
+            {{organizationOption.name}}
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>

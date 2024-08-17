@@ -1,0 +1,11 @@
+.issue-details-container {
+    padding: 2em;
+}
+
+.custom-fields {
+    display: flex;
+}
+
+.field-column {
+    margin: 2em;
+}

@@ -5,7 +5,8 @@ import com.example.workflowmanager.db.issue.IssueFieldRepository;
 import com.example.workflowmanager.db.issue.IssueRepository;
 import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.entity.issue.*;
-import com.example.workflowmanager.rest.issue.IssueFieldEditRest;
+import com.example.workflowmanager.rest.issue.IssueFormRest;
+import com.example.workflowmanager.rest.issue.IssueFormRest.IssueFieldEditRest;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.base.Preconditions;
@@ -40,9 +41,10 @@ public class OrganizationIssueCreateService
         this.fieldRepository = fieldRepository;
     }
 
-    public ServiceResult<IssueCreateError> create(Long sourceOrganizationId,
-        List<IssueFieldEditRest> fields)
+    public ServiceResult<IssueCreateError> create(final Long sourceOrganizationId,
+        final IssueFormRest form, final LocalDateTime created)
     {
+        final List<IssueFieldEditRest> fields = form.getFields();
         if(fields.isEmpty())
         {
             return ServiceResult.error(IssueCreateError.FIELDS_EMPTY);
@@ -63,6 +65,8 @@ public class OrganizationIssueCreateService
         final Long destinationOrganizationId =
             Iterables.getOnlyElement(destinationOrganizationIds);
         final Issue issue = new Issue();
+        issue.setTitle(form.getTitle());
+        issue.setCreated(created);
         issue.setSourceOrganization(organizationRepository.getReferenceById(sourceOrganizationId));
         issue.setOrganization(organizationRepository.getReferenceById(destinationOrganizationId));
         issueRepository.save(issue);

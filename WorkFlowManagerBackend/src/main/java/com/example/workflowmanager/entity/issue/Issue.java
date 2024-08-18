@@ -4,6 +4,7 @@ import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.project.Project;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
@@ -13,6 +14,8 @@ public class Issue
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
+    private LocalDateTime created;
 
     @ManyToOne()
     @JoinColumn(name = "sourceOrganizationId")
@@ -34,6 +37,26 @@ public class Issue
     public void setId(final Long id)
     {
         this.id = id;
+    }
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+    public void setTitle(final String title)
+    {
+        this.title = title;
+    }
+
+    public LocalDateTime getCreated()
+    {
+        return created;
+    }
+
+    public void setCreated(final LocalDateTime created)
+    {
+        this.created = created;
     }
 
     public Organization getSourceOrganization()

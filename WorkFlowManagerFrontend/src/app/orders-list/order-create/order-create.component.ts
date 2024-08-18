@@ -1,10 +1,8 @@
-import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HttpRequestService } from '../../services/http/http-request.service';
-import { ServiceResult } from '../../services/utils/service-result';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
-import { IssueFieldEditRest } from '../issue-field/issue-field.component';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
+import { IssueFormRest, IssueFormService } from '../../services/issue/issue-form.service';
 
 @Component({
   selector: 'app-order-create',
@@ -12,45 +10,41 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
   styleUrl: './order-create.component.css'
 })
 export class OrderCreateComponent {
-  organizationId: number;
-  pickedOrganizationId: number | null;
+  sourceOrganizationId: number;
+  destinationOrganizationId: number | null;
   @Output() afterSendReport = new EventEmitter();
-  
-  fields_column1: IssueFieldEditRest[];
-  fields_column2: IssueFieldEditRest[];
 
-  formGroup: FormGroup;
+  form: IssueFormRest | null;
+  formGroup: FormGroup | null;
 
-  constructor(private http: HttpRequestService, 
+  constructor(private issueFormService: IssueFormService, 
     @Inject(MAT_DIALOG_DATA) private data: {organizationId: number},
     private serviceResultHelper: ServiceResultHelper) {
-    this.organizationId = data.organizationId;
+    this.sourceOrganizationId = data.organizationId;
+    this.loadDefinition();
   }
 
   loadDefinition() {
-    if(!this.pickedOrganizationId) {
-      this.fields_column1 = [];
-      this.fields_column2 = [];
+    if(!this.destinationOrganizationId) {
+      this.form = null;
+      this.formGroup = null;
       return;
     }
-    this.http.getGeneric<IssueFieldEditRest[]>(`api/organization/${this.pickedOrganizationId}/issue-template`).subscribe(fields => {
-      this.fields_column1 = fields.filter(field => field.clientVisible && field.column == 1);
-      this.fields_column2 = fields.filter(field => field.clientVisible && field.column == 2);
-      const group: any = {};
-      [...this.fields_column1, ...this.fields_column2].forEach(field => {
-        group[field.key] = new FormControl(field.value === null ? '' : field.value, field.required ? [Validators.required] : []);
-      });
-      this.formGroup = new FormGroup(group);
+    this.issueFormService.getForm(this.sourceOrganizationId, this.destinationOrganizationId).subscribe(form => {
+      this.form = form;
+      this.formGroup = new FormGroup({});
     });
   }
 
   sendReport() {
-    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/issue-send-report`, [...this.fields_column1, ...this.fields_column2]).subscribe(result => {
-      this.serviceResultHelper.handleServiceResult(result, "Raport has been send succefully", "Errors occured");
-      if(result.success) {
-        this.afterSendReport.emit();
-      }
-    })
+    if(this.form) {
+      this.issueFormService.sendForm(this.sourceOrganizationId, this.form).subscribe(result => {
+        this.serviceResultHelper.handleServiceResult(result, "Raport has been send succefully", "Errors occured");
+        if(result.success) {
+          this.afterSendReport.emit();
+        }
+      });
+    }
   }
 
 }

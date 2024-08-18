@@ -46,7 +46,7 @@
 
 app-order-list-card {
     width: 280px; 
-    height: 45px;
+    height: 100px;
     cursor: pointer;
     margin: 0 1em;
 }

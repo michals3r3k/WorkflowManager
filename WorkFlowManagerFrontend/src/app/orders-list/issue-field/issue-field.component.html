@@ -1,4 +1,4 @@
-@if(form) {
+@if(issueFormGroup) {
     <mat-form-field *ngIf="field.type == 'TEXT'">
         <mat-label>{{field.name}}</mat-label>
         <input matInput [formControl]="valueControl">
@@ -22,5 +22,5 @@
     }
 }
 @else {
-    {{field.name}}: {{field.value}}
+    {{field.name}}: {{field.value || ''}}
 }

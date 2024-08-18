@@ -1,25 +1,27 @@
 package com.example.workflowmanager.rest.issue;
 
-import com.example.workflowmanager.db.issue.IssueFieldDefinitionRepository;
 import com.example.workflowmanager.db.issue.IssueRepository;
+import com.example.workflowmanager.db.organization.OrganizationInProjectRepository;
 import com.example.workflowmanager.db.organization.project.ProjectRepository;
-import com.example.workflowmanager.entity.issue.*;
+import com.example.workflowmanager.entity.issue.Issue;
+import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.OrganizationInvitationStatus;
-import com.example.workflowmanager.service.issue.OrganizationIssueCreateService;
+import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.service.organization.OrganizationInProjectService;
 import com.example.workflowmanager.service.project.ProjectCreateRest;
 import com.example.workflowmanager.service.project.ProjectCreateService;
 import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateResult;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
-import com.google.common.collect.Maps;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @CrossOrigin
@@ -29,26 +31,22 @@ public class IssueController
     private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     private final IssueRepository issueRepository;
-    private final IssueFieldDefinitionRepository ifdRepository;
+    private final OrganizationInProjectRepository oipRepository;
     private final ProjectRepository projectRepository;
     private final ProjectCreateService projectService;
     private final OrganizationInProjectService oipService;
-    private final OrganizationIssueCreateService organizationIssueCreateService;
 
-    public IssueController(
-        final IssueRepository issueRepository,
-        final IssueFieldDefinitionRepository ifdRepository,
+    public IssueController(final IssueRepository issueRepository,
+        final OrganizationInProjectRepository oipRepository,
         final ProjectRepository projectRepository,
         final ProjectCreateService projectService,
-        final OrganizationInProjectService oipService,
-        final OrganizationIssueCreateService organizationIssueCreateService)
+        final OrganizationInProjectService oipService)
     {
         this.issueRepository = issueRepository;
-        this.ifdRepository = ifdRepository;
+        this.oipRepository = oipRepository;
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.oipService = oipService;
-        this.organizationIssueCreateService = organizationIssueCreateService;
     }
 
     @GetMapping("/api/organization/{organizationId}/issue/{issueId}/to-existing-project/{projectId}")
@@ -72,6 +70,20 @@ public class IssueController
         return ResponseEntity.ok(ServiceResult.ok());
     }
 
+    @GetMapping("/api/organization/{organizationId}/issues")
+    public List<IssueRest> getOrganizationIssueList(@PathVariable Long organizationId)
+    {
+        return getIssueRest(organizationId,
+            issueRepository.getOrganizationIssues(Collections.singleton(organizationId)));
+    }
+
+    @GetMapping("/api/organization/{organizationId}/issues/project/{projectId}")
+    public List<IssueRest> getProjectIssueList(@PathVariable Long organizationId, @PathVariable Long projectId)
+    {
+        return getIssueRest(organizationId,
+            getProjectIssues(organizationId, projectId));
+    }
+
     private void addToProject(final Long issueId, Long projectId)
     {
         final Issue issue = issueRepository.getReferenceById(issueId);
@@ -83,112 +95,53 @@ public class IssueController
         issueRepository.save(issue);
     }
 
-    //TODO: Zastanowić się nad URLem, bo przedrostek api/organization/{organizationId} jest uzywany do sprawdzania uprawnien zalogowanego uzytkownika
-    @GetMapping("/api/organization/{organizationId}/issue-template")
-    public List<IssueFieldEditRest> getTemplate(@PathVariable Long organizationId)
+    private List<Issue> getProjectIssues(Long organizationId, Long projectId)
     {
-        final List<IssueFieldDefinition> definitions = ifdRepository.getListByOrganizationId(
-            Collections.singleton(organizationId));
-        return getFields(organizationId, definitions, Collections.emptySet());
+        if(isOwnProject(organizationId, projectId))
+        {
+            return issueRepository.getProjectIssues(Collections.singleton(projectId));
+        }
+        return issueRepository.getProjectIssues(Collections.singleton(organizationId),
+            Collections.singleton(projectId));
     }
 
-    @GetMapping("/api/organization/{organizationId}/issue-names")
-    public List<IssueNameRest> getList(@PathVariable Long organizationId)
+    private boolean isOwnProject(final Long organizationId, final Long projectId)
     {
-        return issueRepository.getAllOrganizationIssues(Collections.singleton(organizationId)).stream()
+        return oipRepository.getReferenceById(new OrganizationInProjectId(organizationId, projectId))
+            .getRole() == OrganizationInProjectRole.OWNER;
+    }
+
+    private static List<IssueRest> getIssueRest(final Long organizationId,
+        final List<Issue> issues)
+    {
+        return issues.stream()
             .sorted(Comparator.comparing(Issue::getId))
-            .map(issue -> new IssueNameRest(issue,
-                issue.getSourceOrganization().getId().equals(organizationId)))
+            .map(issue -> new IssueRest(issue,
+                !issue.getSourceOrganization().getId().equals(organizationId)))
             .collect(Collectors.toList());
     }
 
-    @GetMapping("/api/organization/{organizationId}/client-issue/{issueId}")
-    public IssueDetailsRest getClientIssueDetails(@PathVariable Long organizationId, @PathVariable Long issueId)
-    {
-        final Issue issue = issueRepository.getReferenceById(issueId);
-        final String organizationName = issue.getSourceOrganization().getName();
-        final List<IssueFieldDefinition> definitions = issue.getFields().stream()
-            .map(IssueField::getDefinition)
-            .collect(Collectors.toList());
-        final List<IssueFieldEditRest> fields =
-            getFields(organizationId, definitions, issue.getFields());
-        return getIssueDetailsRest(issue.getId(), organizationName, fields);
-    }
-
-    @PostMapping("/api/organization/{sourceOrganizationId}/issue-send-report")
-    public ResponseEntity<ServiceResult<?>> sendReport(@PathVariable Long sourceOrganizationId,
-        @RequestBody List<IssueFieldEditRest> fields)
-    {
-        return ResponseEntity.ok(organizationIssueCreateService.create(sourceOrganizationId, fields));
-    }
-
-    private List<IssueFieldEditRest> getFields(final Long organizationId,
-        final List<IssueFieldDefinition> definitions, final Set<IssueField> issueFields)
-    {
-        Map<IssueFieldDefinitionId, IssueField> issueFieldMap = Maps.uniqueIndex(issueFields, field -> field.getDefinition().getId());
-        return definitions.stream()
-            .sorted(Comparator.comparing(field -> field.getId().getCol()))
-            .map(definition ->
-            {
-                final IssueField fieldOrNull = issueFieldMap.get(definition.getId());
-                final Short row = definition.getId().getRow();
-                final Byte col = definition.getId().getCol();
-                return new IssueFieldEditRest(
-                    organizationId,
-                    getValue(definition, fieldOrNull),
-                    row,
-                    organizationId + "-" + row + "-" + col,
-                    definition.getName(),
-                    col,
-                    definition.getType(),
-                    definition.isRequired(),
-                    definition.isClientVisible());
-            })
-            .collect(Collectors.toList());
-    }
-
-    private static Object getValue(final IssueFieldDefinition definition,
-        final IssueField fieldOrNull)
-    {
-        if(definition.isRequired() && definition.getType() == IssueFieldType.FLAG && fieldOrNull == null)
-        {
-            return false;
-        }
-        if(fieldOrNull == null)
-        {
-            return null;
-        }
-        return switch(definition.getType())
-            {
-                case TEXT -> fieldOrNull.getTextValue();
-                case DATE -> ObjectUtils.accessNullable(fieldOrNull.getDateValue(), date -> date.format(DTF_VAL));
-                case NUMBER -> Objects.toString(fieldOrNull.getNumberValue());
-                case FLAG -> fieldOrNull.isFlagValue();
-            };
-    }
-
-    private static IssueDetailsRest getIssueDetailsRest(Long issueId,
-        final String organizationName, final List<IssueFieldEditRest> fields)
-    {
-        final List<IssueFieldEditRest> col1Fields = fields.stream()
-            .filter(field -> field.getColumn() == (byte) 1)
-            .collect(Collectors.toList());
-        final List<IssueFieldEditRest> col2Fields = fields.stream()
-            .filter(field -> field.getColumn() == (byte) 2)
-            .collect(Collectors.toList());
-        return new IssueDetailsRest(issueId, organizationName, col1Fields, col2Fields);
-    }
-
-    public static class IssueNameRest
+    public static class IssueRest
     {
         private final Long id;
+        private final Long organizationId;
         private final String organizationName;
-        private final boolean myIssue;
+        private final String projectName;
+        private final boolean fromClient;
+        private final String status;
+        private final String created;
+        private final String title;
 
-        private IssueNameRest(Issue issue, boolean myIssue) {
+        private IssueRest(final Issue issue, final boolean fromClient) {
+            final Organization organization = fromClient ? issue.getSourceOrganization() : issue.getOrganization();
             this.id = issue.getId();
-            this.organizationName = (myIssue ? issue.getOrganization() : issue.getSourceOrganization()).getName();
-            this.myIssue = myIssue;
+            this.organizationId = organization.getId();
+            this.organizationName = organization.getName();
+            this.projectName = ObjectUtils.accessNullable(issue.getProject(), Project::getName);
+            this.fromClient = fromClient;
+            this.status = "NEW";
+            this.created = issue.getCreated().format(DTF_VAL);
+            this.title = issue.getTitle();
         }
 
         public Long getId()
@@ -196,39 +149,9 @@ public class IssueController
             return id;
         }
 
-        public String getOrganizationName()
+        public Long getOrganizationId()
         {
-            return organizationName;
-        }
-
-        public boolean isMyIssue()
-        {
-            return myIssue;
-        }
-
-    }
-
-    public static class IssueDetailsRest
-    {
-        private final Long id;
-        private final String organizationName;
-        private final List<IssueFieldEditRest> col1Fields;
-        private final List<IssueFieldEditRest> col2Fields;
-
-        private IssueDetailsRest(final Long id,
-            final String organizationName,
-            final List<IssueFieldEditRest> col1Fields,
-            final List<IssueFieldEditRest> col2Fields)
-        {
-            this.id = id;
-            this.organizationName = organizationName;
-            this.col1Fields = col1Fields;
-            this.col2Fields = col2Fields;
-        }
-
-        public Long getId()
-        {
-            return id;
+            return organizationId;
         }
 
         public String getOrganizationName()
@@ -236,14 +159,29 @@ public class IssueController
             return organizationName;
         }
 
-        public List<IssueFieldEditRest> getCol1Fields()
+        public String getProjectName()
         {
-            return col1Fields;
+            return projectName;
         }
 
-        public List<IssueFieldEditRest> getCol2Fields()
+        public boolean isFromClient()
         {
-            return col2Fields;
+            return fromClient;
+        }
+
+        public String getStatus()
+        {
+            return status;
+        }
+
+        public String getCreated()
+        {
+            return created;
+        }
+
+        public String getTitle()
+        {
+            return title;
         }
 
     }

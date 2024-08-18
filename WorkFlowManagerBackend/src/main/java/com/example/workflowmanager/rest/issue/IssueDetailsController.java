@@ -1,11 +1,8 @@
 package com.example.workflowmanager.rest.issue;
 
 import com.example.workflowmanager.db.issue.IssueRepository;
-import com.example.workflowmanager.db.organization.OrganizationInProjectRepository;
 import com.example.workflowmanager.entity.issue.Issue;
 import com.example.workflowmanager.entity.organization.Organization;
-import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
-import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,87 +10,57 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @CrossOrigin
 @RestController
 public class IssueDetailsController
 {
-    private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-
     private final IssueRepository issueRepository;
-    private final OrganizationInProjectRepository oipRepository;
+    private final IssueFormFactory issueFormFactory;
 
     public IssueDetailsController(final IssueRepository issueRepository,
-        final OrganizationInProjectRepository oipRepository)
+        final IssueFormFactory issueFormFactory)
     {
         this.issueRepository = issueRepository;
-        this.oipRepository = oipRepository;
+        this.issueFormFactory = issueFormFactory;
     }
 
-    @GetMapping("/api/organization/{organizationId}/issue-details")
-    public List<IssueDetailsRest> getOrganizationIssueList(@PathVariable Long organizationId)
+    @GetMapping("/api/organization/{organizationId}/issue-details/{issueId}")
+    public IssueDetailsRest getOrganizationIssueDetails(@PathVariable Long organizationId, @PathVariable Long issueId)
     {
-        return getIssueDetailsRest(organizationId,
-            issueRepository.getOrganizationIssues(Collections.singleton(organizationId)));
-    }
-
-    @GetMapping("/api/organization/{organizationId}/issue-details/project/{projectId}")
-    public List<IssueDetailsRest> getProjectIssueList(@PathVariable Long organizationId, @PathVariable Long projectId)
-    {
-        return getIssueDetailsRest(organizationId,
-            getProjectIssues(organizationId, projectId));
-    }
-
-    private List<Issue> getProjectIssues(Long organizationId, Long projectId)
-    {
-        if(isOwnProject(organizationId, projectId))
-        {
-            return issueRepository.getProjectIssues(Collections.singleton(projectId));
-        }
-        return issueRepository.getProjectIssues(Collections.singleton(organizationId),
-            Collections.singleton(projectId));
-    }
-
-    private boolean isOwnProject(final Long organizationId, final Long projectId)
-    {
-        return oipRepository.getReferenceById(new OrganizationInProjectId(organizationId, projectId))
-            .getRole() == OrganizationInProjectRole.OWNER;
-    }
-
-    private static List<IssueDetailsRest> getIssueDetailsRest(final Long organizationId,
-        final List<Issue> issues)
-    {
-        return issues.stream()
-            .sorted(Comparator.comparing(Issue::getId))
-            .map(issue -> new IssueDetailsRest(issue,
-                !issue.getSourceOrganization().getId().equals(organizationId)))
-            .collect(Collectors.toList());
+        final Issue issue = issueRepository.getReferenceById(issueId);
+        final Organization source = issue.getSourceOrganization();
+        final Organization destination = issue.getOrganization();
+        final String projectName = ObjectUtils.accessNullable(issue.getProject(), Project::getName);
+        final IssueFormRest form = issueFormFactory.getForm(destination.getId(), issue);
+        return new IssueDetailsRest(issueId, issue.getTitle(), source.getName(), destination.getName(),
+            projectName, source.getId(), destination.getId(), form);
     }
 
     public static class IssueDetailsRest
     {
-        private final Long id;
-        private final Long organizationId;
-        private final String organizationName;
-        private final String projectName;
-        private final boolean fromClient;
-        private final String status;
-        private final String created;
+        private Long id;
+        private String title;
+        private String sourceOrganizationName;
+        private String destinationOrganizationName;
+        private String projectName;
+        private Long sourceOrganizationId;
+        private Long destinationOrganizationId;
+        private IssueFormRest form;
 
-        private IssueDetailsRest(final Issue issue, final boolean fromClient) {
-            this.id = issue.getId();
-            Organization organization = fromClient ? issue.getSourceOrganization() : issue.getOrganization();
-            this.organizationId = organization.getId();
-            this.organizationName = organization.getName();
-            this.projectName = ObjectUtils.accessNullable(issue.getProject(), Project::getName);
-            this.fromClient = fromClient;
-            this.status = "NEW";
-            this.created = issue.getCreated().format(DTF_VAL);
+        public IssueDetailsRest(final Long id,
+            final String title, final String sourceOrganizationName,
+            final String destinationOrganizationName,
+            final String projectName, final Long sourceOrganizationId,
+            final Long destinationOrganizationId, final IssueFormRest form)
+        {
+            this.id = id;
+            this.title = title;
+            this.sourceOrganizationName = sourceOrganizationName;
+            this.destinationOrganizationName = destinationOrganizationName;
+            this.projectName = projectName;
+            this.sourceOrganizationId = sourceOrganizationId;
+            this.destinationOrganizationId = destinationOrganizationId;
+            this.form = form;
         }
 
         public Long getId()
@@ -101,14 +68,41 @@ public class IssueDetailsController
             return id;
         }
 
-        public Long getOrganizationId()
+        public void setId(final Long id)
         {
-            return organizationId;
+            this.id = id;
         }
 
-        public String getOrganizationName()
+        public String getTitle()
         {
-            return organizationName;
+            return title;
+        }
+
+        public void setTitle(final String title)
+        {
+            this.title = title;
+        }
+
+        public String getSourceOrganizationName()
+        {
+            return sourceOrganizationName;
+        }
+
+        public void setSourceOrganizationName(
+            final String sourceOrganizationName)
+        {
+            this.sourceOrganizationName = sourceOrganizationName;
+        }
+
+        public String getDestinationOrganizationName()
+        {
+            return destinationOrganizationName;
+        }
+
+        public void setDestinationOrganizationName(
+            final String destinationOrganizationName)
+        {
+            this.destinationOrganizationName = destinationOrganizationName;
         }
 
         public String getProjectName()
@@ -116,19 +110,41 @@ public class IssueDetailsController
             return projectName;
         }
 
-        public boolean isFromClient()
+        public void setProjectName(final String projectName)
         {
-            return fromClient;
+            this.projectName = projectName;
         }
 
-        public String getStatus()
+        public Long getSourceOrganizationId()
         {
-            return status;
+            return sourceOrganizationId;
         }
 
-        public String getCreated()
+        public void setSourceOrganizationId(final Long sourceOrganizationId)
         {
-            return created;
+            this.sourceOrganizationId = sourceOrganizationId;
+        }
+
+        public Long getDestinationOrganizationId()
+        {
+            return destinationOrganizationId;
+        }
+
+        public void setDestinationOrganizationId(
+            final Long destinationOrganizationId)
+        {
+            this.destinationOrganizationId = destinationOrganizationId;
+        }
+
+        public IssueFormRest getForm()
+        {
+            return form;
+        }
+
+        public void setForm(
+            final IssueFormRest form)
+        {
+            this.form = form;
         }
 
     }

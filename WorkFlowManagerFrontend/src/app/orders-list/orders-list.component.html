@@ -8,7 +8,7 @@
     </button>
   </div>
   <div class="your-orders">
-    <app-order-list-card class="hover-shadow" *ngFor="let issue of myIssues" [issueDetails]="issue" (click)="openMyIssueDetails(issue)"/>
+    <app-order-list-card class="hover-shadow" *ngFor="let issue of myIssues" [issue]="issue" (click)="openMyIssueDetails(issue)"/>
   </div>  
 
   <div class="orders-header">
@@ -16,7 +16,7 @@
   </div>
 
   <div class="clients-orders">
-    <app-order-list-card class="hover-shadow" *ngFor="let issue of clientsIssues" [issueDetails]="issue" (click)="openClientsIssueDetails(issue)"/>
+    <app-order-list-card class="hover-shadow" *ngFor="let issue of clientsIssues" [issue]="issue" (click)="openClientsIssueDetails(issue)"/>
   </div>
 
 </div>

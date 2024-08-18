@@ -1,14 +1,9 @@
 <div style="margin: 2em;">
     <div *ngIf="issue$ | async as issue">
-        <h1>#{{issue.id}} {{issue.organizationName}}</h1>
-        <div style="display: flex;">
-            <div *ngFor="let column of [issue.col1Fields, issue.col2Fields]" style="margin: 1em;">
-                <div *ngFor="let field of column">
-                    <issue-field [field]="field"/>
-                </div>
-            </div>
-        </div>
-        <div *ngIf="organizationId != null">
+        <h1>#{{issue.id}} {{issue.title}}</h1>
+        Organization: {{readOnly ? issue.destinationOrganizationName: issue.sourceOrganizationName}}
+        <issue-form [issueForm]="issue.form"/>
+        <div *ngIf="!readOnly">
             Existing project: <mat-slide-toggle color="primary" [(ngModel)]="existingProject"/><br/><br/>
             @if(existingProject) {
                 <mat-form-field>

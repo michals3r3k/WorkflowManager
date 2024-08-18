@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { IssueDetailsComponent } from '../issue-details/issue-details.component';
 import { ActivatedRoute } from '@angular/router';
-import { IssueDetailsRest, IssueDetailsService } from '../../../../services/issue/issue-details.service';
+import { IssueRest, IssueService } from '../../../../services/issue/issue.service';
 import { group } from '@angular/animations';
 
 @Component({
@@ -18,7 +18,7 @@ export class IssueListComponent implements OnInit {
 
   constructor(private dialog: MatDialog,
     private route: ActivatedRoute,
-    private issueDetailsService: IssueDetailsService) { }
+    private issueService: IssueService) { }
 
     ngOnInit() {
       this.route.paramMap.subscribe(params => {
@@ -32,10 +32,10 @@ export class IssueListComponent implements OnInit {
 
   _loadIssues() {
     if(this.organizationId && this.projectId) {
-      this.issueDetailsService.getProjectIssues(this.organizationId, this.projectId).subscribe(issues => {
+      this.issueService.getProjectIssues(this.organizationId, this.projectId).subscribe(issues => {
         const groups: any = {};
         for(let i = 0; i < issues.length; ++i) {
-          const issue: IssueDetailsRest = issues[i];
+          const issue: IssueRest = issues[i];
           let group = groups[issue.organizationId]
           if(!group) {
             groups[issue.organizationId] = {
@@ -57,9 +57,13 @@ export class IssueListComponent implements OnInit {
     }
   }
 
-  openDialog(issue: IssueDetailsRest) {
+  openDialog(issue: IssueRest) {
     const dialogRef = this.dialog.open(IssueDetailsComponent, {
-      data: {issue: issue}
+      data: {
+        organizationId: this.organizationId,
+        projectId: this.projectId,
+        issueId: issue.id
+      }
     });
   }
 
@@ -68,5 +72,5 @@ export class IssueListComponent implements OnInit {
 interface IssueGroup {
   organizationId: number,
   organizationName: string,
-  issues: IssueDetailsRest[];
+  issues: IssueRest[];
 }

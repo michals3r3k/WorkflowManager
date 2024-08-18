@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { IssueFieldEditRest } from '../issue-field/issue-field.component';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
 import { FormControl } from '@angular/forms';
@@ -8,17 +7,18 @@ import { ServiceResult } from '../../services/utils/service-result';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 import { ProjectCreateModel, ProjectService } from '../../services/project/project.service';
 import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
+import { IssueDetailsRest, IssueDetailsService } from '../../services/issue/issue-details.service';
 
 @Component({
-  selector: 'app-client-order-dialog',
-  templateUrl: './client-order-dialog.component.html',
-  styleUrl: './client-order-dialog.component.css'
+  selector: 'app-organization-issue-dialog',
+  templateUrl: './organization-issue-dialog.component.html',
+  styleUrl: './organization-issue-dialog.component.css'
 })
-export class ClientOrderDialogComponent implements OnInit{
-  organizationId: number | null;
+export class OrganizationIssueDialogComponent implements OnInit{
+  organizationId: number;
   issueId: number;
-  issueFieldsUrl: string;
-  issue$: Observable<IssueFieldsRest>;
+  readOnly?: boolean;
+  issue$: Observable<IssueDetailsRest>;
 
   projectNameControl: FormControl = new FormControl();
   projectOptions: ProjectOptionRest[];
@@ -32,15 +32,18 @@ export class ClientOrderDialogComponent implements OnInit{
   constructor(private http: HttpRequestService, 
     private serviceResultHelper: ServiceResultHelper,
     private projectService: ProjectService,
+    private issueDetailsService: IssueDetailsService,
     private resultToasterService: ResultToasterService,
     @Inject(MAT_DIALOG_DATA) private data: {
-      organizationId?: number
-      issueFieldsUrl: string
+      readOnly?: boolean,
+      organizationId: number,
+      issueId: number
     }) {
-    this.organizationId = data.organizationId || null;
-    this.issueFieldsUrl = data.issueFieldsUrl;
+    this.organizationId = data.organizationId;
+    this.issueId = data.issueId;
+    this.readOnly = data.readOnly;
 
-    if(this.organizationId) { // if organizationId is passed, then show project form
+    if(!this.readOnly) { // if organizationId is passed, then show project form
       projectService.getOwned(this.organizationId).subscribe(projects => {
         this.projectOptions = projects.map(project => {
           return {
@@ -63,10 +66,10 @@ export class ClientOrderDialogComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.issue$ = this.http.getGeneric<IssueFieldsRest>(this.issueFieldsUrl);
+    this.issue$ = this.issueDetailsService.getDetails(this.organizationId, this.issueId);
   }
 
-  toExistingProject(issue: IssueFieldsRest) {
+  toExistingProject(issue: IssueDetailsRest) {
     const project = this.projectOptions.filter(project => project.name == this.projectNameControl.value)[0];
     if(!project) {
       this.resultToasterService.error("Project isn't in the list");
@@ -79,7 +82,7 @@ export class ClientOrderDialogComponent implements OnInit{
     });
   }
 
-  toNewProject(organizationId: number, issue: IssueFieldsRest) {
+  toNewProject(organizationId: number, issue: IssueDetailsRest) {
     this.projectService.createWithIssue(organizationId, issue.id, this.projectCreateModel).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res, "Project created successfully", "Errors occured");
       if(res.success) {
@@ -97,11 +100,4 @@ export class ClientOrderDialogComponent implements OnInit{
 interface ProjectOptionRest {
   id: number;
   name: string;
-}
-
-interface IssueFieldsRest {
-  id: number,
-  organizationName: string,
-  col1Fields: IssueFieldEditRest[],
-  col2Fields: IssueFieldEditRest[]
 }

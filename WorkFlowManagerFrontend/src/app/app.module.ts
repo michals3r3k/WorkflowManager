@@ -61,8 +61,9 @@ import { ChatComponent } from './chat/chat.component';
 import { OrderCreateComponent } from './orders-list/order-create/order-create.component';
 import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
 import { MatNativeDateModule } from '@angular/material/core';
-import { ClientOrderDialogComponent } from './orders-list/client-order-dialog/client-order-dialog.component';
+import { OrganizationIssueDialogComponent } from './orders-list/organization-issue-dialog/organization-issue-dialog.component';
 import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
+import { IssueFormComponent } from './orders-list/issue-form/issue-form.component';
 
 @NgModule({
   declarations: [
@@ -98,8 +99,9 @@ import { IssueFieldComponent } from './orders-list/issue-field/issue-field.compo
       ChatComponent,
       OrderCreateComponent,
       OrganizationFilteringSelectComponent,
-      ClientOrderDialogComponent,
-      IssueFieldComponent
+      OrganizationIssueDialogComponent,
+      IssueFieldComponent,
+      IssueFormComponent
    ],
   imports: [
     BrowserModule,

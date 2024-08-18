@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { OrderCreateComponent } from './order-create/order-create.component';
-import { ClientOrderDialogComponent } from './client-order-dialog/client-order-dialog.component';
-import { IssueDetailsRest, IssueDetailsService } from '../services/issue/issue-details.service';
+import { OrganizationIssueDialogComponent } from './organization-issue-dialog/organization-issue-dialog.component';
+import { IssueRest, IssueService } from '../services/issue/issue.service';
 
 @Component({
   selector: 'app-orders',
@@ -11,18 +11,18 @@ import { IssueDetailsRest, IssueDetailsService } from '../services/issue/issue-d
 })
 export class OrdersListComponent implements OnInit {
   @Input() organizationId: number;
-  myIssues: IssueDetailsRest[];
-  clientsIssues: IssueDetailsRest[];
+  myIssues: IssueRest[];
+  clientsIssues: IssueRest[];
 
   constructor(private dialog: MatDialog,
-    private issueDetailsService: IssueDetailsService) { }
+    private issueService: IssueService) { }
 
   ngOnInit() {
     this._loadIssues();
   }
 
   _loadIssues() {
-    this.issueDetailsService.getOrganizationIssues(this.organizationId).subscribe(issues => {
+    this.issueService.getOrganizationIssues(this.organizationId).subscribe(issues => {
       this.myIssues = issues.filter(issue => !issue.fromClient);
       this.clientsIssues = issues.filter(issue => issue.fromClient);
     });
@@ -38,11 +38,12 @@ export class OrdersListComponent implements OnInit {
     });
   }
 
-  openClientsIssueDetails(issue: IssueDetailsRest) {
+  openClientsIssueDetails(issue: IssueRest) {
     const issueId = issue.id;
-    const dialogRef = this.dialog.open(ClientOrderDialogComponent, {data: {
+    const dialogRef = this.dialog.open(OrganizationIssueDialogComponent, {data: {
       organizationId: this.organizationId,
-      issueFieldsUrl: `api/organization/${this.organizationId}/client-issue/${issueId}`
+      issueId: issueId,
+      readOnly: false
     }});
     dialogRef.componentInstance.closeDialog.subscribe(() => {
       this._loadIssues();
@@ -50,10 +51,12 @@ export class OrdersListComponent implements OnInit {
     });
   }
 
-  openMyIssueDetails(issue: IssueDetailsRest) {
+  openMyIssueDetails(issue: IssueRest) {
     const issueId = issue.id;
-    this.dialog.open(ClientOrderDialogComponent, {data: {
-      issueFieldsUrl: `api/organization/${this.organizationId}/client-issue/${issueId}`
+    this.dialog.open(OrganizationIssueDialogComponent, {data: {
+      organizationId: this.organizationId,
+      issueId: issueId,
+      readOnly: true
     }});
   }
 

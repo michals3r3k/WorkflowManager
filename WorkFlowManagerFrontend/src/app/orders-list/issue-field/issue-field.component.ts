@@ -9,15 +9,15 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class IssueFieldComponent implements OnInit {
   @Input() field: IssueFieldEditRest;
-  @Input() form?: FormGroup;
+  @Input() issueFormGroup?: FormGroup;
 
   valueControl: FormControl;
 
   ngOnInit() {
-    if(!this.form) {
+    if(!this.issueFormGroup) {
       return;
     }
-    this.valueControl = this.form.get(this.field.key) as FormControl;
+    this.valueControl = this.issueFormGroup.get(this.field.key) as FormControl;
     this.valueControl.valueChanges.subscribe(value => {
       if(this.field.type === FieldType.DATE) {
         this.field.value = this.getDateString(value);

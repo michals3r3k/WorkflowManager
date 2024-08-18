@@ -18,13 +18,14 @@ import com.google.common.collect.Maps;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
-public class IssueController
+public class IssueFieldsController
 {
     private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
@@ -35,7 +36,7 @@ public class IssueController
     private final OrganizationInProjectService oipService;
     private final OrganizationIssueCreateService organizationIssueCreateService;
 
-    public IssueController(
+    public IssueFieldsController(
         final IssueRepository issueRepository,
         final IssueFieldDefinitionRepository ifdRepository,
         final ProjectRepository projectRepository,
@@ -72,17 +73,6 @@ public class IssueController
         return ResponseEntity.ok(ServiceResult.ok());
     }
 
-    private void addToProject(final Long issueId, Long projectId)
-    {
-        final Issue issue = issueRepository.getReferenceById(issueId);
-        final Long organizationId = issue.getSourceOrganization().getId();
-        final OrganizationInProjectId oipId =
-            new OrganizationInProjectId(organizationId, projectId);
-        oipService.create(oipId, OrganizationInProjectRole.REPORTER, OrganizationInvitationStatus.ACCEPTED);
-        issue.setProject(projectRepository.getReferenceById(projectId));
-        issueRepository.save(issue);
-    }
-
     //TODO: Zastanowić się nad URLem, bo przedrostek api/organization/{organizationId} jest uzywany do sprawdzania uprawnien zalogowanego uzytkownika
     @GetMapping("/api/organization/{organizationId}/issue-template")
     public List<IssueFieldEditRest> getTemplate(@PathVariable Long organizationId)
@@ -92,18 +82,8 @@ public class IssueController
         return getFields(organizationId, definitions, Collections.emptySet());
     }
 
-    @GetMapping("/api/organization/{organizationId}/issue-names")
-    public List<IssueNameRest> getList(@PathVariable Long organizationId)
-    {
-        return issueRepository.getAllOrganizationIssues(Collections.singleton(organizationId)).stream()
-            .sorted(Comparator.comparing(Issue::getId))
-            .map(issue -> new IssueNameRest(issue,
-                issue.getSourceOrganization().getId().equals(organizationId)))
-            .collect(Collectors.toList());
-    }
-
     @GetMapping("/api/organization/{organizationId}/client-issue/{issueId}")
-    public IssueDetailsRest getClientIssueDetails(@PathVariable Long organizationId, @PathVariable Long issueId)
+    public IssueFieldsRest getClientIssueDetails(@PathVariable Long organizationId, @PathVariable Long issueId)
     {
         final Issue issue = issueRepository.getReferenceById(issueId);
         final String organizationName = issue.getSourceOrganization().getName();
@@ -112,14 +92,26 @@ public class IssueController
             .collect(Collectors.toList());
         final List<IssueFieldEditRest> fields =
             getFields(organizationId, definitions, issue.getFields());
-        return getIssueDetailsRest(issue.getId(), organizationName, fields);
+        return getIssueFieldsRest(issue.getId(), organizationName, fields);
     }
 
     @PostMapping("/api/organization/{sourceOrganizationId}/issue-send-report")
     public ResponseEntity<ServiceResult<?>> sendReport(@PathVariable Long sourceOrganizationId,
         @RequestBody List<IssueFieldEditRest> fields)
     {
-        return ResponseEntity.ok(organizationIssueCreateService.create(sourceOrganizationId, fields));
+        final LocalDateTime created = LocalDateTime.now();
+        return ResponseEntity.ok(organizationIssueCreateService.create(sourceOrganizationId, fields, created));
+    }
+
+    private void addToProject(final Long issueId, Long projectId)
+    {
+        final Issue issue = issueRepository.getReferenceById(issueId);
+        final Long organizationId = issue.getSourceOrganization().getId();
+        final OrganizationInProjectId oipId =
+            new OrganizationInProjectId(organizationId, projectId);
+        oipService.create(oipId, OrganizationInProjectRole.REPORTER, OrganizationInvitationStatus.ACCEPTED);
+        issue.setProject(projectRepository.getReferenceById(projectId));
+        issueRepository.save(issue);
     }
 
     private List<IssueFieldEditRest> getFields(final Long organizationId,
@@ -167,7 +159,7 @@ public class IssueController
             };
     }
 
-    private static IssueDetailsRest getIssueDetailsRest(Long issueId,
+    private static IssueFieldsRest getIssueFieldsRest(Long issueId,
         final String organizationName, final List<IssueFieldEditRest> fields)
     {
         final List<IssueFieldEditRest> col1Fields = fields.stream()
@@ -176,46 +168,17 @@ public class IssueController
         final List<IssueFieldEditRest> col2Fields = fields.stream()
             .filter(field -> field.getColumn() == (byte) 2)
             .collect(Collectors.toList());
-        return new IssueDetailsRest(issueId, organizationName, col1Fields, col2Fields);
+        return new IssueFieldsRest(issueId, organizationName, col1Fields, col2Fields);
     }
 
-    public static class IssueNameRest
-    {
-        private final Long id;
-        private final String organizationName;
-        private final boolean myIssue;
-
-        private IssueNameRest(Issue issue, boolean myIssue) {
-            this.id = issue.getId();
-            this.organizationName = (myIssue ? issue.getOrganization() : issue.getSourceOrganization()).getName();
-            this.myIssue = myIssue;
-        }
-
-        public Long getId()
-        {
-            return id;
-        }
-
-        public String getOrganizationName()
-        {
-            return organizationName;
-        }
-
-        public boolean isMyIssue()
-        {
-            return myIssue;
-        }
-
-    }
-
-    public static class IssueDetailsRest
+    public static class IssueFieldsRest
     {
         private final Long id;
         private final String organizationName;
         private final List<IssueFieldEditRest> col1Fields;
         private final List<IssueFieldEditRest> col2Fields;
 
-        private IssueDetailsRest(final Long id,
+        private IssueFieldsRest(final Long id,
             final String organizationName,
             final List<IssueFieldEditRest> col1Fields,
             final List<IssueFieldEditRest> col2Fields)

@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { IssueDetailsRest } from '../../../../services/issue/issue-details.service';
 
 @Component({
   selector: 'app-issue-details',
@@ -6,6 +8,12 @@ import { Component } from '@angular/core';
   styleUrl: './issue-details.component.css'
 })
 export class IssueDetailsComponent {
+  issue: IssueDetailsRest;
+
+  constructor(@Inject(MAT_DIALOG_DATA) data: {issue: IssueDetailsRest}) {
+    this.issue = data.issue;
+  }
+  
   tasks: any[] = [
     {
       name: "test",

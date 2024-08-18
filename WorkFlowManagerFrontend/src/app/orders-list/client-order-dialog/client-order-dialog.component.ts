@@ -17,8 +17,8 @@ import { ResultToasterService } from '../../services/result-toaster/result-toast
 export class ClientOrderDialogComponent implements OnInit{
   organizationId: number | null;
   issueId: number;
-  issueDetailsUrl: string;
-  issue$: Observable<IssueDetailsRest>;
+  issueFieldsUrl: string;
+  issue$: Observable<IssueFieldsRest>;
 
   projectNameControl: FormControl = new FormControl();
   projectOptions: ProjectOptionRest[];
@@ -35,17 +35,18 @@ export class ClientOrderDialogComponent implements OnInit{
     private resultToasterService: ResultToasterService,
     @Inject(MAT_DIALOG_DATA) private data: {
       organizationId?: number
-      issueDetailsUrl: string
+      issueFieldsUrl: string
     }) {
     this.organizationId = data.organizationId || null;
-    this.issueDetailsUrl = data.issueDetailsUrl;
+    this.issueFieldsUrl = data.issueFieldsUrl;
 
-    if(this.organizationId) {
+    if(this.organizationId) { // if organizationId is passed, then show project form
       projectService.getOwned(this.organizationId).subscribe(projects => {
         this.projectOptions = projects.map(project => {
           return {
             id: project.projectId, 
-            name: project.name}
+            name: project.name
+          }
         });
       });
 
@@ -62,10 +63,10 @@ export class ClientOrderDialogComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.issue$ = this.http.getGeneric<IssueDetailsRest>(this.issueDetailsUrl);
+    this.issue$ = this.http.getGeneric<IssueFieldsRest>(this.issueFieldsUrl);
   }
 
-  toExistingProject(issue: IssueDetailsRest) {
+  toExistingProject(issue: IssueFieldsRest) {
     const project = this.projectOptions.filter(project => project.name == this.projectNameControl.value)[0];
     if(!project) {
       this.resultToasterService.error("Project isn't in the list");
@@ -78,7 +79,7 @@ export class ClientOrderDialogComponent implements OnInit{
     });
   }
 
-  toNewProject(organizationId: number, issue: IssueDetailsRest) {
+  toNewProject(organizationId: number, issue: IssueFieldsRest) {
     this.projectService.createWithIssue(organizationId, issue.id, this.projectCreateModel).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res, "Project created successfully", "Errors occured");
       if(res.success) {
@@ -98,7 +99,7 @@ interface ProjectOptionRest {
   name: string;
 }
 
-interface IssueDetailsRest {
+interface IssueFieldsRest {
   id: number,
   organizationName: string,
   col1Fields: IssueFieldEditRest[],

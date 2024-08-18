@@ -1,21 +1,72 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { IssueDetailsComponent } from '../issue-details/issue-details.component';
+import { ActivatedRoute } from '@angular/router';
+import { IssueDetailsRest, IssueDetailsService } from '../../../../services/issue/issue-details.service';
+import { group } from '@angular/animations';
 
 @Component({
   selector: 'app-issue-list',
   templateUrl: './issue-list.component.html',
   styleUrl: './issue-list.component.css'
 })
-export class IssueListComponent {
-  constructor(private dialog: MatDialog) {
+export class IssueListComponent implements OnInit {
+  organizationId: number | null;
+  projectId: number | null;
 
+  issueGroups: IssueGroup[];
+
+  constructor(private dialog: MatDialog,
+    private route: ActivatedRoute,
+    private issueDetailsService: IssueDetailsService) { }
+
+    ngOnInit() {
+      this.route.paramMap.subscribe(params => {
+        const projectId = params.get("projectId");
+        const organizationId = params.get("organizationId");
+        this.projectId = projectId == null ? null : +projectId;
+        this.organizationId = organizationId == null ? null : +organizationId;
+        this._loadIssues();
+      })    
+    }
+
+  _loadIssues() {
+    if(this.organizationId && this.projectId) {
+      this.issueDetailsService.getProjectIssues(this.organizationId, this.projectId).subscribe(issues => {
+        const groups: any = {};
+        for(let i = 0; i < issues.length; ++i) {
+          const issue: IssueDetailsRest = issues[i];
+          let group = groups[issue.organizationId]
+          if(!group) {
+            groups[issue.organizationId] = {
+              organizationId: issue.organizationId, 
+              organizationName: issue.organizationName, 
+              issues: [issue]
+            };
+          }
+          else {
+            group.issues.push(issue);
+          }
+        }
+        const issueGroups: IssueGroup[] = [];
+        for (const group of Object.values(groups)) {
+          issueGroups.push(group as IssueGroup);
+        }
+        this.issueGroups = issueGroups;
+      });
+    }
   }
 
-  openDialog() {
+  openDialog(issue: IssueDetailsRest) {
     const dialogRef = this.dialog.open(IssueDetailsComponent, {
-      data: {}
+      data: {issue: issue}
     });
   }
 
+}
+
+interface IssueGroup {
+  organizationId: number,
+  organizationName: string,
+  issues: IssueDetailsRest[];
 }

@@ -41,7 +41,7 @@ public class OrganizationIssueCreateService
     }
 
     public ServiceResult<IssueCreateError> create(Long sourceOrganizationId,
-        List<IssueFieldEditRest> fields)
+        List<IssueFieldEditRest> fields, final LocalDateTime created)
     {
         if(fields.isEmpty())
         {
@@ -63,6 +63,7 @@ public class OrganizationIssueCreateService
         final Long destinationOrganizationId =
             Iterables.getOnlyElement(destinationOrganizationIds);
         final Issue issue = new Issue();
+        issue.setCreated(created);
         issue.setSourceOrganization(organizationRepository.getReferenceById(sourceOrganizationId));
         issue.setOrganization(organizationRepository.getReferenceById(destinationOrganizationId));
         issueRepository.save(issue);

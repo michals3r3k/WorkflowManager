@@ -1,6 +1,23 @@
 <div class="issues-container">
     <mat-accordion>
-        <mat-expansion-panel>
+        <mat-expansion-panel *ngFor="let issueGroup of issueGroups">
+            <mat-expansion-panel-header>
+                <mat-panel-title>{{issueGroup.organizationName}}</mat-panel-title>
+                <mat-panel-description>Opis organizacji</mat-panel-description>
+            </mat-expansion-panel-header>
+            <mat-card *ngFor="let issue of issueGroup.issues" appearance="outlined" (click)="openDialog(issue)">
+                <mat-card-content class="issue">
+                    <span class="id">#{{issue.id}}</span>
+                    <span class="title">{{issue.organizationName}}</span>
+                    <div class="extra-data">
+                        <span>{{issue.status}}</span>
+                        <span>{{issue.created}}</span>
+                    </div>
+                </mat-card-content>
+            </mat-card>     
+        </mat-expansion-panel>
+
+        <!-- <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Organizacja 1</mat-panel-title>
                 <mat-panel-description>Opis organizacji</mat-panel-description>
@@ -51,7 +68,7 @@
                     </div>
                 </mat-card-content>
             </mat-card>     
-        </mat-expansion-panel>
+        </mat-expansion-panel> -->
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Archive</mat-panel-title>

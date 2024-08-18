@@ -12,6 +12,7 @@ import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.service.organization.OrganizationInProjectService;
 import com.example.workflowmanager.service.project.ProjectCreateRest;
 import com.example.workflowmanager.service.project.ProjectCreateService;
+import com.example.workflowmanager.service.project.ProjectCreateService.ProjectCreateResult;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +61,7 @@ public class IssueController
     public ResponseEntity<ServiceResult<?>> addToProject(@PathVariable Long organizationId,
         @PathVariable Long issueId, @RequestBody ProjectCreateRest projectRest)
     {
-        final ProjectCreateService.ProjectCreateResult result = projectService.create(organizationId, projectRest);
+        final ProjectCreateResult result = projectService.create(organizationId, projectRest);
         if(!result.isSuccess())
         {
             return ResponseEntity.ok(result);

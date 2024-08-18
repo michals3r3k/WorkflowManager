@@ -47,7 +47,7 @@ public class IssueDetailsController
         private Long destinationOrganizationId;
         private IssueFormRest form;
 
-        public IssueDetailsRest(final Long id,
+        private IssueDetailsRest(final Long id,
             final String title, final String sourceOrganizationName,
             final String destinationOrganizationName,
             final String projectName, final Long sourceOrganizationId,

@@ -1,7 +1,5 @@
 package com.example.workflowmanager.rest.issue;
 
-import com.example.workflowmanager.db.issue.IssueFieldDefinitionRepository;
-import com.example.workflowmanager.db.issue.IssueRepository;
 import com.example.workflowmanager.service.issue.OrganizationIssueCreateService;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
@@ -13,20 +11,13 @@ import java.time.LocalDateTime;
 @RestController
 public class IssueFormController
 {
-
-    private final IssueRepository issueRepository;
-    private final IssueFieldDefinitionRepository ifdRepository;
     private final OrganizationIssueCreateService organizationIssueCreateService;
     private final IssueFormFactory issueFormFactory;
 
     public IssueFormController(
-        final IssueRepository issueRepository,
-        final IssueFieldDefinitionRepository ifdRepository,
         final OrganizationIssueCreateService organizationIssueCreateService,
         final IssueFormFactory issueFormFactory)
     {
-        this.issueRepository = issueRepository;
-        this.ifdRepository = ifdRepository;
         this.organizationIssueCreateService = organizationIssueCreateService;
         this.issueFormFactory = issueFormFactory;
     }

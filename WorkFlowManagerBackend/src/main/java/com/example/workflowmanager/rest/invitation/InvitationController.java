@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class InvitationController
 {
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
     private final CurrentUserService cuService;
     private final OrganizationMemberRepository omRepository;
     private final OrganizationMemberEditService omeService;
@@ -119,7 +120,7 @@ public class InvitationController
         private String organizationName;
         private String invitationTime;
 
-        public InvitationRest(final Long organizationId,
+        private InvitationRest(final Long organizationId,
             final String organizationName,
             final String invitationTime)
         {

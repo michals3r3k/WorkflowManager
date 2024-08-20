@@ -4,7 +4,7 @@
   </div>
   <div class="invitations" *ngIf="invitations$ | async as invitations">
     <div class="invitation" *ngIf="invitations.length === 0">You have no invitations here.</div>
-    <div class="invitation inv-content subject-container" *ngFor="let invitation of invitations">
+    <div class="invitation" *ngFor="let invitation of invitations">
       <div class="inv-content">
         <div class="subject-container">
           <span>You have new invitation from organization <span style="font-weight: strong; font-style: italic;">{{invitation.organizationName}}</span>.</span>
@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="inv-buttons">
-        <button mat-raised-button class="accept" (click)="accept(invitation)">Accpet</button>
+        <button mat-raised-button class="accept" (click)="accept(invitation)">Accept</button>
         <button mat-raised-button class="reject" (click)="reject(invitation)">Reject</button>
       </div>
     </div>

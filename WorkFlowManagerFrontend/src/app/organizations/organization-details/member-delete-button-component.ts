@@ -6,8 +6,8 @@ import { OrganizationMemberInvitationStatus } from './organization-details.compo
   template: `
     <button mat mat-raised-button class="custom-chip" [color]="chipColor" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
       <div class="chip-text-wrapper">
-        <span class="chip-text default-label" [ngClass]="{ 'hidden': isHovered }">{{label}}</span>
-        <span class="chip-text hover-label" [ngClass]="{ 'visible': isHovered }">{{hoverLabel}}</span>
+        <span class="chip-text default-label" [ngClass]="{ 'hidden': hovered }">{{label}}</span>
+        <span class="chip-text hover-label" [ngClass]="{ 'visible': hovered }">{{hoverLabel}}</span>
       </div>
     </button>
   `,
@@ -58,7 +58,7 @@ export class MemberDeleteButton implements OnInit {
   @Input() status: OrganizationMemberInvitationStatus;
   label: string;
   hoverLabel: string;
-  isHovered: boolean = false;  // Flaga, aby śledzić stan hover
+  hovered: boolean = false;
   chipColor: string;
 
   constructor() {}
@@ -79,12 +79,12 @@ export class MemberDeleteButton implements OnInit {
 
   onMouseEnter() {
     this.chipColor = 'warn'
-    this.isHovered = true;
+    this.hovered = true;
   }
 
   onMouseLeave() {
     this.chipColor = 'primary'
-    this.isHovered = false;
+    this.hovered = false;
   }
   
 }

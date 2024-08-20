@@ -13,10 +13,8 @@ public class OrganizationMember
 {
     @EmbeddedId
     private OrganizationMemberId id;
-
     @NotNull
     private LocalDateTime invitationTime;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "invitation_status")

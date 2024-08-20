@@ -1,10 +1,12 @@
 package com.example.workflowmanager.entity.organization;
 
+import com.example.workflowmanager.entity.organization.role.OrganizationMemberRole;
 import com.example.workflowmanager.entity.user.User;
 import jakarta.persistence.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 public class OrganizationMember
@@ -31,6 +33,8 @@ public class OrganizationMember
         insertable = false,
         updatable = false)
     private User user;
+    @OneToMany(mappedBy = "member")
+    private Set<OrganizationMemberRole> roles;
 
     public OrganizationMember(OrganizationMemberId id)
     {
@@ -92,6 +96,16 @@ public class OrganizationMember
     protected void setUser(User user)
     {
         this.user = user;
+    }
+
+    public Set<OrganizationMemberRole> getRoles()
+    {
+        return roles;
+    }
+
+    protected void setRoles(final Set<OrganizationMemberRole> roles)
+    {
+        this.roles = roles;
     }
 
     @Override

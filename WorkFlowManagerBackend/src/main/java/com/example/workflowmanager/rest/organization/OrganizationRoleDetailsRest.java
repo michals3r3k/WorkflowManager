@@ -8,6 +8,7 @@ import java.util.List;
 
 public class OrganizationRoleDetailsRest
 {
+    private boolean addToNewMembers;
     private List<PermissionSectionRest> permissionSections;
     private List<OrganizationMemberRest> members;
 
@@ -16,11 +17,23 @@ public class OrganizationRoleDetailsRest
         // for Spring
     }
 
-    OrganizationRoleDetailsRest(List<PermissionSectionRest> permissionSections,
+    OrganizationRoleDetailsRest(boolean addToNewMembers,
+        List<PermissionSectionRest> permissionSections,
         List<OrganizationMemberRest> members)
     {
+        this.addToNewMembers = addToNewMembers;
         this.permissionSections = permissionSections;
         this.members = members;
+    }
+
+    public boolean isAddToNewMembers()
+    {
+        return addToNewMembers;
+    }
+
+    public void setAddToNewMembers(final boolean addToNewMembers)
+    {
+        this.addToNewMembers = addToNewMembers;
     }
 
     public List<PermissionSectionRest> getPermissionSections()

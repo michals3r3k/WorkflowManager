@@ -2,8 +2,9 @@
   <div class="title">
     <h1>Invitations</h1>
   </div>
-  <div class="invitations">
-    <div class="invitation" *ngFor="let invitation of invitations$ | async">
+  <div class="invitations" *ngIf="invitations$ | async as invitations">
+    <div class="invitation" *ngIf="invitations.length === 0">You have no invitations here.</div>
+    <div class="invitation inv-content subject-container" *ngFor="let invitation of invitations">
       <div class="inv-content">
         <div class="subject-container">
           <span>You have new invitation from organization <span style="font-weight: strong; font-style: italic;">{{invitation.organizationName}}</span>.</span>

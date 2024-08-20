@@ -13,7 +13,7 @@ public class OrganizationRole
 {
     @EmbeddedId
     private OrganizationRoleId id;
-
+    private boolean addToNewMembers;
     @ManyToOne()
     @JoinColumn(name = "organizationId",
         referencedColumnName = "id",
@@ -21,9 +21,10 @@ public class OrganizationRole
         updatable = false)
     private Organization organization;
 
-    public OrganizationRole(OrganizationRoleId id)
+    public OrganizationRole(OrganizationRoleId id, boolean addToNewMembers)
     {
         this.id = id;
+        this.addToNewMembers = addToNewMembers;
     }
 
     protected OrganizationRole()
@@ -50,6 +51,16 @@ public class OrganizationRole
         Organization organization)
     {
         this.organization = organization;
+    }
+
+    public boolean isAddToNewMembers()
+    {
+        return addToNewMembers;
+    }
+
+    public void setAddToNewMembers(final boolean addToNewMembers)
+    {
+        this.addToNewMembers = addToNewMembers;
     }
 
     @Override

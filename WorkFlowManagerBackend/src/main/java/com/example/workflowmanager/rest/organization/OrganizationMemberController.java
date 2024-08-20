@@ -4,6 +4,7 @@ import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.OrganizationMemberId;
 import com.example.workflowmanager.entity.organization.OrganizationMemberInvitationStatus;
+import com.example.workflowmanager.service.organization.member.OrganizationMemberDeleteService;
 import com.example.workflowmanager.service.organization.member.OrganizationMemberInvitationService;
 import com.example.workflowmanager.service.organization.member.OrganizationMemberInvitationService.OrganizationMemberInvitationError;
 import com.example.workflowmanager.service.utils.ServiceResult;
@@ -23,13 +24,16 @@ public class OrganizationMemberController
 {
     private final OrganizationMemberRepository organizationMemberRepository;
     private final OrganizationMemberInvitationService invitationService;
+    private final OrganizationMemberDeleteService deleteService;
 
     public OrganizationMemberController(
         final OrganizationMemberRepository organizationMemberRepository,
-        final OrganizationMemberInvitationService invitationService)
+        final OrganizationMemberInvitationService invitationService,
+        final OrganizationMemberDeleteService deleteService)
     {
         this.organizationMemberRepository = organizationMemberRepository;
         this.invitationService = invitationService;
+        this.deleteService = deleteService;
     }
 
     @GetMapping("/api/organization/{organizationId}/member/list")
@@ -42,6 +46,13 @@ public class OrganizationMemberController
             .sorted(Comparator.comparing(OrganizationMemberRest::getName, Comparator.naturalOrder()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(members);
+    }
+
+    @PostMapping("/api/organization/{organizationId}/member/delete")
+    public ResponseEntity<ServiceResult<?>> delete(@PathVariable Long organizationId,
+        @RequestBody Long userId)
+    {
+        return ResponseEntity.ok(deleteService.delete(new OrganizationMemberId(organizationId, userId)));
     }
 
     @PostMapping("/api/organization/{organizationId}/member/add")
@@ -60,6 +71,11 @@ public class OrganizationMemberController
         private OrganizationMemberRest(OrganizationMember member)
         {
             this.member = member;
+        }
+
+        public Long getUserId()
+        {
+            return member.getId().getUserId();
         }
 
         public String getName()

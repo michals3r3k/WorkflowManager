@@ -25,9 +25,9 @@ public class OrganizationRoleController
     private final OrganizationRoleService organizationRoleService;
 
     public OrganizationRoleController(
-        OrganizationRoleRepository roleRepository,
-        OrganizationRoleDetailsRestFactory roleDetailsRestFactory,
-        OrganizationRoleService organizationRoleService)
+        final OrganizationRoleRepository roleRepository,
+        final OrganizationRoleDetailsRestFactory roleDetailsRestFactory,
+        final OrganizationRoleService organizationRoleService)
     {
         this.roleRepository = roleRepository;
         this.roleDetailsRestFactory = roleDetailsRestFactory;
@@ -51,7 +51,7 @@ public class OrganizationRoleController
         List<OrganizationRoleRest> roles = roleRepository
             .getListByOrganization(Collections.singleton(organizationId)).stream()
             .map(OrganizationRoleRest::new)
-            .sorted(Comparator.comparing(OrganizationRoleRest::getRole, Comparator.naturalOrder()))
+            .sorted(Comparator.comparing(OrganizationRoleRest::getName, Comparator.naturalOrder()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(roles);
     }
@@ -119,7 +119,7 @@ public class OrganizationRoleController
             this.role = role;
         }
 
-        public String getRole()
+        public String getName()
         {
             return role.getId().getRole();
         }

@@ -39,7 +39,6 @@ public class OrganizationMemberInvitationService
             omRepository.save(memberToSave);
         }
         return result;
-
     }
 
     private static ServiceResult<OrganizationMemberInvitationError> validate(

@@ -54,10 +54,9 @@ public class OrganizationRoleService
         {
             return ServiceResult.error(OrganizationRoleError.ROLE_ALREADY_EXISTS);
         }
-        roleRepository.save(new OrganizationRole(roleId));
+        roleRepository.save(new OrganizationRole(roleId, false));
         return ServiceResult.ok();
     }
-
 
     public ServiceResult<OrganizationRoleError> edit(OrganizationRoleId roleId, OrganizationRoleDetailsRest roleRest)
     {
@@ -65,18 +64,17 @@ public class OrganizationRoleService
         {
             return ServiceResult.error(OrganizationRoleError.ROLE_DOESNT_EXIST);
         }
+        final OrganizationRole role = roleRepository.getReferenceById(roleId);
+        role.setAddToNewMembers(roleRest.isAddToNewMembers());
+        roleRepository.save(role);
         updatePermissions(roleId, roleRest);
         updateMembers(roleId, roleRest);
         return ServiceResult.ok();
     }
 
-    private ServiceResult<OrganizationRoleError> updatePermissions(final OrganizationRoleId roleId,
+    private void updatePermissions(final OrganizationRoleId roleId,
         final OrganizationRoleDetailsRest role)
     {
-        if(!isRoleExists(roleId))
-        {
-            return ServiceResult.error(OrganizationRoleError.ROLE_DOESNT_EXIST);
-        }
         final Set<OrganizationPermissionId> permissionsExisting = getPermissionsExisting(roleId);
         final Set<OrganizationPermissionId> permissionsGiven = role.getPermissionSections().stream()
             .map(PermissionSectionRest::getPermissions)
@@ -92,7 +90,6 @@ public class OrganizationRoleService
         Sets.difference(permissionsGiven, permissionsExisting).stream()
             .map(OrganizationPermission::new)
             .forEach(permissionRepository::save);
-        return ServiceResult.ok();
     }
 
     private boolean isRoleExists(final OrganizationRoleId roleId)

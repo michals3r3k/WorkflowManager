@@ -6,7 +6,7 @@ import { OrganizationMemberRest } from '../organizations/organization-details/or
 })
 export class FilterPipe implements PipeTransform {
 
-  transform(values: OrganizationMemberRest[], filterString: string): any {
+  transform(values: { name: string }[], filterString: string): any {
     if (values.length === 0 || !filterString){
       return values;
     }

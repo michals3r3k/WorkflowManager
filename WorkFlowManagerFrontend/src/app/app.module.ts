@@ -65,6 +65,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { OrganizationIssueDialogComponent } from './orders-list/organization-issue-dialog/organization-issue-dialog.component';
 import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
 import { IssueFormComponent } from './orders-list/issue-form/issue-form.component';
+import { MemberDeleteButton } from './organizations/organization-details/member-delete-button-component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { IssueFormComponent } from './orders-list/issue-form/issue-form.componen
     OrganizationsComponent,
     OrganizationCreateComponent,
     OrganizationDetailsComponent,
+    MemberDeleteButton,
     ResultToasterComponent,
     AboutUsComponent,
     ProfileComponent,

@@ -38,6 +38,7 @@
       <div style="display: flex; flex-direction: row;">
         <h1>Permissions</h1>
         <button mat-flat-button color="primary" class="save-permission-btn" (click)="save(roleDetails)">Save</button>
+        <mat-checkbox class="checkbox" color="primary" [(ngModel)]="roleDetails.addToNewMembers" matListItemTitle>add this role to new members</mat-checkbox>
       </div>
       <div class="permission-classes">
         <div class="permission-section" *ngFor="let section of roleDetails.permissionSections">

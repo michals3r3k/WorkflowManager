@@ -17,10 +17,13 @@ import { ServiceResultHelper } from '../../services/utils/service-result-helper'
 })
 export class OrganizationDetailsComponent implements OnInit {
   organizationId: number | null;
-  searchUser: string = "";
   organization: any = null;
+  
   members$: Observable<OrganizationMemberRest[]>;
-  roles$: Observable<any[] | null> = of(null);
+  roles$: Observable<{name: string}[]>;
+  
+  searchUser: string = "";
+  searchRole: string = ""; 
 
   projectR: boolean = false;
   memberR: boolean = false;
@@ -34,7 +37,7 @@ export class OrganizationDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      const idParam = params.get("id");
+      const idParam = params.get("id"); 
       this.organizationId = idParam == null ? null: +idParam;
       this.permissionService.getPermissions(this.organizationId).subscribe(res => {
         let permissions = new Set(res);
@@ -55,7 +58,7 @@ export class OrganizationDetailsComponent implements OnInit {
   }
 
   private loadRoles() {
-    this.roles$ = this.http.get(`api/organization/${this.organizationId}/role/list`);
+    this.roles$ = this.http.getGeneric<{name: string}[]>(`api/organization/${this.organizationId}/role/list`);
   }
 
   openAddUserDialg() {
@@ -96,15 +99,23 @@ export class OrganizationDetailsComponent implements OnInit {
     });
   }
 
+  deleteMember(member: OrganizationMemberRest) {
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/member/delete`, member.userId).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Member deleted succesfully", "Errors occured");
+      this.loadMembers();
+    })
+  }
+
 }
 
 export interface OrganizationMemberRest {
+  userId: number,
   name: string,
   invitationStatus: OrganizationMemberInvitationStatus
 }
 
 export enum OrganizationMemberInvitationStatus {
-  INVITED,
-  ACCEPTED,
-  REJECTED
+  INVITED = 'INVITED',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED'
 }

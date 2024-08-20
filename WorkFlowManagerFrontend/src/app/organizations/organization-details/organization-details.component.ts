@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationMemberPickerComponent } from '../organization-member-picker/organization-member-picker.component';
 import { RoleSettingsComponent } from '../role-settings/role-settings.component';
 import { RoleCreateComponent } from '../role-create/role-create.component';
 import { PermissionService } from '../../services/permission/permission.service';
-import { ProjectService } from '../../services/project/project.service';
+import { ServiceResult } from '../../services/utils/service-result';
+import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-organization-details',
@@ -19,7 +19,7 @@ export class OrganizationDetailsComponent implements OnInit {
   organizationId: number | null;
   searchUser: string = "";
   organization: any = null;
-  members$: Observable<any[] | null> = of(null);
+  members$: Observable<OrganizationMemberRest[]>;
   roles$: Observable<any[] | null> = of(null);
 
   projectR: boolean = false;
@@ -27,7 +27,8 @@ export class OrganizationDetailsComponent implements OnInit {
   roleR: boolean = false;
 
   constructor(private route: ActivatedRoute, private http: HttpRequestService,
-    private dialog: MatDialog, private resultToaster: ResultToasterService,
+    private serviceResultHelper: ServiceResultHelper,
+    private dialog: MatDialog, 
     private permissionService: PermissionService) {
   }
 
@@ -50,27 +51,22 @@ export class OrganizationDetailsComponent implements OnInit {
   }
 
   private loadMembers() {
-    this.members$ = this.http.get("api/organization/" + this.organizationId + "/member/list");
+    this.members$ = this.http.getGeneric<OrganizationMemberRest[]>(`api/organization/${this.organizationId}/member/list`);
   }
 
   private loadRoles() {
-    this.roles$ = this.http.get("api/organization/" + this.organizationId + "/role/list");
+    this.roles$ = this.http.get(`api/organization/${this.organizationId}/role/list`);
   }
 
   openAddUserDialg() {
     let dialogRef = this.dialog.open(OrganizationMemberPickerComponent);
     dialogRef.componentInstance.onUserSelected.subscribe(userId => {
-      this.http.post("api/organization/" + this.organizationId + "/member/add", {
-        userId: userId
-      }).subscribe(res => {
+      this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/member/add`, userId).subscribe(res => {
+        this.serviceResultHelper.handleServiceResult(res, "Member invited successfully", "Errors occured");
         if(res.success) {
-          this.resultToaster.success("Member added successfully");
           this.loadMembers();
+          dialogRef.close();
         }
-        else {
-          this.resultToaster.success("Unknown error");
-        }
-        dialogRef.close();
       })
     });
   }
@@ -100,4 +96,15 @@ export class OrganizationDetailsComponent implements OnInit {
     });
   }
 
+}
+
+export interface OrganizationMemberRest {
+  name: string,
+  invitationStatus: OrganizationMemberInvitationStatus
+}
+
+export enum OrganizationMemberInvitationStatus {
+  INVITED,
+  ACCEPTED,
+  REJECTED
 }

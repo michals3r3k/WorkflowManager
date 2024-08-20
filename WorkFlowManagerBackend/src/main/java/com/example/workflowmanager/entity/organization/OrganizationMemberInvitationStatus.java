@@ -1,2 +1,8 @@
-package com.example.workflowmanager.entity.organization;public class OrganizationMemberInvitationStatus {
+package com.example.workflowmanager.entity.organization;
+
+public enum OrganizationMemberInvitationStatus
+{
+    INVITED,
+    ACCEPTED,
+    REJECTED;
 }

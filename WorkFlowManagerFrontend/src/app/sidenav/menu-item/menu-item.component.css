@@ -5,6 +5,7 @@
     width: fit-content;
     overflow: hidden;
     text-wrap: nowrap;
+    margin: .2em 2em 1em 2em;
 }
 
 .menu-item-label {
@@ -19,4 +20,8 @@
 .menu-item-label-collapsed,
 .menu-item-label {
     transition: all .2s ease-in-out;
+}
+
+mat-icon {
+    margin-top: 1em;
 }

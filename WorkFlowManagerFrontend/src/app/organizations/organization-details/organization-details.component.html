@@ -20,8 +20,12 @@
 
       <mat-list class="users-list" *ngIf="members$ | async as members">
         <mat-list-item *ngFor="let member of members | filter: searchUser">
-          <span matListItemTitle>{{member.name}}</span>
+          <div style="display: flex; justify-content: space-between;">
+            <div>{{member.name}}</div>
+            <mat-chip>{{member.invitationStatus}}</mat-chip>
+          </div>
         </mat-list-item>
+
       </mat-list>
     </div>
 

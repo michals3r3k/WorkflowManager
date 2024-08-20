@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle'; 
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBadgeModule } from '@angular/material/badge'; 
 import { MatMenuModule} from '@angular/material/menu'
 import { MatTooltipModule } from '@angular/material/tooltip'; 
 import { MatDatepickerModule } from '@angular/material/datepicker'; 
@@ -124,6 +125,7 @@ import { IssueFormComponent } from './orders-list/issue-form/issue-form.componen
     MatSlideToggleModule,
     MatCheckboxModule,
     MatAutocompleteModule,
+    MatBadgeModule,
     MatMenuModule,
     MatDatepickerModule,
     MatNativeDateModule,

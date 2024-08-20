@@ -15,6 +15,7 @@ public class OrganizationMemberDeleteService
 {
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationMemberRoleRepository memberRoleRepository;
+    
     public OrganizationMemberDeleteService(
         final OrganizationMemberRepository memberRepository,
         final OrganizationMemberRoleRepository memberRoleRepository)

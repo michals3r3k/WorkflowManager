@@ -1,7 +1,12 @@
 <a class="menu-item-link">
-    <mat-icon class="icon">{{matIcon}}</mat-icon>
-    <span class="menu-item-label" 
+    @if(iconBadge) {
+        <mat-icon class="icon" [matBadge]="iconBadge" matBadgeColor="warn" matBadgeSize="small">{{matIcon}}</mat-icon>
+    }
+    @else {
+        <mat-icon class="icon">{{matIcon}}</mat-icon>
+    }
+    <div class="menu-item-label" style="margin-top: 2em;" 
         [ngClass]="{'menu-item-label-collapsed': collapsed || !label}">
         {{label}}
-    </span>
+    </div>
 </a>

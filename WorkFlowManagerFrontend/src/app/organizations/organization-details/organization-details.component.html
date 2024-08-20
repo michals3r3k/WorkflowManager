@@ -20,8 +20,12 @@
 
       <mat-list class="users-list" *ngIf="members$ | async as members">
         <mat-list-item *ngFor="let member of members | filter: searchUser">
-          <span matListItemTitle>{{member.name}}</span>
+          <div style="display: flex; justify-content: space-between;">
+            <div>{{member.name}}</div> 
+            <member-delete-button [status]="member.invitationStatus" (click)="deleteMember(member)"/>
+          </div>
         </mat-list-item>
+
       </mat-list>
     </div>
 
@@ -29,7 +33,7 @@
       <div>
         <mat-form-field>
           <mat-label>Search role</mat-label>
-          <input matInput type="text" [(ngModel)]="searchUser" placeholder="Search role"/>
+          <input matInput type="text" [(ngModel)]="searchRole" placeholder="Search role"/>
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
@@ -39,11 +43,11 @@
         <mat-icon matSuffix>add</mat-icon>
       </button>
 
-      <mat-list class="roles-list">
-        <mat-list-item *ngFor="let role of roles$ | async">
+      <mat-list class="roles-list" *ngIf="roles$ | async as roles">
+        <mat-list-item *ngFor="let role of roles | filter: searchRole">
           <div class="roles-item">
-            <span matListItemTitle>{{role.role}}</span>
-            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role.role)">
+            <span matListItemTitle>{{role.name}}</span>
+            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role.name)">
               <div style="display: flex; justify-content: center; align-items: center;">
               <mat-icon>menu</mat-icon>
               </div>

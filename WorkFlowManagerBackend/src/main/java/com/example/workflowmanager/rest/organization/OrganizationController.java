@@ -4,6 +4,7 @@ import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
 import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
+import com.example.workflowmanager.entity.organization.OrganizationMemberInvitationStatus;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.organization.OrganizationService;
@@ -52,7 +53,8 @@ public class OrganizationController
             .map(User::getId);
         final Optional<Set<Long>> userIds = userId.map(Collections::singleton);
         final Stream<Organization> organizationsMember = userIds
-            .map(organizationMemberRepository::getListByUserIdsWithOrganization)
+            .map(userIdColl -> organizationMemberRepository.getListByUserIdsWithOrganization(
+                userIdColl, Collections.singleton(OrganizationMemberInvitationStatus.ACCEPTED)))
             .orElse(Collections.emptyList())
             .stream()
             .map(OrganizationMember::getOrganization);

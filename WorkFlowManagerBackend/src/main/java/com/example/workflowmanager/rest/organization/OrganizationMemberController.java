@@ -3,10 +3,16 @@ package com.example.workflowmanager.rest.organization;
 import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.OrganizationMemberId;
+import com.example.workflowmanager.entity.organization.OrganizationMemberInvitationStatus;
+import com.example.workflowmanager.service.organization.member.OrganizationMemberDeleteService;
+import com.example.workflowmanager.service.organization.member.OrganizationMemberInvitationService;
+import com.example.workflowmanager.service.organization.member.OrganizationMemberInvitationService.OrganizationMemberInvitationError;
+import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -17,11 +23,17 @@ import java.util.stream.Collectors;
 public class OrganizationMemberController
 {
     private final OrganizationMemberRepository organizationMemberRepository;
+    private final OrganizationMemberInvitationService invitationService;
+    private final OrganizationMemberDeleteService deleteService;
 
     public OrganizationMemberController(
-        OrganizationMemberRepository organizationMemberRepository)
+        final OrganizationMemberRepository organizationMemberRepository,
+        final OrganizationMemberInvitationService invitationService,
+        final OrganizationMemberDeleteService deleteService)
     {
         this.organizationMemberRepository = organizationMemberRepository;
+        this.invitationService = invitationService;
+        this.deleteService = deleteService;
     }
 
     @GetMapping("/api/organization/{organizationId}/member/list")
@@ -36,59 +48,20 @@ public class OrganizationMemberController
         return ResponseEntity.ok(members);
     }
 
+    @PostMapping("/api/organization/{organizationId}/member/delete")
+    public ResponseEntity<ServiceResult<?>> delete(@PathVariable Long organizationId,
+        @RequestBody Long userId)
+    {
+        return ResponseEntity.ok(deleteService.delete(new OrganizationMemberId(organizationId, userId)));
+    }
+
     @PostMapping("/api/organization/{organizationId}/member/add")
     @PreAuthorize("hasAuthority('ORGANIZATION_MEMBER_C')")
-    public ResponseEntity<OrganizationMemberCreateServiceResult> addMember(
-        @PathVariable Long organizationId, @RequestBody OrganizationMemberAddRequest request)
+    public ResponseEntity<ServiceResult<OrganizationMemberInvitationError>> addMember(
+        @PathVariable Long organizationId, @RequestBody Long userId)
     {
-        // TODO: add service with validation
-        OrganizationMemberId organizationMemberId = new OrganizationMemberId(
-            organizationId, request.getUserId());
-        organizationMemberRepository.save(new OrganizationMember(organizationMemberId));
-        return ResponseEntity.ok(new OrganizationMemberCreateServiceResult(true));
-    }
-
-    public static class OrganizationMemberCreateServiceResult
-    {
-        private final boolean success;
-
-        private OrganizationMemberCreateServiceResult(boolean success)
-        {
-            this.success = success;
-        }
-
-        public boolean isSuccess()
-        {
-            return success;
-        }
-
-    }
-
-    public static class OrganizationMemberAddRequest
-    {
-        private Long userId;
-
-
-        public OrganizationMemberAddRequest()
-        {
-            // for Spring.
-        }
-
-        public OrganizationMemberAddRequest(Long userId)
-        {
-            this.userId = userId;
-        }
-
-        public Long getUserId()
-        {
-            return userId;
-        }
-
-        public void setUserId(Long userId)
-        {
-            this.userId = userId;
-        }
-
+        final LocalDateTime now = LocalDateTime.now();
+        return ResponseEntity.ok(invitationService.invite(new OrganizationMemberId(organizationId, userId), now));
     }
 
     public static class OrganizationMemberRest
@@ -100,9 +73,19 @@ public class OrganizationMemberController
             this.member = member;
         }
 
+        public Long getUserId()
+        {
+            return member.getId().getUserId();
+        }
+
         public String getName()
         {
             return member.getUser().getEmail();
+        }
+
+        public OrganizationMemberInvitationStatus getInvitationStatus()
+        {
+            return member.getInvitationStatus();
         }
 
     }

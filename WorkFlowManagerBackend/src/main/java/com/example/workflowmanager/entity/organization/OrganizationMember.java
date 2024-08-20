@@ -1,16 +1,24 @@
 package com.example.workflowmanager.entity.organization;
 
+import com.example.workflowmanager.entity.organization.role.OrganizationMemberRole;
 import com.example.workflowmanager.entity.user.User;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+import org.antlr.v4.runtime.misc.NotNull;
+
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 public class OrganizationMember
 {
     @EmbeddedId
     private OrganizationMemberId id;
+    @NotNull
+    private LocalDateTime invitationTime;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "invitation_status")
+    private OrganizationMemberInvitationStatus invitationStatus;
     @ManyToOne()
     @JoinColumn(name = "organizationId",
         referencedColumnName = "id",
@@ -23,6 +31,8 @@ public class OrganizationMember
         insertable = false,
         updatable = false)
     private User user;
+    @OneToMany(mappedBy = "member")
+    private Set<OrganizationMemberRole> roles;
 
     public OrganizationMember(OrganizationMemberId id)
     {
@@ -34,14 +44,35 @@ public class OrganizationMember
         // for hibernate
     }
 
+    public OrganizationMemberId getId()
+    {
+        return id;
+    }
+
     protected void setId(OrganizationMemberId id)
     {
         this.id = id;
     }
 
-    public OrganizationMemberId getId()
+    public OrganizationMemberInvitationStatus getInvitationStatus()
     {
-        return id;
+        return invitationStatus;
+    }
+
+    public void setInvitationStatus(
+        final OrganizationMemberInvitationStatus invitationStatus)
+    {
+        this.invitationStatus = invitationStatus;
+    }
+
+    public LocalDateTime getInvitationTime()
+    {
+        return invitationTime;
+    }
+
+    public void setInvitationTime(final LocalDateTime invitationTime)
+    {
+        this.invitationTime = invitationTime;
     }
 
     public Organization getOrganization()
@@ -63,6 +94,16 @@ public class OrganizationMember
     protected void setUser(User user)
     {
         this.user = user;
+    }
+
+    public Set<OrganizationMemberRole> getRoles()
+    {
+        return roles;
+    }
+
+    protected void setRoles(final Set<OrganizationMemberRole> roles)
+    {
+        this.roles = roles;
     }
 
     @Override

@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { IssueDetailsComponent } from '../issue-details/issue-details.component';
 import { ActivatedRoute } from '@angular/router';
 import { IssueRest, IssueService } from '../../../../services/issue/issue.service';
-import { group } from '@angular/animations';
 
 @Component({
   selector: 'app-issue-list',

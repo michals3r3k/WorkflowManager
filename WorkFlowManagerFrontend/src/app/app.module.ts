@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle'; 
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBadgeModule } from '@angular/material/badge'; 
 import { MatMenuModule} from '@angular/material/menu'
 import { MatTooltipModule } from '@angular/material/tooltip'; 
 import { MatDatepickerModule } from '@angular/material/datepicker'; 
@@ -64,6 +65,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { OrganizationIssueDialogComponent } from './orders-list/organization-issue-dialog/organization-issue-dialog.component';
 import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
 import { IssueFormComponent } from './orders-list/issue-form/issue-form.component';
+import { MemberDeleteButton } from './organizations/organization-details/member-delete-button-component';
 
 @NgModule({
   declarations: [
@@ -76,6 +78,7 @@ import { IssueFormComponent } from './orders-list/issue-form/issue-form.componen
     OrganizationsComponent,
     OrganizationCreateComponent,
     OrganizationDetailsComponent,
+    MemberDeleteButton,
     ResultToasterComponent,
     AboutUsComponent,
     ProfileComponent,
@@ -124,6 +127,7 @@ import { IssueFormComponent } from './orders-list/issue-form/issue-form.componen
     MatSlideToggleModule,
     MatCheckboxModule,
     MatAutocompleteModule,
+    MatBadgeModule,
     MatMenuModule,
     MatDatepickerModule,
     MatNativeDateModule,

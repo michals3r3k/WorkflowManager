@@ -1,4 +1,7 @@
-import { Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { WebsocketService } from '../services/websocket/websocket.service';
+import { Subscription } from 'rxjs';
+import { LoggedUser, LoggedUserService } from '../services/login/logged-user.service';
 
 @Component({
   selector: 'app-chat',
@@ -8,14 +11,16 @@ import { Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild } fro
 export class ChatComponent implements OnInit {
   @ViewChild('endOfMessages') endOfMessages: ElementRef | undefined;
   @ViewChild('messagesScroll') messagesScroll: ElementRef | undefined;
+  @Input() chatId: number = 1;
 
   private messagesScrollListener: (() => void) | undefined;
 
   message_text: string = "";
-
   messages: Message[] = []
-
   attachments_to_send :Attachment[] = []
+
+  loggedUser: LoggedUser;
+  chatSubscription?: Subscription;
 
   users = [
     {
@@ -40,7 +45,9 @@ export class ChatComponent implements OnInit {
 
   attachments: Attachment[] = []
 
-  constructor(private renderer: Renderer2) {
+  constructor(private loggedUserService: LoggedUserService, 
+    private websocketService: WebsocketService, 
+    private renderer: Renderer2) {
     var message1 = new Message()
     message1.sender = "Pan Danilecki";
     message1.own = false;
@@ -58,6 +65,31 @@ export class ChatComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loggedUserService.user$.subscribe(user => {
+      if(user) {
+        this.loggedUser = user;
+        this._subscribeWebsocket();
+      }
+    });
+  }
+
+  _subscribeWebsocket() {
+    this.websocketService.connect();
+    this.websocketService.getConnectedObservable().subscribe(() => {
+      this.websocketService.subscribe<MessageResponseWs>(`/topic/chat/${this.chatId}/messages`).subscribe(messageWS => {
+        let message = new Message();
+        message.sender = messageWS.senderName;
+        message.own = this.loggedUser.id == messageWS.userId;
+        message.messa = messageWS.message;
+        // message.attachments = this.attachments_to_send;
+    
+        this.messages.push(message)
+    
+        // if (message.attachments.length > 0){
+        //   Array.prototype.push.apply(this.attachments, message.attachments);
+        // }
+      });
+    });
   }
 
   ngAfterViewInit() {
@@ -80,24 +112,14 @@ export class ChatComponent implements OnInit {
     if (this.messagesScroll && this.messagesScrollListener) {
       this.messagesScroll.nativeElement.removeEventListener('scroll', this.messagesScrollListener);
     }
+    this.chatSubscription?.unsubscribe();
   }
 
   sendMessage() {
     if (this.message_text.length === 0 && this.attachments_to_send. length === 0)
       return;
-
-    let message = new Message();
-    message.sender = "you";
-    message.own = true;
-    message.messa = this.message_text;
-    message.attachments = this.attachments_to_send;
-
-    this.messages.push(message)
-
-    if (message.attachments.length > 0){
-      Array.prototype.push.apply(this.attachments, message.attachments);
-    }
-
+    const messageRequest: MessageRequestWs = {userId: this.loggedUser.id, message: this.message_text};
+    this.websocketService.send(`/app/chat/${this.chatId}/send-message`, messageRequest);
     this.attachments_to_send = [];
     this.message_text = "";
   }
@@ -194,4 +216,16 @@ class Message {
   own: boolean;
   send_date: Date = new Date();
   attachments: Attachment[];
+}
+
+interface MessageRequestWs {
+  userId: number,
+  message: string,
+}
+
+interface MessageResponseWs {
+  userId: number,
+  senderName: string,
+  message: string,
+  createTime: string,
 }

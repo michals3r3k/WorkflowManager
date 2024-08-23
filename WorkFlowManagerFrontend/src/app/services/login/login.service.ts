@@ -25,7 +25,7 @@ export class LoginService {
             email: email,
             token: res.token
           }));
-          this.loggedUser.setUser({email: email})
+          this.loggedUser.updateUser();
         }
         callback(res);
       });

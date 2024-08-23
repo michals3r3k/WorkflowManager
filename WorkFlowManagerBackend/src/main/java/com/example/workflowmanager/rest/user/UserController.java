@@ -19,13 +19,22 @@ import java.util.stream.Collectors;
 public class UserController
 {
     private final UserRepository userRepository;
-    private CurrentUserService currentUserService;
+    private final CurrentUserService currentUserService;
 
-    public UserController(UserRepository userRepository,
-        CurrentUserService currentUserService)
+    public UserController(final UserRepository userRepository,
+        final CurrentUserService currentUserService)
     {
         this.userRepository = userRepository;
         this.currentUserService = currentUserService;
+    }
+
+    @GetMapping("/api/users/current-user")
+    public ResponseEntity<UserRest> getCurrentUser()
+    {
+        return currentUserService.getCurrentUser()
+            .map(UserRest::new)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/api/users/like/{searchValue}")

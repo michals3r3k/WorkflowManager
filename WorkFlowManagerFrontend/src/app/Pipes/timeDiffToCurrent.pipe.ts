@@ -5,12 +5,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TimeDiffToCurrentPipe implements PipeTransform {
 
-  transform(value: Date | string): string {
-    if (!value) return '';
-
-    const currentDate = new Date();
-    const givenDate = new Date(value);
-
+  transform(currentDate: Date | null, givenDate: Date): string {
+    if(!currentDate) {
+      return '';
+    }
     const differenceInSeconds = Math.floor((currentDate.getTime() - givenDate.getTime()) / 1000);
 
     const intervals: { [key: string]: number } = {

@@ -1,7 +1,9 @@
 import { Component, ElementRef, HostListener, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { WebsocketService } from '../services/websocket/websocket.service';
-import { Subscription } from 'rxjs';
+import { interval, map, merge, Observable, Observer, of, startWith, Subject, Subscription } from 'rxjs';
 import { LoggedUser, LoggedUserService } from '../services/login/logged-user.service';
+import { HttpRequestService } from '../services/http/http-request.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-chat',
@@ -18,6 +20,9 @@ export class ChatComponent implements OnInit {
   message_text: string = "";
   messages: Message[] = []
   attachments_to_send :Attachment[] = []
+  
+  messageAddedSubject = new Subject<void>();
+  currentDate$: Observable<Date>;
 
   loggedUser: LoggedUser;
   chatSubscription?: Subscription;
@@ -46,6 +51,8 @@ export class ChatComponent implements OnInit {
   attachments: Attachment[] = []
 
   constructor(private loggedUserService: LoggedUserService, 
+    private http: HttpRequestService,
+    private httpClient: HttpClient,
     private websocketService: WebsocketService, 
     private renderer: Renderer2) {
     var message1 = new Message()
@@ -65,6 +72,7 @@ export class ChatComponent implements OnInit {
   }
 
   ngOnInit() {
+    this._initCurrentDate();
     this.loggedUserService.user$.subscribe(user => {
       if(user) {
         this.loggedUser = user;
@@ -73,21 +81,43 @@ export class ChatComponent implements OnInit {
     });
   }
 
+  _initCurrentDate() {
+    const timer$ = interval(30000).pipe(
+      map(() => new Date())
+    );
+    const messageAdded$ = this.messageAddedSubject.pipe(
+      map(() => new Date())
+    );
+    this.currentDate$ = merge(timer$, messageAdded$).pipe(
+      startWith(new Date())
+    );
+  }
+
   _subscribeWebsocket() {
     this.websocketService.connect();
     this.websocketService.getConnectedObservable().subscribe(() => {
       this.websocketService.subscribe<MessageResponseWs>(`/topic/chat/${this.chatId}/messages`).subscribe(messageWS => {
+        var sendDate = new Date(messageWS.createTime);
         let message = new Message();
         message.sender = messageWS.senderName;
         message.own = this.loggedUser.id == messageWS.userId;
         message.messa = messageWS.message;
-        // message.attachments = this.attachments_to_send;
-    
+        message.send_date = sendDate;
+
+        const attachments: Attachment[] = [];
+        messageWS.files.forEach(file => {
+          const attachment = new Attachment(file.fileName);
+          attachment.canBeDisplayed = true;
+          attachment.fileId = file.fileId;
+          attachments.push(attachment);
+        })
+        message.attachments = attachments;
         this.messages.push(message)
-    
-        // if (message.attachments.length > 0){
-        //   Array.prototype.push.apply(this.attachments, message.attachments);
-        // }
+        
+        if (message.attachments.length > 0){
+          Array.prototype.push.apply(this.attachments, message.attachments);
+        }
+        this.messageAddedSubject.next();
       });
     });
   }
@@ -116,12 +146,32 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage() {
-    if (this.message_text.length === 0 && this.attachments_to_send. length === 0)
+    if (this.message_text.length === 0 && this.attachments_to_send. length === 0) {
       return;
-    const messageRequest: MessageRequestWs = {userId: this.loggedUser.id, message: this.message_text};
-    this.websocketService.send(`/app/chat/${this.chatId}/send-message`, messageRequest);
-    this.attachments_to_send = [];
-    this.message_text = "";
+    }
+    this.uploadFile(this.attachments_to_send[0]).subscribe(messageIdOrNull => {
+      const messageRequest: MessageRequestWs = {userId: this.loggedUser.id, message: this.message_text, messageId: messageIdOrNull};
+      this.websocketService.send(`/app/chat/${this.chatId}/send-message`, messageRequest);
+      this.attachments_to_send = [];
+      this.message_text = "";
+    });
+  }
+  sendMessageWithFile() {
+
+  }
+
+  uploadFile(attachment: Attachment): Observable<number | null> {
+    if(!attachment || !attachment.file) {
+      return of(null);
+    }
+    const headers = this.http.getHttpHeaders();
+    if(!headers) {
+      return of(null);
+    }
+    const file: File = attachment.file;
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.httpClient.post<number | null>(`http://localhost:8080/api/chat/${this.chatId}/file/upload`, formData, {headers: headers});
   }
 
   sendMessageArea(event: KeyboardEvent) {
@@ -176,6 +226,7 @@ export class ChatComponent implements OnInit {
     const file: File = event.target.files[0];
     if (file) {
       let attachment = new Attachment(file.name);
+      attachment.file = file;
       const reader = new FileReader();
       const fileExtension = file.name.split('.').pop()?.toLowerCase() as string;
 
@@ -195,6 +246,24 @@ export class ChatComponent implements OnInit {
     }
   }
 
+  downloadFile(attachment: Attachment) {
+    const headers = this.http.getHttpHeaders();
+    if(!headers) {
+      return;
+    }
+    headers.set('Accept', 'application/octet-stream');
+    return this.httpClient.get(`http://localhost:8080/api/chat/file/${attachment.fileId}/download`, {headers: headers, responseType: 'blob'}).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = attachment.name; // Ustaw nazwę pliku
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
 }
 
 class Attachment {
@@ -203,6 +272,7 @@ class Attachment {
   extension: string;
   canBeDisplayed: boolean;
   fileURL: string | ArrayBuffer | null = null;
+  fileId: number | null;
 
   public constructor(name: string){
     this.name = name;
@@ -214,12 +284,13 @@ class Message {
   sender: string;
   messa: string;
   own: boolean;
-  send_date: Date = new Date();
+  send_date: Date;
   attachments: Attachment[];
 }
 
 interface MessageRequestWs {
   userId: number,
+  messageId: number | null,
   message: string,
 }
 
@@ -228,4 +299,10 @@ interface MessageResponseWs {
   senderName: string,
   message: string,
   createTime: string,
+  files: FileWs[],
+}
+
+interface FileWs {
+  fileId: number,
+  fileName: string,
 }

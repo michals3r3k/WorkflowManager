@@ -17,7 +17,7 @@
                 <span>{{attachment.name}}</span>
               </div>
             </div>
-            <span>{{message.send_date | timeDiffToCurrent}}</span> 
+            <span>{{currentDate$ | async | timeDiffToCurrent: message.send_date}}</span> 
           </div>
         </div>
         <div #endOfMessages></div>
@@ -74,7 +74,7 @@
         <div class="attachments-list">
           <div class="chat-attachment" *ngFor="let attachment of attachments">
             <div class="attachment-header">
-              <button class="download-attach-btn" >
+              <button class="download-attach-btn" *ngIf="attachment.fileId" (click)="downloadFile(attachment)">
                 <mat-icon>download</mat-icon>
               </button>  
               {{attachment.name}}

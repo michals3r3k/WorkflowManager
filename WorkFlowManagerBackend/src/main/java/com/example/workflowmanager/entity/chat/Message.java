@@ -15,6 +15,7 @@ public class Message
     private Long id;
     @Column(nullable = false)
     private LocalDateTime createTime;
+    private String content;
     @ManyToOne(optional = false)
     private User creator;
     @ManyToOne(optional = false)
@@ -40,6 +41,16 @@ public class Message
     public void setCreateTime(final LocalDateTime createTime)
     {
         this.createTime = createTime;
+    }
+
+    public String getContent()
+    {
+        return content;
+    }
+
+    public void setContent(final String content)
+    {
+        this.content = content;
     }
 
     public User getCreator()

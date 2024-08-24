@@ -10,6 +10,13 @@ public class File
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
+    private String name;
+    @Column(nullable = false)
+    private String contentType;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] data;
     @ManyToOne(optional = false)
     private Message message;
 
@@ -21,6 +28,36 @@ public class File
     public void setId(final Long id)
     {
         this.id = id;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(final String name)
+    {
+        this.name = name;
+    }
+
+    public String getContentType()
+    {
+        return contentType;
+    }
+
+    public void setContentType(final String contentType)
+    {
+        this.contentType = contentType;
+    }
+
+    public byte[] getData()
+    {
+        return data;
+    }
+
+    public void setData(final byte[] data)
+    {
+        this.data = data;
     }
 
     public Message getMessage()

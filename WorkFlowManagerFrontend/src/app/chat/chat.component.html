@@ -13,7 +13,9 @@
             <div class="message-border">
               <p [innerHTML]="message.messa | newline"></p>
               <div class="attachments" *ngFor="let attachment of message.attachments">
-                <button class="download-attach-btn"><mat-icon>download</mat-icon></button>
+                <button class="download-attach-btn" *ngIf="attachment.fileId" (click)="downloadFile(attachment)">
+                  <mat-icon>download</mat-icon>
+                </button>
                 <span>{{attachment.name}}</span>
               </div>
             </div>
@@ -30,8 +32,8 @@
             <mat-icon>delete</mat-icon>
           </button>  
           <span>{{attachment.name}}</span>
-          <div class="add-attach-preview" *ngIf="attachment.canBeDisplayed" >
-            <img [src]="attachment.fileURL" alt="Image preview" *ngIf="attachment.fileURL">
+          <div class="add-attach-preview" *ngIf="attachment.fileURL" >
+            <img [src]="attachment.fileURL" alt="Image preview">
           </div>
         </div>
       </div>
@@ -79,7 +81,7 @@
               </button>  
               {{attachment.name}}
             </div>
-            <div class="show-attachment" *ngIf="attachment.canBeDisplayed" >
+            <div class="show-attachment" *ngIf="attachment.fileURL" >
               <img [src]="attachment.fileURL" alt="Image preview" *ngIf="attachment.fileURL">
             </div>
           </div>

@@ -4,6 +4,7 @@ import { interval, map, merge, Observable, Observer, of, startWith, Subject, Sub
 import { LoggedUser, LoggedUserService } from '../services/login/logged-user.service';
 import { HttpRequestService } from '../services/http/http-request.service';
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-chat',
@@ -54,21 +55,22 @@ export class ChatComponent implements OnInit {
     private http: HttpRequestService,
     private httpClient: HttpClient,
     private websocketService: WebsocketService, 
+    private sanitizer: DomSanitizer,
     private renderer: Renderer2) {
-    var message1 = new Message()
-    message1.sender = "Pan Danilecki";
-    message1.own = false;
-    message1.messa = "Zrobiliście już? >:C";
-    message1.send_date = new Date('2024-08-05T12:00:00Z');
+    // var message1 = new Message()
+    // message1.sender = "Pan Danilecki";
+    // message1.own = false;
+    // message1.messa = "Zrobiliście już? >:C";
+    // message1.send_date = new Date('2024-08-05T12:00:00Z');
 
-    var message2 = new Message()
-    message2.sender = "Michał";
-    message2.own = false;
-    message2.messa = "A gdzie tam XDDD";
-    message2.send_date = new Date('2024-08-07T14:00:00Z');
+    // var message2 = new Message()
+    // message2.sender = "Michał";
+    // message2.own = false;
+    // message2.messa = "A gdzie tam XDDD";
+    // message2.send_date = new Date('2024-08-07T14:00:00Z');
 
-    this.messages.push(message1);
-    this.messages.push(message2);
+    // this.messages.push(message1);
+    // this.messages.push(message2);
   }
 
   ngOnInit() {
@@ -76,8 +78,30 @@ export class ChatComponent implements OnInit {
     this.loggedUserService.user$.subscribe(user => {
       if(user) {
         this.loggedUser = user;
+        this._initChat();
         this._subscribeWebsocket();
       }
+    });
+  }
+
+  _initChat() {
+    this.http.getGeneric<MessageRest[]>(`api/chat/${this.chatId}/init-chat`).subscribe(messagesRest => {
+      messagesRest.forEach(messageRest => {
+        const message = new Message();
+        message.attachments = [];
+        message.messa = messageRest.content;
+        message.own = this.loggedUser.id == messageRest.creatorId;
+        message.send_date = new Date(messageRest.createTime);
+        message.sender = messageRest.creatorName;
+        messageRest.files.forEach(fileRest => {
+          const attachment = new Attachment(fileRest.name);
+          attachment.fileId = fileRest.id;
+          this._setAttachmentUrl(attachment);
+          message.attachments.push(attachment);
+          this.attachments.push(attachment);
+        });
+        this.messages.push(message);
+      });
     });
   }
 
@@ -103,20 +127,16 @@ export class ChatComponent implements OnInit {
         message.own = this.loggedUser.id == messageWS.userId;
         message.messa = messageWS.message;
         message.send_date = sendDate;
-
         const attachments: Attachment[] = [];
         messageWS.files.forEach(file => {
           const attachment = new Attachment(file.fileName);
-          attachment.canBeDisplayed = true;
           attachment.fileId = file.fileId;
+          this._setAttachmentUrl(attachment);
           attachments.push(attachment);
-        })
+          this.attachments.push(attachment);
+        });
         message.attachments = attachments;
         this.messages.push(message)
-        
-        if (message.attachments.length > 0){
-          Array.prototype.push.apply(this.attachments, message.attachments);
-        }
         this.messageAddedSubject.next();
       });
     });
@@ -227,23 +247,38 @@ export class ChatComponent implements OnInit {
     if (file) {
       let attachment = new Attachment(file.name);
       attachment.file = file;
-      const reader = new FileReader();
-      const fileExtension = file.name.split('.').pop()?.toLowerCase() as string;
-
-      if (['png', 'jpg', 'jpeg', 'gif'].includes(fileExtension)) {
-        attachment.canBeDisplayed = true;
-        reader.onload = () => {
-          attachment.fileURL = reader.result;
-        }
-        reader.readAsDataURL(file);
-      }
-      else {
-        attachment.canBeDisplayed = false;
-        attachment.fileURL = null;
-      }
-
+      this._setAttachmentUrl(attachment);
       this.attachments_to_send.push(attachment);
     }
+  }
+
+  _setAttachmentUrl(attachment: Attachment) {
+    attachment.fileURL = null;
+    if (!this._isImage(attachment)) {
+      return;
+    }
+    if(attachment.fileId) {
+      const headers = this.http.getHttpHeaders()
+      if(headers) {
+        this.httpClient.get(`http://localhost:8080/api/chat/file/${attachment.fileId}/img`, {headers: headers, responseType: 'blob'}).subscribe(blob => {
+          const objectURL = URL.createObjectURL(blob);
+          attachment.fileURL = objectURL;//this.sanitizer.bypassSecurityTrustUrl(objectURL);
+        });
+      }
+      return;
+    }
+    if(attachment.file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        attachment.fileURL = reader.result;
+      }
+      reader.readAsDataURL(attachment.file);
+    }
+  }
+
+  _isImage(attachment: Attachment): boolean {
+    const extension = attachment.name.split('.').pop()?.toLowerCase() as string;
+    return ['png', 'jpg', 'jpeg', 'gif'].includes(extension);
   }
 
   downloadFile(attachment: Attachment) {
@@ -256,7 +291,7 @@ export class ChatComponent implements OnInit {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = attachment.name; // Ustaw nazwę pliku
+      a.download = attachment.name; 
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -269,14 +304,11 @@ export class ChatComponent implements OnInit {
 class Attachment {
   name: string;
   file: File;
-  extension: string;
-  canBeDisplayed: boolean;
   fileURL: string | ArrayBuffer | null = null;
   fileId: number | null;
 
   public constructor(name: string){
     this.name = name;
-    this.canBeDisplayed = false;
   }
 }
 
@@ -305,4 +337,17 @@ interface MessageResponseWs {
 interface FileWs {
   fileId: number,
   fileName: string,
+}
+
+interface MessageRest {
+  creatorId: number,
+  creatorName: string,
+  createTime: string,
+  content: string,
+  files: FileRest[]
+}
+
+interface FileRest {
+  id: number,
+  name: string,
 }

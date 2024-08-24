@@ -59,7 +59,13 @@ public class ChatWsController
         final List<FileWs> files = message.getFiles().stream()
             .map(file -> new FileWs(file.getId(), file.getName()))
             .collect(Collectors.toList());
-        return new MessageResponseWS(user.getId(), user.getEmail(), now.format(DTF), messageWs.getMessage(), files);
+        return new MessageResponseWS(user.getId(), user.getEmail(),
+            formatDate(now), messageWs.getMessage(), files);
+    }
+
+    static String formatDate(final LocalDateTime now)
+    {
+        return now.format(DTF);
     }
 
     public static class MessageResponseWS

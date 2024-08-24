@@ -5,6 +5,7 @@ import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.entity.organization.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -29,6 +30,7 @@ public class OrganizationInviteController
     }
 
     @GetMapping("/api/organizations/not-in-project/{projectId}/like/{searchValue}")
+    @Transactional
     public ResponseEntity<List<OrganizationRest>> getOrganizationNotInProject(@PathVariable Long projectId,
         @PathVariable String searchValue)
     {
@@ -40,6 +42,7 @@ public class OrganizationInviteController
     }
 
     @GetMapping("/api/organizations/different-organization/{organizationId}/like/{searchValue}")
+    @Transactional
     public ResponseEntity<List<OrganizationRest>> getOrganizationDifferent(@PathVariable Long organizationId,
         @PathVariable String searchValue)
     {
@@ -62,6 +65,7 @@ public class OrganizationInviteController
     }
 
     @PostMapping("/api/organization-in-project/invite")
+    @Transactional
     public ResponseEntity<OrganizationInviteServiceResult> inviteOrganization(@RequestBody OrganizationInviteRequest request)
     {
         // TODO: add service with validation

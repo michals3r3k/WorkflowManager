@@ -17,15 +17,15 @@ export class ChatComponent implements OnInit {
   @Input() chatId: number = 1;
 
   loggedUser: LoggedUser;
-  users: User[];
+  users: UserModel[];
 
-  messages: Message[];
+  messages: MessageModel[];
   message_text: string;
   messageAddedSubject = new Subject<void>();
   chatSubscription?: Subscription;
 
-  attachments: Attachment[];
-  attachments_to_send :Attachment[];
+  attachments: AttachmentModel[];
+  attachments_to_send :AttachmentModel[];
   currentDate$: Observable<Date>;
 
   private messagesScrollListener: (() => void) | undefined;
@@ -46,57 +46,10 @@ export class ChatComponent implements OnInit {
     this.loggedUserService.user$.subscribe(user => {
       if(user) {
         this.loggedUser = user;
-        this._initChat();
+        this._initMessages();
+        this._initMessageWebsocket();
         this._initUsers();
-        this._subscribeWebsocket();
       }
-    });
-  }
-
-  _initChat() {
-    this.http.getGeneric<MessageRest[]>(`api/chat/${this.chatId}/init-chat`).subscribe(messagesRest => {
-      messagesRest.forEach(messageRest => {
-        const message = new Message();
-        message.messa = messageRest.content;
-        message.own = this.loggedUser.id == messageRest.creatorId;
-        message.send_date = new Date(messageRest.createTime);
-        message.sender = messageRest.creatorName;
-        message.attachments = [];
-        messageRest.files.forEach(fileRest => {
-          const attachment = new Attachment(fileRest.name);
-          attachment.fileId = fileRest.id;
-          this._setAttachmentUrl(attachment);
-          message.attachments.push(attachment);
-          this.attachments.push(attachment);
-        });
-        this.messages.push(message);
-      });
-    });
-  }
-
-  _initUsers() {
-    this.http.getGeneric<UserRest[]>(`api/chat/${this.chatId}/users`).subscribe(usersRest => {
-      usersRest.forEach(userRest => {
-        const user = new User();
-        user.userId = userRest.id;
-        user.name = userRest.name;
-        this.users.push(user);
-        this._initUser(user);
-      });
-    });
-  }
-
-  _initUser(user: User) {
-    if(!user.userId) {
-      return;
-    }
-    const headers = this.http.getHttpHeaders()
-    if(!headers) {
-      return;
-    }
-    this.httpClient.get(`http://localhost:8080/api/chat/user/${user.userId}/img`, {headers: headers, responseType: 'blob'}).subscribe(blob => {
-      const objectURL = !!blob.size ? URL.createObjectURL(blob) : null;
-      user.imgUrl = objectURL;
     });
   }
 
@@ -112,42 +65,83 @@ export class ChatComponent implements OnInit {
     );
   }
 
-  _subscribeWebsocket() {
+  _initMessageWebsocket() {
     this.websocketService.connect();
     this.websocketService.getConnectedObservable().subscribe(() => {
-      this.websocketService.subscribe<MessageResponseWs>(`/topic/chat/${this.chatId}/messages`).subscribe(messageWS => {
-        var sendDate = new Date(messageWS.createTime);
-        let message = new Message();
-        message.sender = messageWS.senderName;
-        message.own = this.loggedUser.id == messageWS.userId;
-        message.messa = messageWS.message;
-        message.send_date = sendDate;
-        const attachments: Attachment[] = [];
-        messageWS.files.forEach(file => {
-          const attachment = new Attachment(file.fileName);
-          attachment.fileId = file.fileId;
-          this._setAttachmentUrl(attachment);
-          attachments.push(attachment);
-          this.attachments.push(attachment);
-        });
-        message.attachments = attachments;
-        this.messages.push(message)
-        this.messageAddedSubject.next();
-        this._registerNewUser(messageWS.userId, messageWS.senderName);
+      this._subscribeStompMessages();
+    });
+  }
+
+  _subscribeStompMessages() {
+    this.websocketService.subscribe<MessageResponse>(`/topic/chat/${this.chatId}/messages`).subscribe(messageRes => {
+      this._addMessage(messageRes);
+      this.messageAddedSubject.next();
+      this._registerNewUser(messageRes.creatorId, messageRes.creatorName);
+    });
+  }
+
+  _initMessages() {
+    this.http.getGeneric<MessageResponse[]>(`api/chat/${this.chatId}/init-chat`).subscribe(messagesRest => {
+      messagesRest.forEach(messageRes => {
+        this._addMessage(messageRes);
       });
     });
+  }
+
+  _addMessage(messageRes: MessageResponse) {
+    const message = new MessageModel();
+    message.senderId = messageRes.creatorId;
+    message.messa = messageRes.content;
+    message.own = this.loggedUser.id == messageRes.creatorId;
+    message.send_date = new Date(messageRes.createTime);
+    message.sender = messageRes.creatorName;
+    message.attachments = [];
+    messageRes.files.forEach(fileRes => {
+      const attachment = new AttachmentModel(fileRes.name);
+      attachment.fileId = fileRes.id;
+      this._setAttachmentUrl(attachment);
+      message.attachments.push(attachment);
+      this.attachments.push(attachment);
+    });
+    this.messages.push(message);
   }
 
   _registerNewUser(userId: number, name: string) {
     const exists = this.users.some(user => user.userId == userId);
     if(exists) {
-      return;
+      return; 
     }
-    const user = new User();
+    const user = new UserModel();
     user.userId = userId;
     user.name = name;
     this.users.push(user);
     this._initUser(user);
+  }
+
+  _initUsers() {
+    this.http.getGeneric<UserRest[]>(`api/chat/${this.chatId}/users`).subscribe(usersRest => {
+      usersRest.forEach(userRest => {
+        const user = new UserModel();
+        user.userId = userRest.id;
+        user.name = userRest.name;
+        this.users.push(user);
+        this._initUser(user);
+      });
+    });
+  }
+
+  _initUser(user: UserModel) {
+    if(!user.userId) {
+      return;
+    }
+    const headers = this.http.getHttpHeaders()
+    if(!headers) {
+      return;
+    }
+    this.httpClient.get(`http://localhost:8080/api/chat/user/${user.userId}/img`, {headers: headers, responseType: 'blob'}).subscribe(blob => {
+      const objectURL = !!blob.size ? URL.createObjectURL(blob) : null;
+      user.imgUrl = objectURL;
+    });
   }
 
   ngAfterViewInit() {
@@ -173,32 +167,6 @@ export class ChatComponent implements OnInit {
     this.chatSubscription?.unsubscribe();
   }
 
-  sendMessage() {
-    if (this.message_text.length === 0 && this.attachments_to_send. length === 0) {
-      return;
-    }
-    this.uploadFile(this.attachments_to_send[0]).subscribe(messageIdOrNull => {
-      const messageRequest: MessageRequestWs = {userId: this.loggedUser.id, message: this.message_text, messageId: messageIdOrNull};
-      this.websocketService.send(`/app/chat/${this.chatId}/send-message`, messageRequest);
-      this.attachments_to_send = [];
-      this.message_text = "";
-    });
-  }
-
-  uploadFile(attachment: Attachment): Observable<number | null> {
-    if(!attachment || !attachment.file) {
-      return of(null);
-    }
-    const headers = this.http.getHttpHeaders();
-    if(!headers) {
-      return of(null);
-    }
-    const file: File = attachment.file;
-    const formData = new FormData();
-    formData.append("file", file);
-    return this.httpClient.post<number | null>(`http://localhost:8080/api/chat/${this.chatId}/file/upload`, formData, {headers: headers});
-  }
-
   sendMessageArea(event: KeyboardEvent) {
     if (event.key === 'Enter' && event.shiftKey){
       event.preventDefault();
@@ -216,21 +184,47 @@ export class ChatComponent implements OnInit {
     }
   }
 
-  removeAttachment(attach: Attachment) {
+  sendMessage() {
+    if (this.message_text.length === 0 && this.attachments_to_send. length === 0) {
+      return;
+    }
+    this.uploadFile(this.attachments_to_send[0]).subscribe(messageIdOrNull => {
+      const messageRequest: MessageRequestWs = {userId: this.loggedUser.id, message: this.message_text, messageId: messageIdOrNull};
+      this.websocketService.send(`/app/chat/${this.chatId}/send-message`, messageRequest);
+      this.attachments_to_send = [];
+      this.message_text = "";
+    });
+  }
+
+  uploadFile(attachment: AttachmentModel): Observable<number | null> {
+    if(!attachment || !attachment.file) {
+      return of(null);
+    }
+    const headers = this.http.getHttpHeaders();
+    if(!headers) {
+      return of(null);
+    }
+    const file: File = attachment.file;
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.httpClient.post<number | null>(`http://localhost:8080/api/chat/${this.chatId}/file/upload`, formData, {headers: headers});
+  }
+
+  removeAttachment(attach: AttachmentModel) {
     this.attachments_to_send = this.attachments_to_send.filter(a => a !== attach);
   }
 
   onFileChanged(event: any) {
     const file: File = event.target.files[0];
     if (file) {
-      let attachment = new Attachment(file.name);
+      let attachment = new AttachmentModel(file.name);
       attachment.file = file;
       this._setAttachmentUrl(attachment);
       this.attachments_to_send.push(attachment);
     }
   }
 
-  _setAttachmentUrl(attachment: Attachment) {
+  _setAttachmentUrl(attachment: AttachmentModel) {
     attachment.fileURL = null;
     if (!this._isImage(attachment)) {
       return;
@@ -254,12 +248,12 @@ export class ChatComponent implements OnInit {
     }
   }
 
-  _isImage(attachment: Attachment): boolean {
+  _isImage(attachment: AttachmentModel): boolean {
     const extension = attachment.name.split('.').pop()?.toLowerCase() as string;
     return ['png', 'jpg', 'jpeg', 'gif'].includes(extension);
   }
 
-  downloadFile(attachment: Attachment) {
+  downloadFile(attachment: AttachmentModel) {
     const headers = this.http.getHttpHeaders();
     if(!headers) {
       return;
@@ -277,9 +271,13 @@ export class ChatComponent implements OnInit {
     });
   }
 
+  getSenderImgUrl(message: MessageModel): string | null {
+    return this.users.filter(user => user.userId == message.senderId)[0].imgUrl;
+  }
+
 }
 
-class User {
+class UserModel {
   userId: number;
   name: string;
   imgUrl: string | null;
@@ -290,7 +288,7 @@ interface UserRest {
   name: string,
 }
 
-class Attachment {
+class AttachmentModel {
   name: string;
   file: File;
   fileURL: string | ArrayBuffer | null = null;
@@ -301,12 +299,13 @@ class Attachment {
   }
 }
 
-class Message {
+class MessageModel {
+  senderId: number;
   sender: string;
   messa: string;
   own: boolean;
   send_date: Date;
-  attachments: Attachment[];
+  attachments: AttachmentModel[];
 }
 
 interface MessageRequestWs {
@@ -315,28 +314,15 @@ interface MessageRequestWs {
   message: string,
 }
 
-interface MessageResponseWs {
-  userId: number,
-  senderName: string,
-  message: string,
-  createTime: string,
-  files: FileWs[],
-}
-
-interface MessageRest {
+interface MessageResponse {
   creatorId: number,
   creatorName: string,
   content: string,
   createTime: string,
-  files: FileRest[]
+  files: FileResponse[]
 }
 
-interface FileWs {
-  fileId: number,
-  fileName: string,
-}
-
-interface FileRest {
+interface FileResponse {
   id: number,
   name: string,
 }

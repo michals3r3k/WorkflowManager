@@ -7,7 +7,7 @@
 
         <div [ngClass]="message.own ? 'message own' : 'message' "
           *ngFor="let message of messages">
-          <img class="profile-img" src="assets/images/creator-dummy-img.jpg" />
+          <img class="profile-img" *ngIf="getSenderImgUrl(message) as imgUrl" [src]="imgUrl" />
           <div class="texts">
             <span class="sender-name">{{message.sender}}</span>
             <div class="message-border">

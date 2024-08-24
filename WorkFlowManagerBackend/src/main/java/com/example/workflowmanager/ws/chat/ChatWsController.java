@@ -13,16 +13,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 public class ChatWsController
 {
-    private static final DateTimeFormatter DTF = DateTimeFormatter.ISO_DATE_TIME;
 
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
@@ -39,7 +35,7 @@ public class ChatWsController
     @MessageMapping("/chat/{chatId}/send-message")
     @SendTo("/topic/chat/{chatId}/messages")
     @Transactional()
-    public MessageResponseWS sendMessage(@DestinationVariable Long chatId,
+    public MessageResponse sendMessage(@DestinationVariable Long chatId,
         @Payload MessageRequestWs messageWs)
     {
         final User user = userRepository.getReferenceById(messageWs.getUserId());
@@ -56,85 +52,7 @@ public class ChatWsController
             message.setFiles(new HashSet<>());
         }
         messageRepository.save(message);
-        final List<FileWs> files = message.getFiles().stream()
-            .map(file -> new FileWs(file.getId(), file.getName()))
-            .collect(Collectors.toList());
-        return new MessageResponseWS(user.getId(), user.getEmail(),
-            formatDate(now), messageWs.getMessage(), files);
-    }
-
-    static String formatDate(final LocalDateTime now)
-    {
-        return now.format(DTF);
-    }
-
-    public static class MessageResponseWS
-    {
-        private final Long userId;
-        private final String senderName;
-        private final String createTime;
-        private final String message;
-        private final List<FileWs> files;
-
-        public MessageResponseWS(final Long userId, final String senderName,
-            final String createTime, final String message,
-            final List<FileWs> files)
-        {
-            this.userId = userId;
-            this.senderName = senderName;
-            this.createTime = createTime;
-            this.message = message;
-            this.files = files;
-        }
-
-        public Long getUserId()
-        {
-            return userId;
-        }
-
-        public String getSenderName()
-        {
-            return senderName;
-        }
-
-        public String getCreateTime()
-        {
-            return createTime;
-        }
-
-        public String getMessage()
-        {
-            return message;
-        }
-
-        public List<FileWs> getFiles()
-        {
-            return files;
-        }
-
-    }
-
-    private static class FileWs
-    {
-        private final Long fileId;
-        private final String fileName;
-
-        private FileWs(final Long fileId, final String fileName)
-        {
-            this.fileId = fileId;
-            this.fileName = fileName;
-        }
-
-        public Long getFileId()
-        {
-            return fileId;
-        }
-
-        public String getFileName()
-        {
-            return fileName;
-        }
-
+        return new MessageResponse(message);
     }
 
     public static class MessageRequestWs

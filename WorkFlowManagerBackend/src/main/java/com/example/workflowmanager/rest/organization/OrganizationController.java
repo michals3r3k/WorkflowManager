@@ -11,6 +11,7 @@ import com.example.workflowmanager.service.organization.OrganizationService;
 import com.example.workflowmanager.service.organization.OrganizationService.OrganizationServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -38,6 +39,7 @@ public class OrganizationController
     }
 
     @PostMapping("/api/organization/create")
+    @Transactional
     public ResponseEntity<OrganizationServiceResult> create(
         @RequestBody OrganizationCreateRequest organizationCreateRequest)
     {
@@ -47,6 +49,7 @@ public class OrganizationController
     }
 
     @GetMapping("/api/organization/list")
+    @Transactional
     public ResponseEntity<List<OrganizationRest>> getList()
     {
         final Optional<Long> userId = currentUserService.getCurrentUser()
@@ -72,6 +75,7 @@ public class OrganizationController
     }
 
     @GetMapping("/api/organization/{id}")
+    @Transactional
     @PreAuthorize("hasAuthority('ORGANIZATION_R')")
     public ResponseEntity<OrganizationRest> getDetails(@PathVariable Long id)
     {

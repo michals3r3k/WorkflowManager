@@ -3,6 +3,7 @@ package com.example.workflowmanager.rest.issue;
 import com.example.workflowmanager.service.issue.OrganizationIssueCreateService;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -23,12 +24,14 @@ public class IssueFormController
     }
 
     @GetMapping("/api/organization/{organizationId}/issue-form/{destinationOrganizationId}")
+    @Transactional
     public IssueFormRest getForm(@PathVariable Long organizationId, @PathVariable Long destinationOrganizationId)
     {
         return issueFormFactory.getEmpty(destinationOrganizationId);
     }
 
     @PostMapping("/api/organization/{organizationId}/issue-form/send")
+    @Transactional
     public ResponseEntity<ServiceResult<?>> sendForm(@PathVariable Long organizationId,
         @RequestBody IssueFormRest form)
     {

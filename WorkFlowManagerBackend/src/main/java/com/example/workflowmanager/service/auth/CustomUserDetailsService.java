@@ -29,6 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException
     {
         return loadUserByUsernameAndOrganizationId(email, null);

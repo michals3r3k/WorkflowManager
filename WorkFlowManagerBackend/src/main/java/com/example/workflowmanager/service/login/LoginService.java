@@ -6,6 +6,7 @@ import com.example.workflowmanager.service.auth.jwt.JwtService;
 import com.google.common.collect.Sets;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -26,6 +27,7 @@ public class LoginService
         this.jwtService = jwtService;
     }
 
+    @Transactional
     public LoginServiceResult login(String email, String password)
     {
         User userOrNull = userRepository.findByEmail(email).orElse(null);

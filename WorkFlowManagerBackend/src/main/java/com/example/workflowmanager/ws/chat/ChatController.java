@@ -80,6 +80,7 @@ public class ChatController
     }
 
     @PostMapping("/api/chat/{chatId}/file/upload")
+    @Transactional
     public ResponseEntity<Long> upload(@PathVariable Long chatId,
         @RequestParam("file") MultipartFile multipartFile)
     {
@@ -109,12 +110,12 @@ public class ChatController
 
     @GetMapping("/api/chat/{chatId}/init-chat")
     @Transactional
-    public ResponseEntity<List<MessageRest>> initChat(@PathVariable Long chatId)
+    public ResponseEntity<List<MessageResponse>> initChat(@PathVariable Long chatId)
     {
         final Chat chat = chatRepository.getReferenceById(chatId);
-        final List<MessageRest> messages = chat.getMessages().stream()
+        final List<MessageResponse> messages = chat.getMessages().stream()
             .sorted(Comparator.comparing(Message::getCreateTime))
-            .map(MessageRest::new)
+            .map(MessageResponse::new)
             .collect(Collectors.toList());
         return ResponseEntity.ok(messages);
     }
@@ -130,67 +131,6 @@ public class ChatController
                 Comparator.naturalOrder()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(users);
-    }
-
-    public static class MessageRest
-    {
-        private final Message message;
-        private final List<FileRest> files;
-
-        public MessageRest(final Message message)
-        {
-            this.message = message;
-            this.files = message.getFiles().stream()
-                .map(FileRest::new)
-                .collect(Collectors.toList());
-        }
-
-        public Long getCreatorId()
-        {
-            return message.getCreator().getId();
-        }
-
-        public String getCreatorName()
-        {
-            return message.getCreator().getEmail();
-        }
-
-        public String getCreateTime()
-        {
-            return ChatWsController.formatDate(message.getCreateTime());
-        }
-
-        public String getContent()
-        {
-            return message.getContent();
-        }
-
-        public List<FileRest> getFiles()
-        {
-            return files;
-        }
-
-    }
-
-    public static class FileRest
-    {
-        private final File file;
-
-        private FileRest(File file)
-        {
-            this.file = file;
-        }
-
-        public Long getId()
-        {
-            return file.getId();
-        }
-
-        public String getName()
-        {
-            return file.getName();
-        }
-
     }
 
     public static class UserRest

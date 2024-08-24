@@ -16,6 +16,7 @@ import com.example.workflowmanager.service.project.ProjectCreateService.ProjectC
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
@@ -50,6 +51,7 @@ public class IssueController
     }
 
     @GetMapping("/api/organization/{organizationId}/issue/{issueId}/to-existing-project/{projectId}")
+    @Transactional
     public ResponseEntity<ServiceResult<?>> addToProject(@PathVariable Long organizationId,
         @PathVariable Long issueId, @PathVariable Long projectId)
     {
@@ -58,6 +60,7 @@ public class IssueController
     }
 
     @PostMapping("/api/organization/{organizationId}/issue/{issueId}/to-new-project")
+    @Transactional
     public ResponseEntity<ServiceResult<?>> addToProject(@PathVariable Long organizationId,
         @PathVariable Long issueId, @RequestBody ProjectCreateRest projectRest)
     {
@@ -71,6 +74,7 @@ public class IssueController
     }
 
     @GetMapping("/api/organization/{organizationId}/issues")
+    @Transactional
     public List<IssueRest> getOrganizationIssueList(@PathVariable Long organizationId)
     {
         return getIssueRest(organizationId,
@@ -78,6 +82,7 @@ public class IssueController
     }
 
     @GetMapping("/api/organization/{organizationId}/issues/project/{projectId}")
+    @Transactional
     public List<IssueRest> getProjectIssueList(@PathVariable Long organizationId, @PathVariable Long projectId)
     {
         return getIssueRest(organizationId,

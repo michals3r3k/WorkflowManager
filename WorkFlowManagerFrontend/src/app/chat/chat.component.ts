@@ -16,61 +16,29 @@ export class ChatComponent implements OnInit {
   @ViewChild('messagesScroll') messagesScroll: ElementRef | undefined;
   @Input() chatId: number = 1;
 
-  private messagesScrollListener: (() => void) | undefined;
-
-  message_text: string = "";
-  messages: Message[] = []
-  attachments_to_send :Attachment[] = []
-  
-  messageAddedSubject = new Subject<void>();
-  currentDate$: Observable<Date>;
-
   loggedUser: LoggedUser;
+  users: User[];
+
+  messages: Message[];
+  message_text: string;
+  messageAddedSubject = new Subject<void>();
   chatSubscription?: Subscription;
 
-  users = [
-    {
-      name: "user1"
-    },
-    {
-      name: "user2"
-    },
-    {
-      name: "user3"
-    },
-    {
-      name: "user4"
-    },
-    {
-      name: "user5"
-    },
-    {
-      name: "user6"
-    }
-  ]
+  attachments: Attachment[];
+  attachments_to_send :Attachment[];
+  currentDate$: Observable<Date>;
 
-  attachments: Attachment[] = []
+  private messagesScrollListener: (() => void) | undefined;
 
   constructor(private loggedUserService: LoggedUserService, 
     private http: HttpRequestService,
     private httpClient: HttpClient,
-    private websocketService: WebsocketService, 
-    private sanitizer: DomSanitizer,
-    private renderer: Renderer2) {
-    // var message1 = new Message()
-    // message1.sender = "Pan Danilecki";
-    // message1.own = false;
-    // message1.messa = "Zrobiliście już? >:C";
-    // message1.send_date = new Date('2024-08-05T12:00:00Z');
-
-    // var message2 = new Message()
-    // message2.sender = "Michał";
-    // message2.own = false;
-    // message2.messa = "A gdzie tam XDDD";
-    // message2.send_date = new Date('2024-08-07T14:00:00Z');
-
-    // this.messages.push(message1);
-    // this.messages.push(message2);
+    private websocketService: WebsocketService) {
+      this.users = [];
+      this.messages = [];
+      this.attachments = [];
+      this.attachments_to_send = [];
+      this.message_text = "";
   }
 
   ngOnInit() {
@@ -79,6 +47,7 @@ export class ChatComponent implements OnInit {
       if(user) {
         this.loggedUser = user;
         this._initChat();
+        this._initUsers();
         this._subscribeWebsocket();
       }
     });
@@ -88,11 +57,11 @@ export class ChatComponent implements OnInit {
     this.http.getGeneric<MessageRest[]>(`api/chat/${this.chatId}/init-chat`).subscribe(messagesRest => {
       messagesRest.forEach(messageRest => {
         const message = new Message();
-        message.attachments = [];
         message.messa = messageRest.content;
         message.own = this.loggedUser.id == messageRest.creatorId;
         message.send_date = new Date(messageRest.createTime);
         message.sender = messageRest.creatorName;
+        message.attachments = [];
         messageRest.files.forEach(fileRest => {
           const attachment = new Attachment(fileRest.name);
           attachment.fileId = fileRest.id;
@@ -102,6 +71,32 @@ export class ChatComponent implements OnInit {
         });
         this.messages.push(message);
       });
+    });
+  }
+
+  _initUsers() {
+    this.http.getGeneric<UserRest[]>(`api/chat/${this.chatId}/users`).subscribe(usersRest => {
+      usersRest.forEach(userRest => {
+        const user = new User();
+        user.userId = userRest.id;
+        user.name = userRest.name;
+        this.users.push(user);
+        this._initUser(user);
+      });
+    });
+  }
+
+  _initUser(user: User) {
+    if(!user.userId) {
+      return;
+    }
+    const headers = this.http.getHttpHeaders()
+    if(!headers) {
+      return;
+    }
+    this.httpClient.get(`http://localhost:8080/api/chat/user/${user.userId}/img`, {headers: headers, responseType: 'blob'}).subscribe(blob => {
+      const objectURL = !!blob.size ? URL.createObjectURL(blob) : null;
+      user.imgUrl = objectURL;
     });
   }
 
@@ -138,8 +133,21 @@ export class ChatComponent implements OnInit {
         message.attachments = attachments;
         this.messages.push(message)
         this.messageAddedSubject.next();
+        this._registerNewUser(messageWS.userId, messageWS.senderName);
       });
     });
+  }
+
+  _registerNewUser(userId: number, name: string) {
+    const exists = this.users.some(user => user.userId == userId);
+    if(exists) {
+      return;
+    }
+    const user = new User();
+    user.userId = userId;
+    user.name = name;
+    this.users.push(user);
+    this._initUser(user);
   }
 
   ngAfterViewInit() {
@@ -176,9 +184,6 @@ export class ChatComponent implements OnInit {
       this.message_text = "";
     });
   }
-  sendMessageWithFile() {
-
-  }
 
   uploadFile(attachment: Attachment): Observable<number | null> {
     if(!attachment || !attachment.file) {
@@ -207,35 +212,8 @@ export class ChatComponent implements OnInit {
     }
     else if (event.key === 'Enter') {
       event.preventDefault();
-      if (this.message_text.length === 0 && this.attachments_to_send. length === 0)
-        return;
-  
-      let message = new Message();
-      message.sender = "you";
-      message.own = true;
-      message.messa = this.message_text;
-      message.attachments = this.attachments_to_send;
-  
-      this.messages.push(message)
-  
-      if (message.attachments.length > 0){
-        Array.prototype.push.apply(this.attachments, message.attachments);
-      }
-
-      const textarea = document.querySelector('textarea');
-      if (textarea) {
-        textarea.value = "";
-        this.message_text = "";
-      }
-  
-      this.attachments_to_send = [];
-      this.message_text = "";
-      this.message_text = "";
+      this.sendMessage();
     }
-  }
-
-  ClearText() {
-    this.message_text = "";
   }
 
   removeAttachment(attach: Attachment) {
@@ -301,6 +279,17 @@ export class ChatComponent implements OnInit {
 
 }
 
+class User {
+  userId: number;
+  name: string;
+  imgUrl: string | null;
+}
+
+interface UserRest {
+  id: number,
+  name: string,
+}
+
 class Attachment {
   name: string;
   file: File;
@@ -334,17 +323,17 @@ interface MessageResponseWs {
   files: FileWs[],
 }
 
-interface FileWs {
-  fileId: number,
-  fileName: string,
-}
-
 interface MessageRest {
   creatorId: number,
   creatorName: string,
-  createTime: string,
   content: string,
+  createTime: string,
   files: FileRest[]
+}
+
+interface FileWs {
+  fileId: number,
+  fileName: string,
 }
 
 interface FileRest {

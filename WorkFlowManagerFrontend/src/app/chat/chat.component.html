@@ -64,7 +64,8 @@
         <hr />
         <div class="users-list">
           <div class="chat-user" *ngFor="let user of users">
-            <img class="profile-img" src="assets/images/creator-dummy-img.jpg" />
+            <img class="profile-img" *ngIf="user.imgUrl" [src]="user.imgUrl"/>
+            <img class="profile-img" *ngIf="!user.imgUrl" src="/assets/images/creator-dummy-img.jpg"/>
             {{user.name}}
           </div>
         </div>

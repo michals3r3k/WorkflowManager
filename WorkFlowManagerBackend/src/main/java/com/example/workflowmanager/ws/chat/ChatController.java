@@ -3,6 +3,7 @@ package com.example.workflowmanager.ws.chat;
 import com.example.workflowmanager.db.chat.ChatRepository;
 import com.example.workflowmanager.db.chat.FileRepository;
 import com.example.workflowmanager.db.chat.MessageRepository;
+import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.chat.Chat;
 import com.example.workflowmanager.entity.chat.File;
 import com.example.workflowmanager.entity.chat.Message;
@@ -26,15 +27,18 @@ import java.util.stream.Collectors;
 @RestController
 public class ChatController
 {
+    private final UserRepository userRepository;
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
     private final FileRepository fileRepository;
     private final CurrentUserService cuService;
 
-    public ChatController(final ChatRepository chatRepository,
+    public ChatController(final UserRepository userRepository, final ChatRepository chatRepository,
         final MessageRepository messageRepository,
-        final FileRepository fileRepository, final CurrentUserService cuService)
+        final FileRepository fileRepository,
+        final CurrentUserService cuService)
     {
+        this.userRepository = userRepository;
         this.chatRepository = chatRepository;
         this.messageRepository = messageRepository;
         this.fileRepository = fileRepository;
@@ -53,12 +57,26 @@ public class ChatController
 
     @GetMapping("/api/chat/file/{fileId}/img")
     @Transactional
-    public ResponseEntity<byte[]> getProfileImg(@PathVariable Long fileId) {
+    public ResponseEntity<byte[]> getFileImg(@PathVariable Long fileId) {
         final File file = fileRepository.getReferenceById(fileId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(file.getContentType()));
         headers.setContentLength(file.getData().length);
         return new ResponseEntity<>(file.getData(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/chat/user/{userId}/img")
+    @Transactional
+    public ResponseEntity<byte[]> getProfileImg(@PathVariable Long userId) {
+        final User user = userRepository.getReferenceById(userId);
+        if(user.getImgContent() == null)
+        {
+            return ResponseEntity.ok(null);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        headers.setContentLength(user.getImgContent().length);
+        return new ResponseEntity<>(user.getImgContent(), headers, HttpStatus.OK);
     }
 
     @PostMapping("/api/chat/{chatId}/file/upload")
@@ -99,6 +117,19 @@ public class ChatController
             .map(MessageRest::new)
             .collect(Collectors.toList());
         return ResponseEntity.ok(messages);
+    }
+
+    @GetMapping("/api/chat/{chatId}/users")
+    @Transactional
+    public ResponseEntity<List<UserRest>> getUsers(@PathVariable Long chatId)
+    {
+        final List<UserRest> users = userRepository.getListByChatId(chatId)
+            .stream()
+            .map(UserRest::new)
+            .sorted(Comparator.comparing(UserRest::getName,
+                Comparator.naturalOrder()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(users);
     }
 
     public static class MessageRest
@@ -158,6 +189,27 @@ public class ChatController
         public String getName()
         {
             return file.getName();
+        }
+
+    }
+
+    public static class UserRest
+    {
+        private final User user;
+
+        private UserRest(final User user)
+        {
+            this.user = user;
+        }
+
+        public Long getId()
+        {
+            return user.getId();
+        }
+
+        public String getName()
+        {
+            return user.getEmail();
         }
 
     }

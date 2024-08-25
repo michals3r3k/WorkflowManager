@@ -1,0 +1,21 @@
+<div class="issue-details-container">
+    <div *ngIf="issue$ | async as issue">
+        <h1>#{{issue.id}} {{issue.title}}</h1>
+        Organization: {{issue.sourceOrganizationName}}
+        <issue-form [issueForm]="issue.form"/>
+        <div class="task-list">
+            @for (task of tasks; track task) {
+                <mat-card>
+                    <mat-card-header>
+                        <mat-card-title>{{task.name}}</mat-card-title>
+                        <mat-card-subtitle>{{task.description}}</mat-card-subtitle>
+                    </mat-card-header>
+                </mat-card>
+            }
+            <button class="add-btn" mat-flat-button color="primary" (click)="addTask()">
+                <span>Add task</span>
+                <mat-icon>add</mat-icon>
+            </button>  
+        </div>
+    </div>
+</div>

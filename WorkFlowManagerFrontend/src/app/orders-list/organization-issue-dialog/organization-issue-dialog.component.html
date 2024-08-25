@@ -1,0 +1,39 @@
+<div style="margin: 2em;">
+    <div *ngIf="issue$ | async as issue">
+        <h1>#{{issue.id}} {{issue.title}}</h1>
+        Organization: {{readOnly ? issue.destinationOrganizationName: issue.sourceOrganizationName}}
+        <issue-form [issueForm]="issue.form"/>
+        <div *ngIf="!readOnly">
+            Existing project: <mat-slide-toggle color="primary" [(ngModel)]="existingProject"/><br/><br/>
+            @if(existingProject) {
+                <mat-form-field>
+                    <input matInput type="text" placeholder="Project name"
+                        [formControl]="projectNameControl" [matAutocomplete]="projectAutocomplete"/>
+                    <mat-autocomplete #projectAutocomplete="matAutocomplete">
+                        <mat-option *ngFor="let projectOption of projectOptions$ | async" [value]="projectOption.name">
+                            {{projectOption.name}}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field> <br/>
+                <button mat-flat-button color="primary" (click)="toExistingProject(issue)">
+                    <mat-icon>add</mat-icon>
+                    Add to existing project
+                </button>
+            }
+            @else {
+                <mat-form-field>
+                    <mat-label>Project name</mat-label>
+                    <input matInput name="name" [(ngModel)]="projectCreateModel.name"/>
+                </mat-form-field> <br/>
+                <mat-form-field>
+                    <mat-label>Project description</mat-label>
+                    <input matInput name="description" [(ngModel)]="projectCreateModel.description"/>
+                </mat-form-field> <br/>
+                <button mat-raised-button color="primary" (click)="toNewProject(organizationId, issue)">
+                    <mat-icon>add</mat-icon>
+                    Add to new project
+                </button>
+            }
+        </div>
+    </div>
+</div>

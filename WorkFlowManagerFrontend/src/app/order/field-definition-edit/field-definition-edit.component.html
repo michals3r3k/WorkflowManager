@@ -1,0 +1,46 @@
+<div class="order-field-row1">
+    <mat-icon class="icon">touch_app</mat-icon>
+    <div class="form-container">
+        <mat-form-field >
+            <mat-label>Field name</mat-label>
+            <input matInput [(ngModel)]="field.name" placeholder="Enter field name" >
+        </mat-form-field>
+    </div>
+    <div class="form-container">
+        <mat-form-field>
+            <mat-label>Select</mat-label>
+            <mat-select required [(value)]="field.type">
+                <mat-option value="TEXT">Text</mat-option>
+                <mat-option value="DATE">Date</mat-option>
+                <mat-option value="NUMBER">Number</mat-option>
+                <mat-option value="FLAG">Flag</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>
+
+<div class="order-field-row2">
+    <mat-checkbox class="checkbox-margin" color="primary" [(ngModel)]="field.required">Required</mat-checkbox>
+    <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
+    <div class="form-container">
+        <mat-form-field>
+            <mat-label>Status</mat-label>
+            <mat-select multiple>
+                <mat-option *ngFor="let status of statuses"  [value]="status">{{status}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>
+
+<div class="order-field-row2">
+    <mat-checkbox class="checkbox-margin" color="primary" [(ngModel)]="field.clientVisible">Client visible</mat-checkbox>
+    <mat-checkbox class="checkbox-margin" color="primary">If status:</mat-checkbox>
+    <div class="form-container">
+        <mat-form-field>
+            <mat-label>Status</mat-label>
+            <mat-select multiple>
+                <mat-option *ngFor="let status of statuses"  [value]="status">{{status}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>

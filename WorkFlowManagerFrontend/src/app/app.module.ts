@@ -6,15 +6,21 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list'
 import { MatButtonModule } from '@angular/material/button'
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from "@angular/material/icon";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatCardModule } from "@angular/material/card"
+import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle'; 
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBadgeModule } from '@angular/material/badge'; 
 import { MatMenuModule} from '@angular/material/menu'
+import { MatTooltipModule } from '@angular/material/tooltip'; 
+import { MatDatepickerModule } from '@angular/material/datepicker'; 
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
@@ -47,12 +53,23 @@ import { ProjectDetailsComponent } from './organizations/projects/project-detail
 import { OrganizationAddComponent } from './organizations/projects/organization-add/organization-add.component';
 import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
+import { OrderListCardComponent } from './orders-list/order-list-card.component';
 import { OrderComponent } from './order/order.component';
+import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
+import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
+import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
 import { ChatComponent } from './chat/chat.component';
 import { TaskDetailsComponent } from './organizations/projects/task-details/task-details.component';
+import { OrderCreateComponent } from './orders-list/order-create/order-create.component';
+import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
+import { MatNativeDateModule } from '@angular/material/core';
+import { OrganizationIssueDialogComponent } from './orders-list/organization-issue-dialog/organization-issue-dialog.component';
+import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
+import { IssueFormComponent } from './orders-list/issue-form/issue-form.component';
+import { MemberDeleteButton } from './organizations/organization-details/member-delete-button-component';
 
 @NgModule({
-  declarations: [				
+  declarations: [
     AppComponent,
     LoginComponent,
     SidenavComponent,
@@ -62,6 +79,7 @@ import { TaskDetailsComponent } from './organizations/projects/task-details/task
     OrganizationsComponent,
     OrganizationCreateComponent,
     OrganizationDetailsComponent,
+    MemberDeleteButton,
     ResultToasterComponent,
     AboutUsComponent,
     ProfileComponent,
@@ -77,9 +95,18 @@ import { TaskDetailsComponent } from './organizations/projects/task-details/task
     OrganizationAddComponent,
     InvitationsComponent,
     OrdersListComponent,
+    OrderListCardComponent,
     OrderComponent,
-    TaskDetailsComponent,
-    ChatComponent
+    IssueListComponent,
+    IssueDetailsComponent,
+    FieldDefinitionEditComponent,
+    ChatComponent,
+    OrderCreateComponent,
+    OrganizationFilteringSelectComponent,
+    OrganizationIssueDialogComponent,
+    IssueFieldComponent,
+    IssueFormComponent,
+    TaskDetailsComponent
    ],
   imports: [
     BrowserModule,
@@ -91,15 +118,22 @@ import { TaskDetailsComponent } from './organizations/projects/task-details/task
     MatSidenavModule,
     MatListModule,
     MatButtonModule,
+    MatExpansionModule,
     MatIconModule,
     MatDialogModule,
     MatCardModule,
+    MatChipsModule,
     MatInputModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatSlideToggleModule,
     MatCheckboxModule,
     MatAutocompleteModule,
+    MatBadgeModule,
     MatMenuModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTooltipModule,
     DragDropModule,
     HttpClientModule
   ],

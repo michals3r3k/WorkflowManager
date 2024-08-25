@@ -4,6 +4,8 @@ import { LoginService } from '../services/login/login.service';
 import { LoginDialogOpenerService } from '../services/login/login-dialog-opener.service';
 import { ResultToasterService } from '../services/result-toaster/result-toaster.service';
 import { Router } from '@angular/router';
+import { HttpRequestService } from '../services/http/http-request.service';
+import { InvitationService } from '../services/invitation/invitation.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -13,10 +15,13 @@ import { Router } from '@angular/router';
 export class SidenavComponent implements OnInit {
   userLogged: boolean = false;
   opened: boolean = false;
+  invitationsCount: number = 0;
 
   constructor(private loggedUserService: LoggedUserService, 
     private loginService: LoginService,
     private loginDialogOpener: LoginDialogOpenerService,
+    private invitationService: InvitationService,
+    private http: HttpRequestService,
     private resultToaster: ResultToasterService,
     private router: Router
   ) {
@@ -45,10 +50,25 @@ export class SidenavComponent implements OnInit {
     });
   }
 
+  _updateInvitationsCount() {
+    if(!this.userLogged)
+    {
+      this.invitationsCount = 0;
+      return;
+    }
+    this.http.getGeneric<number>("api/invitation/count").subscribe(invitationsCount => {
+      this.invitationsCount = invitationsCount;
+    });
+  }
+
   ngOnInit() {
     this.loggedUserService.user$.subscribe(loggedUser => {
       this.userLogged = !!loggedUser;
+      this._updateInvitationsCount();
     });
+    this.invitationService.getInvitationsChangeEvent().subscribe(() => {
+      this._updateInvitationsCount();
+    })
   }
 
   open() {

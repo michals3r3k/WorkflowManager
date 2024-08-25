@@ -3,9 +3,11 @@ package com.example.workflowmanager.rest.organization;
 import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
 import com.example.workflowmanager.db.organization.role.OrganizationMemberRoleRepository;
 import com.example.workflowmanager.db.organization.role.OrganizationPermissionRepository;
+import com.example.workflowmanager.db.organization.role.OrganizationRoleRepository;
 import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.OrganizationMemberId;
+import com.example.workflowmanager.entity.organization.OrganizationMemberInvitationStatus;
 import com.example.workflowmanager.entity.organization.role.*;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.OrganizationRoleDetailsRest.OrganizationMemberRest;
@@ -24,17 +26,20 @@ public class OrganizationRoleDetailsRestFactory
 {
     private final OrganizationPermissionRepository permissionRepository;
     private final OrganizationMemberRepository memberRepository;
+    private final OrganizationRoleRepository organizationRoleRepository;
     private final OrganizationMemberRoleRepository memberRoleRepository;
     private final UserRepository userRepository;
 
     public OrganizationRoleDetailsRestFactory(
-        OrganizationPermissionRepository permissionRepository,
-        OrganizationMemberRepository memberRepository,
-        OrganizationMemberRoleRepository memberRoleRepository,
-        UserRepository userRepository)
+        final OrganizationPermissionRepository permissionRepository,
+        final OrganizationMemberRepository memberRepository,
+        final OrganizationRoleRepository organizationRoleRepository,
+        final OrganizationMemberRoleRepository memberRoleRepository,
+        final UserRepository userRepository)
     {
         this.permissionRepository = permissionRepository;
         this.memberRepository = memberRepository;
+        this.organizationRoleRepository = organizationRoleRepository;
         this.memberRoleRepository = memberRoleRepository;
         this.userRepository = userRepository;
     }
@@ -42,11 +47,12 @@ public class OrganizationRoleDetailsRestFactory
     public OrganizationRoleDetailsRest getOrganizationRoleDetails(
         final OrganizationRoleId organizationRoleId)
     {
+        final OrganizationRole role = organizationRoleRepository.getReferenceById(organizationRoleId);
         final List<PermissionSectionRest> sections =
             getPermissionSections(organizationRoleId);
         final List<OrganizationMemberRest> members =
             getMemberRestList(organizationRoleId);
-        return new OrganizationRoleDetailsRest(sections, members);
+        return new OrganizationRoleDetailsRest(role.isAddToNewMembers(), sections, members);
     }
 
     private List<OrganizationMemberRest> getMemberRestList(
@@ -58,6 +64,7 @@ public class OrganizationRoleDetailsRestFactory
             .collect(Collectors.toSet());
         final Set<Long> userIdsAll = memberRepository.getListByOrganization(
                 Collections.singleton(organizationRoleId.getOrganizationId())).stream()
+            .filter(member -> member.getInvitationStatus() == OrganizationMemberInvitationStatus.ACCEPTED)
             .map(OrganizationMember::getId)
             .map(OrganizationMemberId::getUserId)
             .collect(Collectors.toSet());

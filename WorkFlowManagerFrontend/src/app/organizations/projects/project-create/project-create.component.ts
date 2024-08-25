@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
-import { HttpRequestService } from '../../../services/http/http-request.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ResultToasterService } from '../../../services/result-toaster/result-toaster.service';
+import { ProjectCreateModel, ProjectService } from '../../../services/project/project.service';
+import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-project-create',
@@ -9,37 +9,26 @@ import { ResultToasterService } from '../../../services/result-toaster/result-to
   styleUrl: './project-create.component.css'
 })
 export class ProjectCreateComponent {
-  @Input() organizationId: string;
+  @Input() organizationId: number;
   
-  projectCreateModel: ProjectAddModel = new ProjectAddModel();
+  projectCreateModel: ProjectCreateModel = new ProjectCreateModel();
   
-  @Output() onSuccess: EventEmitter<any> = new EventEmitter(); 
+  @Output() onSuccess: EventEmitter<null> = new EventEmitter(); 
 
-  constructor(private httpService: HttpRequestService,
-    private resultToaster: ResultToasterService,
-    @Inject(MAT_DIALOG_DATA) private data: {organizationId: string})
+  constructor(
+    private projectService: ProjectService,
+    private serviceResultHelper: ServiceResultHelper,
+    @Inject(MAT_DIALOG_DATA) private data: {organizationId: number})
   {
     this.organizationId = data.organizationId;
   }
 
   create() {
-    this.httpService.post("api/organization/" + this.organizationId + "/project/create", this.projectCreateModel).subscribe(res => {
+    this.projectService.create(this.organizationId, this.projectCreateModel).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Project created successfully", "Errors occured");
       if(res.success) {
-        this.onSuccess.emit(res);
-      }
-      else {
-        this.resultToaster.error("Project creation error");
+        this.onSuccess.emit(null);
       }
     });
-  }
-}
-
-class ProjectAddModel  {
-  name: string;
-  description: string;
-
-  constructor() {
-    this.name = "";
-    this.description = "";
   }
 }

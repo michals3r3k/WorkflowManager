@@ -28,6 +28,7 @@ export class RoleDetailsService {
 }
 
 export interface RoleDetails {
+  addToNewMembers: boolean,
   permissionSections: [{
     sectionName: string, 
     permissions: [{permission: string, selected: boolean}]

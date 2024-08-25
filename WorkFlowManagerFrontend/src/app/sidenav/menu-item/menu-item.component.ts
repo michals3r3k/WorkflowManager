@@ -12,5 +12,7 @@ export class MenuItemComponent {
   label: string;
   @Input()
   collapsed: boolean;
+  @Input()
+  iconBadge?: string;
 
 }

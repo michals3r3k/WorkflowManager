@@ -1,0 +1,9 @@
+<div style="margin: 2em;">
+    <app-organization-filtering-select style="display: block; width: 100%;" [(value)]="destinationOrganizationId" (valueChange)="loadDefinition()" apiGetUrl="api/organizations/different-organization/{{sourceOrganizationId}}/like"/>
+    @if(formGroup && form) {
+        <issue-form [issueForm]="form" [issueFormGroup]="formGroup"/>
+        <div style="width: fit-content" matTooltipPosition="above" [matTooltip]="!formGroup.valid ? 'Form is not valid' : ''">
+            <button mat-raised-button color="primary" [disabled]="!formGroup.valid" (click)="sendReport()">Send report</button>
+        </div>
+    }
+</div>

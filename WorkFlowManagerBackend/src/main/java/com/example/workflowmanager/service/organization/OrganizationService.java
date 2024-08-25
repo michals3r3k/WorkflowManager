@@ -4,6 +4,7 @@ import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.organization.Organization;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Set;
@@ -21,6 +22,7 @@ public class OrganizationService
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public OrganizationServiceResult create(String email, String name, String description)
     {
         Organization organization = new Organization();

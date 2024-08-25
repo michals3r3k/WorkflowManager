@@ -5,6 +5,7 @@ import com.example.workflowmanager.entity.issue.Issue;
 import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.service.utils.ObjectUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +26,7 @@ public class IssueDetailsController
     }
 
     @GetMapping("/api/organization/{organizationId}/issue-details/{issueId}")
+    @Transactional
     public IssueDetailsRest getOrganizationIssueDetails(@PathVariable Long organizationId, @PathVariable Long issueId)
     {
         final Issue issue = issueRepository.getReferenceById(issueId);

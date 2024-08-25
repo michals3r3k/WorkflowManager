@@ -36,13 +36,21 @@ export class HttpRequestService {
   }
 
   getHttpHeaders(): HttpHeaders | null {
-    let token = localStorage.getItem("WorkflowManagerToken");
+    const token = this.getToken();
     if(!token) {
       return null;
     }
     return new HttpHeaders({
-      'Authorization': `Bearer ` + JSON.parse(token).token
+      'Authorization': `Bearer ${token}`
     });
+  }
+
+  getToken(): string | null {
+    let token = localStorage.getItem("WorkflowManagerToken");
+    if(token) {
+      return JSON.parse(token).token;
+    }
+    return null;
   }
 
   private navigateToLogin<T>(): Observable<T> {

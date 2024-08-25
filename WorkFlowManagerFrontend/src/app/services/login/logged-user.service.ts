@@ -1,22 +1,25 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpRequestService } from '../http/http-request.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoggedUserService {
-  private user: BehaviorSubject<LoggedUser | null>;
-  public user$: Observable<LoggedUser | null>;
+  private user: BehaviorSubject<LoggedUser | null> = new BehaviorSubject<LoggedUser | null>(null);;
+  public user$: Observable<LoggedUser | null> = this.user.asObservable();
 
-  constructor() { 
-    let token = localStorage.getItem("WorkflowManagerToken");
+  constructor(private http: HttpRequestService) { 
+    const token = this.http.getToken();
     if(token) {
-      this.user = new BehaviorSubject<LoggedUser | null>({email : JSON.parse(token).email});
+      this.updateUser();
     }
-    else {
-      this.user = new BehaviorSubject<LoggedUser | null>(null);
-    }
-    this.user$ = this.user.asObservable();
+  }
+
+  updateUser() {
+    this.http.getGeneric<LoggedUser>("api/users/current-user").subscribe(user => {
+      this.setUser(user);
+    });
   }
 
   setUser(user: LoggedUser) {
@@ -29,6 +32,8 @@ export class LoggedUserService {
 
 }
 
-interface LoggedUser {
-    email: string
+export interface LoggedUser {
+    id: number,
+    email: string,
+    name: string,
 }

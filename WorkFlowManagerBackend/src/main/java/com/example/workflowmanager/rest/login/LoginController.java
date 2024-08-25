@@ -7,6 +7,7 @@ import com.example.workflowmanager.service.login.LoginService.LoginServiceResult
 import com.example.workflowmanager.service.login.RegisterService;
 import com.example.workflowmanager.service.login.RegisterService.RegisterServiceResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,7 @@ public class LoginController
     }
 
     @PostMapping("api/login")
+    @Transactional
     public ResponseEntity<LoginServiceResult> login(
         @RequestBody LoginForm loginForm)
     {
@@ -44,6 +46,7 @@ public class LoginController
     }
 
     @PostMapping("api/register")
+    @Transactional
     public ResponseEntity<RegisterServiceResult> register(
         @RequestBody LoginForm loginForm)
     {
@@ -53,6 +56,7 @@ public class LoginController
     }
 
     @PostMapping("api/permissions")
+    @Transactional
     public ResponseEntity<List<String>> getPermissions(@RequestBody PermissionsRequest request)
     {
         final List<String> permissions = permissionService

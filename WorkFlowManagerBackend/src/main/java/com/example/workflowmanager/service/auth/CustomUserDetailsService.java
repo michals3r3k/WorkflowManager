@@ -2,13 +2,16 @@ package com.example.workflowmanager.service.auth;
 
 import com.example.workflowmanager.db.user.UserRepository;
 import com.example.workflowmanager.entity.user.User;
+import com.google.common.collect.Sets;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -26,6 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException
     {
         return loadUserByUsernameAndOrganizationId(email, null);
@@ -39,7 +43,7 @@ public class CustomUserDetailsService implements UserDetailsService
             permissionService.getAuthorities(user.getId(), organizationIdOrNull);
         System.out.println("User: " + email + ", Authorities: " + authorities);
         return new org.springframework.security.core.userdetails.User(
-            user.getEmail(), user.getPassword(), authorities);
+            user.getEmail(), user.getPassword(), Sets.union(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), authorities));
     }
 
     private User getUser(String email)

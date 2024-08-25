@@ -10,6 +10,7 @@ import com.example.workflowmanager.service.organization.member.OrganizationMembe
 import com.example.workflowmanager.service.organization.member.OrganizationMemberEditService.OrganizationMemberEditError;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
@@ -39,6 +40,7 @@ public class InvitationController
     }
 
     @GetMapping("/api/invitation/list")
+    @Transactional
     public ResponseEntity<List<InvitationRest>> getInvitationList()
     {
         final List<InvitationRest> invitations = getInvitations().stream()
@@ -52,12 +54,14 @@ public class InvitationController
     }
 
     @GetMapping("/api/invitation/count")
+    @Transactional
     public ResponseEntity<Integer> getInvitationCount()
     {
         return ResponseEntity.ok(getInvitations().size());
     }
 
     @PostMapping("/api/invitation/change-invitation-status")
+    @Transactional
     public ResponseEntity<ServiceResult<OrganizationMemberEditError>> changeInvitationStatus(
         @RequestBody InvitationRequestRest invitation)
     {

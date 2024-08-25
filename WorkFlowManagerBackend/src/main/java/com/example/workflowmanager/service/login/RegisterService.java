@@ -5,6 +5,7 @@ import com.example.workflowmanager.entity.user.User;
 import com.google.common.collect.Sets;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -23,6 +24,7 @@ public class RegisterService
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public RegisterServiceResult register(String email, String password)
     {
         Set<RegisterError> errors = getErrors(email);

@@ -5,6 +5,7 @@ import com.example.workflowmanager.entity.issue.IssueFieldDefinition;
 import com.example.workflowmanager.entity.issue.IssueFieldDefinitionId;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -25,6 +26,7 @@ public class IssueDefinitionController
     }
 
     @GetMapping("/api/organization/{organizationId}/issue-definition")
+    @Transactional
     public List<IssueFieldDefinitionRest> get(@PathVariable Long organizationId)
     {
         return ifdRepository.getListByOrganizationId(Collections.singleton(organizationId)).stream()
@@ -35,6 +37,7 @@ public class IssueDefinitionController
     }
 
     @PostMapping("/api/organization/{organizationId}/issue-definition/create")
+    @Transactional
     public ResponseEntity<ServiceResult<?>> save(@PathVariable Long organizationId,
         @RequestBody List<IssueFieldDefinitionRest> fields)
     {

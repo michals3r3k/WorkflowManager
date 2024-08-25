@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +31,7 @@ public class ProfileController
     }
 
     @PostMapping("/api/profile/img/upload")
+    @Transactional
     public ResponseEntity<byte[]> uploadImg(@RequestParam("file") MultipartFile file) {
         try
         {
@@ -46,6 +48,7 @@ public class ProfileController
     }
 
     @PostMapping("/api/profile/img/save")
+    @Transactional
     public ResponseEntity<ServiceResult<?>> saveImg(@RequestParam("file") MultipartFile file)
     {
         User user = currentUserService.getCurrentUser()
@@ -63,6 +66,7 @@ public class ProfileController
     }
 
     @PostMapping("/api/profile/save")
+    @Transactional
     public ResponseEntity<ServiceResult<?>> saveProfile(@RequestBody ProfileEditRest editRest) {
         User user = currentUserService.getCurrentUser()
             .orElseThrow(NoSuchElementException::new);
@@ -73,6 +77,7 @@ public class ProfileController
     }
 
     @GetMapping("/api/profile/img")
+    @Transactional
     public ResponseEntity<byte[]> getProfileImg() {
         User user = currentUserService.getCurrentUser()
             .orElseThrow(NoSuchElementException::new);
@@ -90,6 +95,7 @@ public class ProfileController
     }
 
     @GetMapping("/api/profile")
+    @Transactional
     public ResponseEntity<ProfileEditRest> getProfileData()
     {
         ProfileEditRest editRest = currentUserService.getCurrentUser()

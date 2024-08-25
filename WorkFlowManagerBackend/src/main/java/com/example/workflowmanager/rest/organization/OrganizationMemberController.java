@@ -10,6 +10,7 @@ import com.example.workflowmanager.service.organization.member.OrganizationMembe
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -37,6 +38,7 @@ public class OrganizationMemberController
     }
 
     @GetMapping("/api/organization/{organizationId}/member/list")
+    @Transactional
     @PreAuthorize("hasAuthority('ORGANIZATION_MEMBER_R')")
     public ResponseEntity<List<OrganizationMemberRest>> getDetails(@PathVariable Long organizationId)
     {
@@ -49,6 +51,7 @@ public class OrganizationMemberController
     }
 
     @PostMapping("/api/organization/{organizationId}/member/delete")
+    @Transactional
     public ResponseEntity<ServiceResult<?>> delete(@PathVariable Long organizationId,
         @RequestBody Long userId)
     {
@@ -56,6 +59,7 @@ public class OrganizationMemberController
     }
 
     @PostMapping("/api/organization/{organizationId}/member/add")
+    @Transactional
     @PreAuthorize("hasAuthority('ORGANIZATION_MEMBER_C')")
     public ResponseEntity<ServiceResult<OrganizationMemberInvitationError>> addMember(
         @PathVariable Long organizationId, @RequestBody Long userId)

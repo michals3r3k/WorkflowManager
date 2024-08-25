@@ -9,6 +9,7 @@ import com.example.workflowmanager.service.organization.OrganizationRoleService.
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -35,6 +36,7 @@ public class OrganizationRoleController
     }
 
     @PostMapping("/api/organization/{organizationId}/role/create")
+    @Transactional
     @PreAuthorize("hasAuthority('ROLE_C')")
     public ResponseEntity<RestServiceResult> addRole(
         @PathVariable Long organizationId, @RequestBody String role)
@@ -45,6 +47,7 @@ public class OrganizationRoleController
     }
 
     @GetMapping("/api/organization/{organizationId}/role/list")
+    @Transactional
     @PreAuthorize("hasAuthority('ROLE_R')")
     public ResponseEntity<List<OrganizationRoleRest>> getRoleList(@PathVariable Long organizationId)
     {
@@ -57,6 +60,7 @@ public class OrganizationRoleController
     }
 
     @GetMapping("api/organization/{organizationId}/role/{role}/available")
+    @Transactional
     public ResponseEntity<Boolean> isRoleNameAvailable(@PathVariable Long organizationId, @PathVariable String role) {
         boolean isTaken = roleRepository
                 .getListByOrganization(Collections.singleton(organizationId)).stream()
@@ -65,6 +69,7 @@ public class OrganizationRoleController
     }
 
     @GetMapping("/api/organization/{organizationId}/role/{role}")
+    @Transactional
     @PreAuthorize("hasAuthority('ROLE_U')")
     public ResponseEntity<OrganizationRoleDetailsRest> getRoleDetails(
         @PathVariable Long organizationId, @PathVariable String role)
@@ -75,6 +80,7 @@ public class OrganizationRoleController
     }
 
     @PostMapping("/api/organization/{organizationId}/role/{role}/edit")
+    @Transactional
     @PreAuthorize("hasAuthority('ROLE_U')")
     public ResponseEntity<RestServiceResult> editRole(@PathVariable Long organizationId,
         @PathVariable String role, @RequestBody OrganizationRoleDetailsRest roleDetails)
@@ -85,6 +91,7 @@ public class OrganizationRoleController
     }
 
     @GetMapping("/api/organization/{organizationId}/role/{role}/delete")
+    @Transactional
     @PreAuthorize("hasAuthority('ROLE_D')")
     public ResponseEntity<RestServiceResult> deleteRole(@PathVariable Long organizationId,
         @PathVariable String role)

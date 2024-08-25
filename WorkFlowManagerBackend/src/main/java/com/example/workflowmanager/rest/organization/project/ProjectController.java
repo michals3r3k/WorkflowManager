@@ -10,6 +10,7 @@ import com.example.workflowmanager.service.project.ProjectCreateService;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -30,6 +31,7 @@ public class ProjectController
     }
 
     @PostMapping("/api/organization/{organizationId}/project/create")
+    @Transactional
     @PreAuthorize("hasAuthority('PROJECT_C')")
     public ResponseEntity<ServiceResult<?>> create(
         @PathVariable Long organizationId,
@@ -39,6 +41,7 @@ public class ProjectController
     }
 
     @GetMapping("/api/organization/{organizationId}/projects")
+    @Transactional
     @PreAuthorize("hasAuthority('PROJECT_R')")
     public ResponseEntity<List<ProjectRest>> getList(@PathVariable Long organizationId)
     {
@@ -46,6 +49,7 @@ public class ProjectController
     }
 
     @GetMapping("/api/organization/{organizationId}/projects-owned")
+    @Transactional
     @PreAuthorize("hasAuthority('PROJECT_R')")
     public ResponseEntity<List<ProjectRest>> getOwnedList(@PathVariable Long organizationId)
     {
@@ -63,6 +67,7 @@ public class ProjectController
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}")
+    @Transactional
     @PreAuthorize("hasAuthority('PROJECT_R')")
     public ResponseEntity<ProjectRest> getDetails(@PathVariable Long organizationId, @PathVariable Long projectId)
     {

@@ -49,6 +49,7 @@ import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
 import { ChatComponent } from './chat/chat.component';
+import { TaskDetailsComponent } from './organizations/projects/task-details/task-details.component';
 
 @NgModule({
   declarations: [				
@@ -74,10 +75,11 @@ import { ChatComponent } from './chat/chat.component';
     ProjectCreateComponent,
     ProjectDetailsComponent,
     OrganizationAddComponent,
-      InvitationsComponent,
-      OrdersListComponent,
-      OrderComponent,
-      ChatComponent
+    InvitationsComponent,
+    OrdersListComponent,
+    OrderComponent,
+    TaskDetailsComponent,
+    ChatComponent
    ],
   imports: [
     BrowserModule,

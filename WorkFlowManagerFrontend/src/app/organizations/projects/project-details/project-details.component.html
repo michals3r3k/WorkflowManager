@@ -13,7 +13,12 @@
                 class="task-list"
                 (cdkDropListDropped)="dropTask($event)">
             @for (item of taskGroup.tasks; track item) {
-                <div class="task-draggable-item" cdkDrag>{{item}}</div>
+                <div class="task-draggable-item" cdkDrag>
+                    {{item}}
+                    <button mat-icon-button class="details-btn" (click)="openTaskDetails(item)">
+                        <mat-icon>more_vert</mat-icon>
+                      </button>
+                </div>
             }
             </div>
         }

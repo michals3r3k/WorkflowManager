@@ -1,0 +1,306 @@
+<div class="container">
+  <div class="task-data">
+    <div class="title-bar">
+      <div class="title">
+        <img src="../../../../assets/images/task.png"/>
+        <span class="task-id">{{task.task_id}}</span>
+        <input type="text" class="title-input" [(ngModel)]="title"
+          (focus)="onTitleFocus()"
+          (blur)="onTitleBlur()"/>
+        <button class="icon-btn-color" *ngIf="isTitleEditing || title != task.name" (click)="saveTitle()">
+            <mat-icon>save</mat-icon>
+        </button>
+        <button class="icon-btn" *ngIf="isTitleEditing || title != task.name" (click)="cancelTitleEdit()">
+          <mat-icon>keyboard_return</mat-icon>
+        </button>
+      </div>
+      <div class="title-options">
+        <button class="icon-btn" (click)="close()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+    <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': title != task.name && !isTitleEditing}">(Title not saved)</span>
+
+    <!--FIELDS -->
+    <div class="fields">
+
+      <!-- CREATE DATE -->
+      <div class="create-date">
+        <span>Create date:</span>
+        <span>{{task.create_date | date: 'yyyy-MM-dd'}}</span>
+      </div>
+
+      <!-- description -->
+      <div class="description-container">
+        <div class="description-label">
+          Decription
+          <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': description != task.desc && !isDescritionEditing}">(Description not saved)</span>
+        </div>
+        <textarea placeholder="Edit description"
+          (focus)="onDescriptionFocus()"
+          (blur)="onDescriptionBlur()"
+          [(ngModel)]="description">
+        </textarea>
+        <div class="description-buttons">
+          <button mat-flat-button color="primary" *ngIf="isDescritionEditing || description != task.desc" (click)="saveDescription()">
+            Save
+            <mat-icon>save</mat-icon>
+          </button>
+          <button mat-flat-button color class="cancel-btn" *ngIf="isDescritionEditing || description != task.desc" (click)="cancelDescriptionEdit()">
+            Cancel
+            <mat-icon>keyboard_return</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="progress-field">
+        <span>Progress</span>
+        <div class="row">
+          <div class="progress-field">
+            <select required [(ngModel)]="selectedProgress"
+              (focus)="onProgressFocus()"
+              (blur)="onProgressBlur()">
+              <option *ngFor="let option of taskProgressOptions" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
+          <button class="icon-btn-color" *ngIf="isProgressEditing || selectedProgress != task.progress"
+              (click)="saveProgress()"
+              [disabled] = "task.progress === selectedProgress || selectedProgress === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isProgressEditing || selectedProgress != task.progress" (click)="cancelProgress()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedProgress !== task.progress && !isProgressEditing}">(Progress state not saved)</span>
+      </div>
+
+      <!-- created by -->
+      <div class="auto-complete-field">
+        <span>Created by</span>
+        <div class="row">
+          <div class="inputbox" [ngClass]="{'inputbox-focus' : isCreatorEditing}">
+            <img src="../../../../assets/images/creator-dummy-img.jpg"/>
+            <input type="text"
+              (focus)="onCreatorFocus()"
+              (blur)="onCreatorBlur()"
+              (input)="onCreatorInputChange()"
+              [formControl]="searchCreatorControl" [matAutocomplete]="creatorAutocomplete"
+              placeholder="Selected task creator" />
+            <mat-autocomplete #creatorAutocomplete="matAutocomplete" (optionSelected)="onCreatorOptionSelected($event)"  >
+              <mat-option *ngFor="let userOption of creatorOptions$ | async" [value]="userOption.name">
+                  {{userOption.name}}
+              </mat-option>
+            </mat-autocomplete>
+          </div>
+          <div class="buttons">
+            <button class="icon-btn-color" *ngIf="isCreatorEditing || selectedCreator != task.creator"
+              (click)="saveCreator()"
+              [disabled] = "task.creator === selectedCreator || selectedCreator === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isCreatorEditing || selectedCreator != task.creator" (click)="cancelCreatorEdit()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+          </div>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedCreator !== task.creator && !isCreatorEditing}">(Creator not saved)</span>
+      </div>
+
+      <!-- assign to-->
+      <div class="auto-complete-field">
+        <span>Assigned to</span>
+        <div class="row">
+          <div class="inputbox" [ngClass]="{'inputbox-focus' : isAssignToEditing}">
+            <img src="../../../../assets/images/creator-dummy-img.jpg"/>
+            <input type="text"
+              (focus)="onAssignToFocus()"
+              (blur)="onAssignToBlur()"
+              (input)="onAssignToInputChange()"
+              [formControl]="searchAssignUserControl" [matAutocomplete]="assignAutocomplete"
+              placeholder="Assign user" />
+            <mat-autocomplete #assignAutocomplete="matAutocomplete" (optionSelected)="onAssignOptionSelected($event)"  >
+              <mat-option *ngFor="let userOption of assignUserOptions$ | async" [value]="userOption.name">
+                  {{userOption.name}}
+              </mat-option>
+          </mat-autocomplete>
+          </div>
+          <div class="buttons">
+            <button class="icon-btn-color" *ngIf="isAssignToEditing || selectedAssignUser != task.assignUser"
+              (click)="saveAssignTo()"
+              [disabled] = "task.assignUser === selectedAssignUser || selectedAssignUser === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isAssignToEditing || selectedAssignUser != task.assignUser" 
+              (click)="cancelAssignToEdit()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+          </div>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedAssignUser !== task.assignUser && !isAssignToEditing}">(Assigned user not saved)</span>
+      </div>
+
+      <!-- start date -->
+      <div class="date-field">
+        <span>Start date</span>
+        <div class="row">
+          <input type="date"
+            (focus)="onStartDateFocus()"
+            (blur)="onStartDateBlur()"
+            [(ngModel)]="start_date"/>
+          <div class="buttons">
+            <button class="icon-btn-color" *ngIf="isStartDateEditing || start_date != task.start_date"
+              (click)="saveStartDate()"
+              [disabled] = "task.start_date === start_date || start_date === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isStartDateEditing || start_date != task.start_date" 
+              (click)="cancelStartDate()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+          </div>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': start_date !== task.start_date && !isStartDateEditing}">(Start date not saved)</span>
+      </div>
+
+      <!-- finish date -->
+      <div class="date-field">
+        <span>Finish date</span>
+        <div class="row">
+          <input type="date"
+            (focus)="onFinishDateFocus()"
+            (blur)="onFinishDateBlur()"
+            [(ngModel)]="finish_date"/>
+          <div class="buttons">
+            <button class="icon-btn-color" *ngIf="isFinishDateEditing || finish_date != task.finish_date"
+              (click)="saveFinishDate()"
+              [disabled] = "task.finish_date === finish_date || finish_date === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isFinishDateEditing || finish_date != task.finish_date" 
+              (click)="cancelFinishDate()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+          </div>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': finish_date !== task.finish_date && !isFinishDateEditing}">(Finish date not saved)</span>
+      </div>
+
+      <!-- deadline -->
+      <div class="date-field">
+        <span>Deadline</span>
+        <div class="row">
+          <input type="date"
+            (focus)="onDeadlineFocus()"
+            (blur)="onDeadlineBlur()"
+            [(ngModel)]="deadline"/>
+          <div class="buttons">
+            <button class="icon-btn-color" *ngIf="isDeadlineEditing || deadline != task.deadline"
+              (click)="saveDeadline()"
+              [disabled] = "task.deadline === deadline || deadline === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isDeadlineEditing || deadline != task.deadline" 
+              (click)="cancelDeadline()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+          </div>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': deadline !== task.deadline && !isDeadlineEditing}">(Deadline not saved)</span>
+      </div>
+
+      <!-- SUB TASKS -->
+      <div class="sub-tasks-container">
+        <div class="add-first-sub-task" *ngIf="task.sub_tasks.length === 0 && !isAddingSubTask">
+          <button mat-flat-button color="primary" (click)="addSubTask()">
+            Add sub task
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="sub-tasks-label" *ngIf="task.sub_tasks.length !== 0 || isAddingSubTask">
+          Sub tasks
+          <button class="icon-btn-color" (click)="addSubTask()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="sub-tasks">
+          <div class="sub-task" *ngFor="let task of task.sub_tasks">
+            <img src="../../../../assets/images/subTask.png"/>
+            <span>{{task.task_id}}</span>
+            <span class="task-name">{{task.name}}</span>
+            <span class="task-progress">{{task.progress}}</span>
+            <button class="icon-btn" (click)="deleteSubTask(task)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+        <div class="add-sub-tasks" *ngIf="isAddingSubTask">
+          <input class="add-sub-task-input"
+            placeholder="Input new sub tasks"
+            [(ngModel)]="new_sub_task_name" />
+          <button class="icon-btn-color" (click)="createNewSubTask()">
+              <mat-icon>add</mat-icon>
+          </button>
+          <button class="icon-btn cancel-add-task-btn" (click)="cancelAddSubTask()">
+            Cancel
+        </button>
+        </div>
+      </div>
+
+      <!-- CONNECTED TASk -->
+      <div class="connected-tasks-container">
+        <div class="add-first-connected-task" *ngIf="task.connected_tasks.length === 0 && !isAddingConnectedTask">
+          <button mat-flat-button color="primary" (click)="addConnectedTask()">
+            Add connected task
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="connected-tasks-label" *ngIf="task.connected_tasks.length !== 0 || isAddingConnectedTask">
+          Connected tasks
+          <button class="icon-btn-color" (click)="addConnectedTask()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="connected-tasks">
+          <div class="connected-task" *ngFor="let task of task.connected_tasks">
+            <img src="../../../../assets/images/task.png"/>
+            <span>{{task.task_id}}</span>
+            <span class="task-name">{{task.name}}</span>
+            <span class="task-progress">{{task.progress}}</span>
+            <button class="icon-btn" (click)="deleteConnectedTask(task)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+        <div class="add-connected-tasks" *ngIf="isAddingConnectedTask">
+          <select class="connection-type-select" required [(ngModel)]="selectedConnectedTaskRelation" required>
+            <option *ngFor="let option of taskRelations" [value]="option">{{option}}</option>
+          </select>
+          <input class="search-connected-task-field"
+            placeholder="Search task"
+            (input)="onAddConnectedTaskInputChange()"
+            [formControl]="searchConnectedTaskControl" [matAutocomplete]="userAutocomplete" />
+            <mat-autocomplete #userAutocomplete="matAutocomplete" (optionSelected)="onTaskOptionSelected($event)"  >
+              <mat-option *ngFor="let taskOption of connectedTaskOptions$ | async" [value]="taskOption.name">
+                  {{taskOption.name}}
+              </mat-option>
+          </mat-autocomplete>
+          <button class="icon-btn-color add-task-btn" [disabled]="selectedConnectedTask === null" (click)="addSelectedConnectedTask()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="icon-btn cancel-add-task-btn" (click)="cancelAddConnectedTask()">
+            Cancel
+        </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="chat-container">
+    <app-chat></app-chat>
+  </div>
+</div>

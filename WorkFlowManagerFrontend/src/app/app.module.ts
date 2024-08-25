@@ -59,6 +59,7 @@ import { IssueListComponent } from './organizations/projects/issue/issue-list/is
 import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
 import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
 import { ChatComponent } from './chat/chat.component';
+import { TaskDetailsComponent } from './organizations/projects/task-details/task-details.component';
 import { OrderCreateComponent } from './orders-list/order-create/order-create.component';
 import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -92,19 +93,20 @@ import { MemberDeleteButton } from './organizations/organization-details/member-
     ProjectCreateComponent,
     ProjectDetailsComponent,
     OrganizationAddComponent,
-      InvitationsComponent,
-      OrdersListComponent,
-      OrderListCardComponent,
-      OrderComponent,
-      IssueListComponent,
-      IssueDetailsComponent,
-      FieldDefinitionEditComponent,
-      ChatComponent,
-      OrderCreateComponent,
-      OrganizationFilteringSelectComponent,
-      OrganizationIssueDialogComponent,
-      IssueFieldComponent,
-      IssueFormComponent
+    InvitationsComponent,
+    OrdersListComponent,
+    OrderListCardComponent,
+    OrderComponent,
+    IssueListComponent,
+    IssueDetailsComponent,
+    FieldDefinitionEditComponent,
+    ChatComponent,
+    OrderCreateComponent,
+    OrganizationFilteringSelectComponent,
+    OrganizationIssueDialogComponent,
+    IssueFieldComponent,
+    IssueFormComponent,
+    TaskDetailsComponent
    ],
   imports: [
     BrowserModule,

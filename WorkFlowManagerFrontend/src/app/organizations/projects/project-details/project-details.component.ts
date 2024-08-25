@@ -12,6 +12,7 @@ import { ResultToasterService } from '../../../services/result-toaster/result-to
 import { HttpRequestService } from '../../../services/http/http-request.service';
 import { OrganizationAddComponent } from '../organization-add/organization-add.component';
 import { ActivatedRoute } from '@angular/router';
+import { TaskDetailsComponent } from '../task-details/task-details.component';
 
 @Component({
   selector: 'app-project-details',
@@ -116,6 +117,16 @@ export class ProjectDetailsComponent {
         }
         dialogRef.close();
       })
+    });
+  }
+
+  openTaskDetails(task: any) {
+    const dialogRef = this.dialog.open(TaskDetailsComponent, {
+      data: {task: task},
+      width: '80vw',  // 100% of the viewport width
+    height: '80vh', // 100% of the viewport height
+    maxWidth: '80vw',  // Max width is 100% of the viewport width
+    maxHeight: '80vh', // Max height is 100% of the viewport height
     });
   }
 

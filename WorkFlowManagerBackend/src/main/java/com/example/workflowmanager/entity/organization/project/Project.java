@@ -14,6 +14,8 @@ public class Project
     @Column(nullable = false)
     private String name;
     private String description;
+    @Column(nullable = false, name = "organization_id", insertable = false, updatable = false)
+    private Long organizationId;
     @ManyToOne(optional = false)
     private Organization organization;
 
@@ -52,13 +54,22 @@ public class Project
         this.description = description;
     }
 
+    protected Long getOrganizationId()
+    {
+        return organizationId;
+    }
+
+    protected void setOrganizationId(final Long organizationId)
+    {
+        this.organizationId = organizationId;
+    }
+
     public Organization getOrganization()
     {
         return organization;
     }
 
-    public void setOrganization(
-        final Organization organization)
+    public void setOrganization(final Organization organization)
     {
         this.organization = organization;
     }

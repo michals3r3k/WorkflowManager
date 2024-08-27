@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="task-data">
+  <div class="task-data" *ngIf="task">
     <div class="title-bar">
       <div class="title">
         <img src="../../../../assets/images/task.png"/>
@@ -231,7 +231,7 @@
           <div class="sub-task" *ngFor="let task of task.sub_tasks">
             <img src="../../../../assets/images/subTask.png"/>
             <span>{{task.task_id}}</span>
-            <span class="task-name">{{task.name}}</span>
+            <span class="task-name">{{task.title}}</span>
             <span class="task-progress">{{task.progress}}</span>
             <button class="icon-btn" (click)="deleteSubTask(task)">
               <mat-icon>close</mat-icon>

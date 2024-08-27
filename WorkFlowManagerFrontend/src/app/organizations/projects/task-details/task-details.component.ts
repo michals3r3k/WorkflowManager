@@ -3,6 +3,9 @@ import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
+import { HttpRequestService } from '../../../services/http/http-request.service';
+import { ServiceResult } from '../../../services/utils/service-result';
+import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-task-details',
@@ -10,6 +13,8 @@ import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
   styleUrls: ['./task-details.component.css']
 })
 export class TaskDetailsComponent implements OnInit {
+  taskId: number;
+
 
   isDescritionEditing: boolean = false;
   isTitleEditing: boolean = false;
@@ -66,14 +71,31 @@ export class TaskDetailsComponent implements OnInit {
   taskProgressOptions = Object.values(TaskProgress);
   taskRelations = Object.values(ConnectedTaskRelation)
 
-  task: Task = new Task("");
+  task: Task;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) private data: {task: string},
     private dialogRef: MatDialogRef<TaskDetailsComponent>,
-    private dialog: MatDialog) {
-    this.title = data.task;
-    this.task.name = data.task;
+    private dialog: MatDialog,
+    private serviceResultHelper: ServiceResultHelper,
+    private http: HttpRequestService) {
+    this.taskId = 1;
+
+    http.getGeneric<TaskRest>(`api/organization/1/project/1/task/${this.taskId}`).subscribe(taskRest => {
+      this.title = taskRest.title;
+
+      const task = new Task(taskRest.title);
+      task.task_id = taskRest.taskId;
+      task.create_date = new Date(taskRest.createTime);
+      task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
+        const subTask = new SubTask();
+        subTask.task_id = subTaskRest.subTaskId;
+        subTask.progress = TaskProgress.New;
+        subTask.title = subTaskRest.title;
+        return subTask;
+      });
+      this.task = task;
+    });
 
     this.connectedTaskOptions$ = this.searchConnectedTaskControl.valueChanges
       .pipe( 
@@ -154,6 +176,26 @@ export class TaskDetailsComponent implements OnInit {
     });
   }
 
+  _saveTask() {
+    this.task.task_id
+    const taskRest: TaskRest = {
+      taskId: this.task.task_id,
+      title: this.task.name,
+      descriptionOrNull: this.task.desc,
+      createTime: this.task.create_date.toISOString(),
+      startDateOrNull: this.task.start_date?.toISOString() || null,
+      finishDateOrNull: this.task.finish_date?.toISOString() || null,
+      deadlineDateOrNull: this.task.deadline?.toISOString() || null,
+      parentTaskIdOrNull: null,
+      parentTaskTitleOrNull: null,
+      members: [],
+      subTasks: [],
+    }
+    this.http.postGeneric<ServiceResult>(`api/organization/1/project/1/task/save`, taskRest).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Task saved successfully", "Errors occured");
+    });
+  }
+
   ngOnInit() {
   }
 
@@ -171,6 +213,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveDescription() {
     this.task.desc = this.description;
+    this._saveTask();
   }
 
   cancelDescriptionEdit() {
@@ -195,6 +238,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveCreator() {
     this.task.creator = this.selectedCreator;
+    this._saveTask();
   }
 
   cancelCreatorEdit() {
@@ -212,6 +256,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveAssignTo() {
     this.task.assignUser = this.selectedAssignUser;
+    this._saveTask();
   }
 
   cancelAssignToEdit() {
@@ -221,6 +266,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveTitle() {
     this.task.name = this.title;
+    this._saveTask();
   }
 
   cancelTitleEdit() {
@@ -254,6 +300,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveStartDate() {
     this.task.start_date = this.start_date;
+    this._saveTask();
   }
 
   cancelStartDate() {
@@ -271,6 +318,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveFinishDate() {
     this.task.finish_date = this.finish_date;
+    this._saveTask();
   }
 
   cancelFinishDate() {
@@ -288,6 +336,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveDeadline() {
     this.task.deadline = this.deadline;
+    this._saveTask();
   }
 
   cancelDeadline() {
@@ -305,6 +354,7 @@ export class TaskDetailsComponent implements OnInit {
 
   saveProgress() {
     this.task.progress = this.selectedProgress;
+    this._saveTask();
   }
 
   cancelProgress() {
@@ -333,8 +383,8 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   createNewSubTask() {
-    let sub_task = new Task("");
-    sub_task.name = this.new_sub_task_name;
+    let sub_task = new SubTask();
+    sub_task.title = this.new_sub_task_name;
     this.task.sub_tasks.push(sub_task);
     this.new_sub_task_name = "";
     this.isAddingSubTask = false;
@@ -349,7 +399,7 @@ export class TaskDetailsComponent implements OnInit {
     }
   }
 
-  deleteSubTask(task: Task) {
+  deleteSubTask(task: SubTask) {
     this.task.sub_tasks = this.task.sub_tasks.filter(st => st !== task);
   }
 
@@ -359,24 +409,29 @@ export class TaskDetailsComponent implements OnInit {
 }
 
 class Task {
-  task_id: string = "00001";
+  task_id: number;
   name: string = "";
   desc: string = "";
   connected_tasks: Task[] = [];
-  sub_tasks: Task[] = [];
+  sub_tasks: SubTask[] = [];
   creator: User | null = null;
   assignUser: User | null = null;
-  create_date: Date | null = new Date();
+  create_date: Date = new Date();
   start_date: Date | null = null;
   finish_date: Date | null = null;
   deadline: Date | null = null;
   progress: TaskProgress = TaskProgress.New;
   relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
 
-
   constructor(name: string) {
     this.name = name;
   }
+}
+
+class SubTask {
+  task_id: number | null;
+  title: string;
+  progress: TaskProgress;
 }
 
 class User {
@@ -396,5 +451,29 @@ enum ConnectedTaskRelation {
   Blocks = "blocks",
   BlockedBy = "Blocked by",
   RelativeTo = "Relative to"
+}
+
+interface TaskRest {
+  taskId: number;
+  title: string;
+  descriptionOrNull: string | null;
+  createTime: string;
+  startDateOrNull: string | null;
+  finishDateOrNull: string | null;
+  deadlineDateOrNull: string | null;
+  parentTaskIdOrNull:number | null;
+  parentTaskTitleOrNull: string | null;
+  members: TaskMemberRest[];
+  subTasks: SubTaskRest[];
+}
+
+interface TaskMemberRest {
+  userId: number;
+  email: string;
+}
+
+interface SubTaskRest {
+  subTaskId: number;
+  title: string;
 }
 

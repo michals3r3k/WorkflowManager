@@ -13,6 +13,8 @@ import { HttpRequestService } from '../../../services/http/http-request.service'
 import { OrganizationAddComponent } from '../organization-add/organization-add.component';
 import { ActivatedRoute } from '@angular/router';
 import { TaskDetailsComponent } from '../task-details/task-details.component';
+import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-group-confirm.component';
+import { AddStatusComponent } from '../add-status/add-status.component';
 
 @Component({
   selector: 'app-project-details',
@@ -23,32 +25,19 @@ export class ProjectDetailsComponent {
   taskGroups: TaskGroup[] = [
     {
       groupName: "Group1",
-      tasks: ['Get to work', 'Pick up groceries', 'Go home', 'Fall asleep']
+      tasks: [new Task('Get to work'), new Task('Pick up groceries'), new Task('Go home'), new Task('Fall asleep')],
+      collapsed: false
     },
     {
       groupName: "Group2",
-      tasks: ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog']
+      tasks: [new Task('Get to work'), new Task('Pick up groceries'), new Task('Go home'), new Task('Fall asleep')],
+      collapsed: false
     },
     {
       groupName: "Group3",
-      tasks: ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog']
+      tasks: [new Task('Get to work'), new Task('Pick up groceries'), new Task('Go home'), new Task('Fall asleep')],
+      collapsed: false
     },
-    {
-      groupName: "Group4",
-      tasks: ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog']
-    },
-    {
-      groupName: "Group5",
-      tasks: ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog']
-    },
-    {
-      groupName: "Group6",
-      tasks: ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog']
-    },
-    {
-      groupName: "Group2",
-      tasks: ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog']
-    }
   ];
 
   projectId: string | null;
@@ -58,6 +47,11 @@ export class ProjectDetailsComponent {
   constructor(private dialog: MatDialog, private resultToaster: ResultToasterService,
     private http: HttpRequestService, private route: ActivatedRoute) {
       // itentionally empty
+  }
+
+  // Prevent inside clicks from triggering the outside click listener
+  onInsideClick(event: Event) {
+    event.stopPropagation();
   }
 
   ngOnInit() {
@@ -74,7 +68,7 @@ export class ProjectDetailsComponent {
     })
   }
 
-  dropTask(event: CdkDragDrop<string[]>) {
+  dropTask(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -84,6 +78,9 @@ export class ProjectDetailsComponent {
         event.previousIndex,
         event.currentIndex,
       );
+
+      //TODO - podmienić status po stronie serwera
+      event.container.data[event.currentIndex].status = this.taskGroups.find(tg => tg.tasks === event.container.data)?.groupName ?? "";
     }
   }
 
@@ -123,12 +120,65 @@ export class ProjectDetailsComponent {
   openTaskDetails(task: any) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
       data: {task: task},
-      width: '80vw',  // 100% of the viewport width
-    height: '80vh', // 100% of the viewport height
-    maxWidth: '80vw',  // Max width is 100% of the viewport width
-    maxHeight: '80vh', // Max height is 100% of the viewport height
+      width: '80vw',
+      height: '80vh',
+      maxWidth: '80vw',
+      maxHeight: '80vh',
     });
   }
+
+  collapseOpenGroup(group: TaskGroup) {
+    group.collapsed = !group.collapsed;
+  }
+
+  deleteGroup(group: TaskGroup) {
+    if (this.taskGroups.length === 1) {
+      this.resultToaster.info("You can not delete all statuses.");
+      return;
+    }
+    if (group.tasks.length > 0) {
+      this.resultToaster.info("You can not delete status with tasks.");
+      return;
+    }
+    const dialogRef = this.dialog.open(DeleteGroupConfirmComponent, {
+      data: {group: group},
+      width: '250px',
+      height: '150px',
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === undefined) {
+        return;
+      }
+      if (result) {
+        this.taskGroups = this.taskGroups.filter(g => g !== group);
+      }
+    });
+  }
+
+  addGroup() {
+    const dialogRef = this.dialog.open(AddStatusComponent, {
+      width: '280px',
+      height: '150px',
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === undefined) {
+        return;
+      }
+      if (this.taskGroups.find(g => g.groupName.toLocaleLowerCase().trim() === result.toLocaleLowerCase())) {
+        this.resultToaster.error("You con not add status with the same name as existsing status.")
+      }
+
+      //TODO - dodawanie statusu po stronie serwera
+      let task = new TaskGroup();
+      task.groupName = result;
+      this.taskGroups.push(task);
+    });
+  }
+
+  onAddTaskClicked(eventData: string, group: TaskGroup) {
+    group.tasks.push(new Task(eventData));
+  }
+
 
   edit(project: any) {
     console.log(project);
@@ -136,7 +186,50 @@ export class ProjectDetailsComponent {
 
 }
 
-interface TaskGroup {
-  groupName: string,
-  tasks: string[]
+export class TaskGroup {
+  groupName: string = "";
+  tasks: Task[] = [];
+  collapsed: boolean = false;
+}
+
+export class Task {
+  task_id: string = "00001";
+  name: string = "";
+  desc: string = "";
+  connected_tasks: Task[] = [];
+  sub_tasks: Task[] = [];
+  creator: User | null = null;
+  assignUser: User | null = null;
+  create_date: Date | null = new Date();
+  start_date: Date | null = null;
+  finish_date: Date | null = null;
+  deadline: Date | null = null;
+  status: string | null = "";
+  priority: TaskPriority = TaskPriority.Medium;
+  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
+
+
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+export enum TaskPriority {
+  Low = "Low",
+  Medium = "Medium",
+  High = "High",
+  Highest = "Highest"
+}
+
+class User {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+enum ConnectedTaskRelation {
+  Blocks = "blocks",
+  BlockedBy = "Blocked by",
+  RelativeTo = "Relative to"
 }

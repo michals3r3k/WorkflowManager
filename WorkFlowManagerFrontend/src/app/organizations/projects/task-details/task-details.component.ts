@@ -3,6 +3,7 @@ import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
+import { Task, TaskPriority } from '../project-details/project-details.component';
 
 @Component({
   selector: 'app-task-details',
@@ -18,7 +19,7 @@ export class TaskDetailsComponent implements OnInit {
   isStartDateEditing: boolean = false;
   isFinishDateEditing: boolean = false;
   isDeadlineEditing: boolean = false;
-  isProgressEditing:boolean = false;
+  isPriorityEditing:boolean = false;
 
   isAddingConnectedTask: boolean = false;
   isAddingSubTask: boolean = false;
@@ -28,7 +29,7 @@ export class TaskDetailsComponent implements OnInit {
   start_date: Date | null = null;
   finish_date: Date | null = null;
   deadline: Date | null = null;
-  selectedProgress: TaskProgress = TaskProgress.New;
+  selectedPriority: TaskPriority = TaskPriority.Medium;
   selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
 
   new_sub_task_name = "";
@@ -63,7 +64,8 @@ export class TaskDetailsComponent implements OnInit {
     new User("Kacper"),
   ]);
 
-  taskProgressOptions = Object.values(TaskProgress);
+
+  taskPriorityOptions = Object.values(TaskPriority);
   taskRelations = Object.values(ConnectedTaskRelation)
 
   task: Task = new Task("");
@@ -294,21 +296,22 @@ export class TaskDetailsComponent implements OnInit {
     this.deadline = this.task.deadline;
   }
 
-  // PROGRESS
-  onProgressFocus() {
-    this.isProgressEditing = true;
+
+  // PRIORITY
+  onPriorityFocus() {
+    this.isPriorityEditing = true;
   }
 
-  onProgressBlur() {
-    this.isProgressEditing = false;
+  onPriorityBlur() {
+    this.isPriorityEditing = false;
   }
 
-  saveProgress() {
-    this.task.progress = this.selectedProgress;
+  savePriority() {
+    this.task.priority = this.selectedPriority;
   }
 
-  cancelProgress() {
-    this.selectedProgress = this.task.progress;
+  cancelPriority() {
+    this.selectedPriority = this.task.priority;
   }
 
   onAddConnectedTaskInputChange() {
@@ -358,38 +361,11 @@ export class TaskDetailsComponent implements OnInit {
   }
 }
 
-class Task {
-  task_id: string = "00001";
-  name: string = "";
-  desc: string = "";
-  connected_tasks: Task[] = [];
-  sub_tasks: Task[] = [];
-  creator: User | null = null;
-  assignUser: User | null = null;
-  create_date: Date | null = new Date();
-  start_date: Date | null = null;
-  finish_date: Date | null = null;
-  deadline: Date | null = null;
-  progress: TaskProgress = TaskProgress.New;
-  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
-
-
-  constructor(name: string) {
-    this.name = name;
-  }
-}
-
 class User {
   name: string;
   constructor(name: string) {
     this.name = name;
   }
-}
-
-enum TaskProgress {
-  New = "New",
-  Proceeding = "Proceeding",
-  Finished = "Finished"
 }
 
 enum ConnectedTaskRelation {

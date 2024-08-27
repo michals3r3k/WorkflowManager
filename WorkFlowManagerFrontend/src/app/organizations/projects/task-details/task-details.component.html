@@ -54,8 +54,33 @@
         </div>
       </div>
 
-      <!-- PROGRESS -->
+      <!-- Priority -->
       <div class="progress-field">
+        <span>Priority</span>
+        <div class="row">
+          <div class="progress-field">
+            <select required [(ngModel)]="selectedPriority"
+              (focus)="onPriorityFocus()"
+              (blur)="onPriorityBlur()">
+              <option *ngFor="let option of taskPriorityOptions" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
+          <button class="icon-btn-color" *ngIf="isPriorityEditing || selectedPriority != task.priority"
+              (click)="savePriority()"
+              [disabled] = "task.priority === selectedPriority || selectedPriority === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isPriorityEditing || selectedPriority != task.priority" (click)="cancelPriority()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedPriority !== task.priority && !isPriorityEditing}">(Priority not saved)</span>
+      </div>
+
+      <!-- PROGRESS -->
+      <!-- <div class="progress-field">
         <span>Progress</span>
         <div class="row">
           <div class="progress-field">
@@ -77,7 +102,7 @@
             </button>
         </div>
         <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedProgress !== task.progress && !isProgressEditing}">(Progress state not saved)</span>
-      </div>
+      </div> -->
 
       <!-- created by -->
       <div class="auto-complete-field">
@@ -232,7 +257,7 @@
             <img src="../../../../assets/images/subTask.png"/>
             <span>{{task.task_id}}</span>
             <span class="task-name">{{task.name}}</span>
-            <span class="task-progress">{{task.progress}}</span>
+            <span class="task-progress">{{task.status}}</span>
             <button class="icon-btn" (click)="deleteSubTask(task)">
               <mat-icon>close</mat-icon>
             </button>
@@ -270,7 +295,7 @@
             <img src="../../../../assets/images/task.png"/>
             <span>{{task.task_id}}</span>
             <span class="task-name">{{task.name}}</span>
-            <span class="task-progress">{{task.progress}}</span>
+            <span class="task-progress">{{task.status}}</span>
             <button class="icon-btn" (click)="deleteConnectedTask(task)">
               <mat-icon>close</mat-icon>
             </button>

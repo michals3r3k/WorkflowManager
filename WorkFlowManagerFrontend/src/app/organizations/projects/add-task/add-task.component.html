@@ -1,0 +1,16 @@
+<div class="container" (click)="onInsideClick($event)">
+  <ng-container *ngIf="!isFocus; else addMode">
+    <button mat-raised-button (click)="enableEditing()">
+      <mat-icon>add</mat-icon>
+      Create new task
+    </button>
+  </ng-container>
+  <ng-template #addMode>
+    <input #taskNameInput placeholder="Enter task name"
+      [(ngModel)]="task_name"/>
+    <button class="submit-btn" mat-raised-button color="primary" (click)="addTask()" [disabled]="!task_name">
+      <mat-icon>add_task</mat-icon>
+      Create new task
+    </button>
+  </ng-template>
+</div>

@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="header">
+    <span>Add new status</span>
+    <button (click)="cancel()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="input-box">
+    <input [(ngModel)]="status_name"
+      placeholder="Enter new status name"/>
+  </div>
+  <div class="buttons">
+    <button mat-flat-button color="primary" (click)="confirm()" [disabled]="!status_name">
+      Add status
+      <mat-icon>check</mat-icon>
+    </button>
+    <button mat-raised-button (click)="cancel()">
+      Cancel
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </div>
+</div>

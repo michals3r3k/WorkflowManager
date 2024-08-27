@@ -6,7 +6,6 @@ import com.example.workflowmanager.db.organization.project.ProjectRepository;
 import com.example.workflowmanager.entity.issue.Issue;
 import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
-import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.OrganizationInvitationStatus;
 import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.service.organization.OrganizationInProjectService;
@@ -95,7 +94,7 @@ public class IssueController
         final Long organizationId = issue.getSourceOrganization().getId();
         final OrganizationInProjectId oipId =
             new OrganizationInProjectId(organizationId, projectId);
-        oipService.create(oipId, OrganizationInProjectRole.REPORTER, OrganizationInvitationStatus.ACCEPTED);
+        oipService.create(oipId, OrganizationInvitationStatus.ACCEPTED);
         issue.setProject(projectRepository.getReferenceById(projectId));
         issueRepository.save(issue);
     }
@@ -112,8 +111,8 @@ public class IssueController
 
     private boolean isOwnProject(final Long organizationId, final Long projectId)
     {
-        return oipRepository.getReferenceById(new OrganizationInProjectId(organizationId, projectId))
-            .getRole() == OrganizationInProjectRole.OWNER;
+        final Project project = projectRepository.getReferenceById(projectId);
+        return project.getOrganization().getId().equals(organizationId);
     }
 
     private static List<IssueRest> getIssueRest(final Long organizationId,

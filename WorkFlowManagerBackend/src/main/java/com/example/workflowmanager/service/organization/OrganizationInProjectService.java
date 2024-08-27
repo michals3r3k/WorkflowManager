@@ -3,7 +3,6 @@ package com.example.workflowmanager.service.organization;
 import com.example.workflowmanager.db.organization.OrganizationInProjectRepository;
 import com.example.workflowmanager.entity.organization.OrganizationInProject;
 import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
-import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
 import com.example.workflowmanager.entity.organization.OrganizationInvitationStatus;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +17,10 @@ public class OrganizationInProjectService
         this.organizationInProjectRepository = organizationInProjectRepository;
     }
 
-    public void create(OrganizationInProjectId id, OrganizationInProjectRole organizationRole,
+    public void create(OrganizationInProjectId id,
         OrganizationInvitationStatus invitationStatus)
     {
         OrganizationInProject organizationInProject = new OrganizationInProject(id);
-        organizationInProject.setRole(organizationRole);
         organizationInProject.setInvitationStatus(invitationStatus);
         organizationInProjectRepository.save(organizationInProject);
     }

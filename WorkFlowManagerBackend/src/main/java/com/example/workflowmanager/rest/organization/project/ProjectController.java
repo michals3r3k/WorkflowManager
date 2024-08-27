@@ -1,9 +1,8 @@
 package com.example.workflowmanager.rest.organization.project;
 
 import com.example.workflowmanager.db.organization.OrganizationInProjectRepository;
-import com.example.workflowmanager.entity.organization.OrganizationInProject;
-import com.example.workflowmanager.entity.organization.OrganizationInProjectId;
-import com.example.workflowmanager.entity.organization.OrganizationInProjectRole;
+import com.example.workflowmanager.db.organization.project.ProjectRepository;
+import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.service.project.ProjectCreateRest;
 import com.example.workflowmanager.service.project.ProjectCreateService;
@@ -15,18 +14,22 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @CrossOrigin
 @RestController
 public class ProjectController
 {
     private final OrganizationInProjectRepository organizationInProjectRepository;
+    private final ProjectRepository projectRepository;
     private final ProjectCreateService projectService;
 
-    public ProjectController(OrganizationInProjectRepository organizationInProjectRepository,
-        ProjectCreateService projectService)
+    public ProjectController(final OrganizationInProjectRepository organizationInProjectRepository,
+        final ProjectRepository projectRepository,
+        final ProjectCreateService projectService)
     {
         this.organizationInProjectRepository = organizationInProjectRepository;
+        this.projectRepository = projectRepository;
         this.projectService = projectService;
     }
 
@@ -58,12 +61,38 @@ public class ProjectController
 
     public List<ProjectRest> getProjects(Long organizationId, Collection<OrganizationInProjectRole> roles)
     {
-        return organizationInProjectRepository.getListByOrganizationIds(
-                Collections.singleton(organizationId), roles).stream()
-            .map(ProjectRest::new)
+        return getProjectStream(organizationId, roles)
             .sorted(Comparator.comparing(ProjectRest::getName, Comparator.naturalOrder())
                 .thenComparing(ProjectRest::getProjectId))
             .collect(Collectors.toList());
+    }
+
+    private Stream<ProjectRest> getProjectStream(final Long organizationId,
+        final Collection<OrganizationInProjectRole> roles)
+    {
+        Stream<ProjectRest> stream = Stream.empty();
+        if(roles.contains(OrganizationInProjectRole.OWNER))
+        {
+            stream = Stream.concat(stream, getProjectsOfOwner(organizationId));
+        }
+        if(roles.contains(OrganizationInProjectRole.REPORTER))
+        {
+            stream = Stream.concat(stream, getProjectsOfReporter(organizationId));
+        }
+        return stream;
+    }
+
+    private Stream<ProjectRest> getProjectsOfOwner(Long organizationId)
+    {
+        return projectRepository.getListByOrganizationIds(Collections.singleton(organizationId)).stream()
+            .map(project -> new ProjectRest(project.getOrganization(), project, OrganizationInProjectRole.OWNER));
+    }
+
+    private Stream<ProjectRest> getProjectsOfReporter(Long organizationId)
+    {
+        return organizationInProjectRepository.getListByOrganizationIds(
+            Collections.singleton(organizationId)).stream()
+            .map(oip -> new ProjectRest(oip.getOrganization(), oip.getProject(), OrganizationInProjectRole.REPORTER));
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}")
@@ -75,29 +104,32 @@ public class ProjectController
         {
             return ResponseEntity.ok(null);
         }
-        ProjectRest projectRest = new ProjectRest(organizationInProjectRepository
-            .getReferenceById(new OrganizationInProjectId(organizationId, projectId)));
-        return ResponseEntity.ok(projectRest);
+        final Project project = projectRepository.getReferenceById(projectId);
+        return ResponseEntity.ok(new ProjectRest(project.getOrganization(),
+            project, OrganizationInProjectRole.OWNER));
     }
 
     public static class ProjectRest
     {
-        private final OrganizationInProject oip;
+        private final Organization organization;
         private final Project project;
+        private final OrganizationInProjectRole role;
 
-        private ProjectRest(OrganizationInProject oip)
+        private ProjectRest(final Organization organization, final Project project,
+            final OrganizationInProjectRole role)
         {
-            this.oip = oip;
-            this.project = oip.getProject();
+            this.organization = organization;
+            this.project = project;
+            this.role = role;
         }
 
         public Long getProjectId()
         {
-            return oip.getId().getProjectId();
+            return project.getId();
         }
         public Long getOrganizationId()
         {
-            return oip.getOrganization().getId();
+            return organization.getId();
         }
 
         public String getName()
@@ -112,7 +144,7 @@ public class ProjectController
 
         public OrganizationInProjectRole getRole()
         {
-            return oip.getRole();
+            return role;
         }
 
     }

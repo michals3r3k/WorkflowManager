@@ -1,11 +1,9 @@
 package com.example.workflowmanager.entity.organization.project;
 
-import com.example.workflowmanager.entity.organization.OrganizationInProject;
+import com.example.workflowmanager.entity.organization.Organization;
 import jakarta.persistence.*;
-import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 public class Project
@@ -13,11 +11,11 @@ public class Project
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+    @Column(nullable = false)
     private String name;
     private String description;
-    @OneToMany(mappedBy = "project")
-    private Set<OrganizationInProject> organizationsInProject;
+    @ManyToOne(optional = false)
+    private Organization organization;
 
     public Project()
     {
@@ -54,7 +52,16 @@ public class Project
         this.description = description;
     }
 
+    public Organization getOrganization()
+    {
+        return organization;
+    }
 
+    public void setOrganization(
+        final Organization organization)
+    {
+        this.organization = organization;
+    }
 
     @Override
     public boolean equals(Object o)

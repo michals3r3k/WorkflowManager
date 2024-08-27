@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 public class Organization
@@ -20,9 +19,6 @@ public class Organization
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId", nullable=false)
     private User user;
-
-    @OneToMany(mappedBy = "organization")
-    private Set<OrganizationInProject> organizationInProjects;
 
     public Long getId()
     {

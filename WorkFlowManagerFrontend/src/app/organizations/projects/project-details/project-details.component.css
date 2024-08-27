@@ -6,22 +6,105 @@
 .task-list-groups-container {
   display: flex;
 }
+
+.project-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
   
 .task-list {
   border: solid 1px #ccc;
-  width: 20em;
-  margin: 2em;
+  width: 25em;
+  margin: 1em;
   min-height: 60em;
   background: white;
   border-radius: 4px;
   overflow: hidden;
   display: block;
   cursor: move;
+
+  .group-name {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 5px 0px 50px;
+    font-size: 18px;
+
+    .name-span {
+      flex: 1;
+    }
+
+    .delete-btn {
+      mat-icon {
+        color: #f00;
+      }
+    }
+
+    .task-counter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #bbb4;
+      margin: 0px 5px 0px 5px;
+    }
+  }
+}
+
+.task-list-collapsed {
+  border: solid 1px #ccc;
+  width: 4.5em;
+  margin: 1em;
+  min-height: 60em;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  display: block;
+  cursor: move;
+
+  .group-name{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    font-size: 18px;
+
+    .name-span {
+      transform: rotate(90deg);
+      transform-origin: left bottom;
+      display: inline-block;
+      white-space: pre;
+      margin-left: 35px;
+    }
+
+    .delete-btn {
+      mat-icon {
+        color: #f00;
+      }
+    }
+
+    .task-counter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #bbb4;
+      margin: 5px 5px 0px 5px;
+    }
+  }
 }
 
 .task-draggable-item {
-  padding: 20px 10px;
-  margin: 2em;
+  padding: 10px;
+  margin: 1em 2em;
   border-bottom: solid 1px #ccc;
   color: rgba(0, 0, 0, 0.87);
   display: flex;
@@ -32,6 +115,60 @@
   cursor: move;
   background: white;
   font-size: 14px;
+
+  .task {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .task-id {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      align-items: center;
+      gap: 5px;
+
+      img {
+        width: 25px;
+        height: 25px;
+      }
+
+      .task-id-span {
+        flex: 1;
+      }
+
+      .task-progress {
+        border-radius: 10px;
+        background: rgba(53, 136, 231, 0.3);
+        padding: 3px 5px;
+      }
+
+      .task-priority {
+        border-radius: 10px;
+        background: rgba(212, 167, 70, 0.3);
+        padding: 3px 5px;
+      }
+    }
+
+    .task-name {
+      font-size: 16px;
+    }
+
+    .assigned-to {
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
+      align-items: center;
+
+      img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+  }
 }
 
 .details-btn {
@@ -47,7 +184,7 @@
 }
 
 .cdk-drag-placeholder {
-  opacity: 0;
+  opacity: 0.3;
 }
 
 .cdk-drag-animating {
@@ -60,4 +197,35 @@
 
 .task-list.cdk-drop-list-dragging .task-draggable-item:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.task-groups {
+  display: flex;
+}
+
+.add-group {
+  margin-top: 20px;
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #eee;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    border: none;
+
+    &:hover {
+      background-color: #ddd;
+    }
+
+    &:active {
+      background-color: #cdcdcd;
+    }
+
+    mat-icon {
+      transform: scale(1.2);
+    }
+  }
 }

@@ -25,4 +25,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>
             "t.id in (?1)")
     List<Task> getListByIdsWithRelationalTasksAndMembers(Collection<Long> ids);
 
+    @Query("select t from Task t where t.projectId in (?1)")
+    List<Task> getListByProjectIds(Collection<Long> projectIds);
+
 }

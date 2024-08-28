@@ -3,6 +3,7 @@ package com.example.workflowmanager.entity.organization.project.task;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -40,6 +41,20 @@ public class Task
     private Set<Task> subTasks;
     @OneToMany(mappedBy = "task")
     private Set<TaskMember> members;
+
+    public Task(final String title, final LocalDateTime createTime, final TaskColumn taskColumn)
+    {
+        setTitle(title);
+        setCreateTime(createTime);
+        setTaskColumn(taskColumn);
+        setSubTasks(new HashSet<>());
+        setMembers(new HashSet<>());
+    }
+
+    protected Task()
+    {
+        // for hibernate
+    }
 
     public Long getId()
     {

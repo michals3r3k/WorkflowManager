@@ -15,6 +15,8 @@ import { ActivatedRoute } from '@angular/router';
 import { TaskDetailsComponent } from '../task-details/task-details.component';
 import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-group-confirm.component';
 import { AddStatusComponent } from '../add-status/add-status.component';
+import { ServiceResult } from '../../../services/utils/service-result';
+import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-project-details',
@@ -29,6 +31,7 @@ export class ProjectDetailsComponent {
   project: any = null;
 
   constructor(private dialog: MatDialog, private resultToaster: ResultToasterService,
+    private serviceResultHelper: ServiceResultHelper,
     private http: HttpRequestService, private route: ActivatedRoute) {
       this.taskGroups = [];
   }
@@ -193,9 +196,15 @@ export class ProjectDetailsComponent {
   }
 
   onAddTaskClicked(taskTitle: string, group: TaskGroup) {
-    let task = new Task(taskTitle);
-    task.status = group.groupName;
-    group.tasks.push(task);
+    this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: group.id}).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
+      if(res.success && res.taskIdOrNull) {
+        let task = new Task(taskTitle);
+        task.taskId = res.taskIdOrNull;
+        task.status = group.groupName;
+        group.tasks.push(task);
+      }
+    });
   }
 
 

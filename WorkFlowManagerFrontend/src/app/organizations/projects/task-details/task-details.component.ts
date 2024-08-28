@@ -3,6 +3,7 @@ import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
+import { Task, TaskPriority } from '../project-details/project-details.component';
 import { HttpRequestService } from '../../../services/http/http-request.service';
 import { ServiceResult } from '../../../services/utils/service-result';
 import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
@@ -14,7 +15,7 @@ import { ServiceResultHelper } from '../../../services/utils/service-result-help
 })
 export class TaskDetailsComponent implements OnInit {
   taskId: number;
-
+  //@Output() statusChanged = new EventEmitter<{previousStatus: string, newStatus: string}>();
 
   isDescritionEditing: boolean = false;
   isTitleEditing: boolean = false;
@@ -23,7 +24,8 @@ export class TaskDetailsComponent implements OnInit {
   isStartDateEditing: boolean = false;
   isFinishDateEditing: boolean = false;
   isDeadlineEditing: boolean = false;
-  isProgressEditing:boolean = false;
+  isPriorityEditing:boolean = false;
+  isStatusEditing:boolean = false;
 
   isAddingConnectedTask: boolean = false;
   isAddingSubTask: boolean = false;
@@ -33,7 +35,8 @@ export class TaskDetailsComponent implements OnInit {
   start_date: Date | null = null;
   finish_date: Date | null = null;
   deadline: Date | null = null;
-  selectedProgress: TaskProgress = TaskProgress.New;
+  selectedPriority: TaskPriority = TaskPriority.Medium;
+  selectedStatus: string | null = "";
   selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
 
   new_sub_task_name = "";
@@ -68,13 +71,14 @@ export class TaskDetailsComponent implements OnInit {
     new User("Kacper"),
   ]);
 
-  taskProgressOptions = Object.values(TaskProgress);
-  taskRelations = Object.values(ConnectedTaskRelation)
+  taskPriorityOptions = Object.values(TaskPriority);
+  taskRelations = Object.values(ConnectedTaskRelation);
+  taskStatusesOptions: string[];
 
   task: Task;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) private data: {task: string},
+    @Inject(MAT_DIALOG_DATA) private data: {task: Task, statuses: string[]},
     private dialogRef: MatDialogRef<TaskDetailsComponent>,
     private dialog: MatDialog,
     private serviceResultHelper: ServiceResultHelper,
@@ -95,24 +99,37 @@ export class TaskDetailsComponent implements OnInit {
         return subTask;
       });
       this.task = task;
+
+      this.title = this.task.name;
+      this.description = this.task.desc;
+      this.selectedPriority = this.task.priority;
+      this.selectedStatus = this.task.status;
+      this.selectedCreator = this.task.creator;
+      this.selectedAssignUser = this.task.assignUser;
+      this.start_date = this.task.start_date;
+      this.finish_date = this.task.finish_date;
+      this.deadline = this.task.deadline;
     });
 
+    //TODO - pobieranie dostępnych statusów z projektu
+    this.taskStatusesOptions = data.statuses;
+
     this.connectedTaskOptions$ = this.searchConnectedTaskControl.valueChanges
-      .pipe( 
+      .pipe(
         startWith(''),
         debounceTime(500),
         switchMap(() => { return this.loadSearchConnectedTask(); })
     )
 
     this.creatorOptions$ = this.searchCreatorControl.valueChanges
-      .pipe( 
+      .pipe(
         startWith(''),
         debounceTime(500),
         switchMap(() => { return this.loadSearchCreators(); })
     )
 
     this.assignUserOptions$ = this.searchAssignUserControl.valueChanges
-      .pipe( 
+      .pipe(
         startWith(''),
         debounceTime(500),
         switchMap(() => { return this.loadSearchAssignUsers(); })
@@ -154,7 +171,7 @@ export class TaskDetailsComponent implements OnInit {
       })
     );
   }
-  
+
   onTaskOptionSelected(event: MatAutocompleteSelectedEvent): void {
     const selectedTaskName = event.option.value;
     this.found_tasks.subscribe(tasks => {
@@ -201,6 +218,28 @@ export class TaskDetailsComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
+  }
+
+  save() {
+    this.saveTitle();
+    this.saveDescription();
+    this.saveStatus();
+    this.savePriority();
+    this.saveCreator();
+    this.saveAssignTo();
+    this.saveStartDate();
+    this.saveFinishDate();
+    this.saveDeadline();
+  }
+
+  openTaskDetails(task: Task) {
+    const dialogRef = this.dialog.open(TaskDetailsComponent, {
+      data: {task: task, statuses: this.taskStatusesOptions},
+      width: '80vw',
+      height: '80vh',
+      maxWidth: '80vw',
+      maxHeight: '80vh',
+    });
   }
 
   onDescriptionFocus() {
@@ -343,22 +382,41 @@ export class TaskDetailsComponent implements OnInit {
     this.deadline = this.task.deadline;
   }
 
-  // PROGRESS
-  onProgressFocus() {
-    this.isProgressEditing = true;
+
+  // PRIORITY
+  onPriorityFocus() {
+    this.isPriorityEditing = true;
   }
 
-  onProgressBlur() {
-    this.isProgressEditing = false;
+  onPriorityBlur() {
+    this.isPriorityEditing = false;
   }
 
-  saveProgress() {
-    this.task.progress = this.selectedProgress;
+  savePriority() {
+    this.task.priority = this.selectedPriority;
     this._saveTask();
   }
 
-  cancelProgress() {
-    this.selectedProgress = this.task.progress;
+  cancelPriority() {
+    this.selectedPriority = this.task.priority;
+  }
+
+  // STATUS
+  onStatusFocus() {
+    this.isStatusEditing = true;
+  }
+
+  onStatusBlur() {
+    this.isStatusEditing = false;
+  }
+
+  saveStatus() {
+    //this.statusChanged.emit({previousStatus: this.task.status!, newStatus: this.selectedStatus!});
+    this.task.status = this.selectedStatus;
+  }
+
+  cancelStatus() {
+    this.selectedStatus = this.task.status;
   }
 
   onAddConnectedTaskInputChange() {
@@ -385,6 +443,7 @@ export class TaskDetailsComponent implements OnInit {
   createNewSubTask() {
     let sub_task = new SubTask();
     sub_task.title = this.new_sub_task_name;
+    sub_task.isSubTask = true;
     this.task.sub_tasks.push(sub_task);
     this.new_sub_task_name = "";
     this.isAddingSubTask = false;
@@ -408,30 +467,10 @@ export class TaskDetailsComponent implements OnInit {
   }
 }
 
-class Task {
-  task_id: number;
-  name: string = "";
-  desc: string = "";
-  connected_tasks: Task[] = [];
-  sub_tasks: SubTask[] = [];
-  creator: User | null = null;
-  assignUser: User | null = null;
-  create_date: Date = new Date();
-  start_date: Date | null = null;
-  finish_date: Date | null = null;
-  deadline: Date | null = null;
-  progress: TaskProgress = TaskProgress.New;
-  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
-
-  constructor(name: string) {
-    this.name = name;
-  }
-}
-
 class SubTask {
   task_id: number | null;
   title: string;
-  progress: TaskProgress;
+  priority: TaskPriority;
 }
 
 class User {
@@ -439,12 +478,6 @@ class User {
   constructor(name: string) {
     this.name = name;
   }
-}
-
-enum TaskProgress {
-  New = "New",
-  Proceeding = "Proceeding",
-  Finished = "Finished"
 }
 
 enum ConnectedTaskRelation {

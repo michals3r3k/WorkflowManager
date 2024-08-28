@@ -1,0 +1,72 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    span {
+        flex: 1;
+        margin-left: 10px;
+        font-size: 16px;
+    }
+
+    button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #eee;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: none;
+
+        &:hover {
+            background-color: #ddd;
+          }
+      
+          &:active {
+            background-color: #cdcdcd;
+          }
+      
+          mat-icon {
+            transform: scale(1.0);
+          }
+    }
+}
+
+.input-box {
+
+    input {
+        width: 100%;
+        background: transparent;
+        border: 2px solid #ccc;
+        font-size: 18px;
+        margin: 10px 0px 10px 0px;
+        padding: 5px;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+        outline: none; 
+    
+        &:hover {
+            background-color: #eee;
+        }
+    
+        &:focus {
+            border: 2px solid rgb(35, 115, 236);
+        }
+    }
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+}

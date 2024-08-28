@@ -1,9 +1,26 @@
 <div class="container">
   <div class="task-data" *ngIf="task">
     <div class="title-bar">
-      <div class="title">
-        <img src="../../../../assets/images/task.png"/>
-        <span class="task-id">{{task.task_id}}</span>
+      <div class="header1">
+        <div class="task-id">
+          <img src="../../../../assets/images/task.png" *ngIf="!task.isSubTask; else subTaskImg"/>
+          <ng-template #subTaskImg><img src="../../../../assets/images/subTask.png" /></ng-template>
+          <span>{{task.task_id}}</span>
+        </div>
+        <div class="title-options">
+          <button class="icon-btn delete-btn" (click)="close()">
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button class="icon-btn" (click)="save()">
+            <mat-icon>save</mat-icon>
+          </button>
+          <button class="icon-btn" (click)="close()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      <!-- TASK TITLE -->
+      <div class="header2">
         <input type="text" class="title-input" [(ngModel)]="title"
           (focus)="onTitleFocus()"
           (blur)="onTitleBlur()"/>
@@ -12,11 +29,6 @@
         </button>
         <button class="icon-btn" *ngIf="isTitleEditing || title != task.name" (click)="cancelTitleEdit()">
           <mat-icon>keyboard_return</mat-icon>
-        </button>
-      </div>
-      <div class="title-options">
-        <button class="icon-btn" (click)="close()">
-          <mat-icon>close</mat-icon>
         </button>
       </div>
     </div>
@@ -54,29 +66,54 @@
         </div>
       </div>
 
-      <!-- PROGRESS -->
-      <div class="progress-field">
-        <span>Progress</span>
+      <!-- STATUS -->
+      <div class="status-field" *ngIf="!task.isSubTask">
+        <span>Status</span>
         <div class="row">
           <div class="progress-field">
-            <select required [(ngModel)]="selectedProgress"
-              (focus)="onProgressFocus()"
-              (blur)="onProgressBlur()">
-              <option *ngFor="let option of taskProgressOptions" [value]="option">
+            <select required [(ngModel)]="selectedStatus"
+              (focus)="onStatusFocus()"
+              (blur)="onStatusBlur()">
+              <option *ngFor="let option of taskStatusesOptions" [value]="option">
                 {{ option }}
               </option>
             </select>
           </div>
-          <button class="icon-btn-color" *ngIf="isProgressEditing || selectedProgress != task.progress"
-              (click)="saveProgress()"
-              [disabled] = "task.progress === selectedProgress || selectedProgress === null">
+          <button class="icon-btn-color" *ngIf="isStatusEditing || selectedStatus != task.status"
+              (click)="saveStatus()"
+              [disabled] = "task.status === selectedStatus || selectedStatus === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isProgressEditing || selectedProgress != task.progress" (click)="cancelProgress()">
+            <button class="icon-btn" *ngIf="isStatusEditing || selectedStatus != task.status" (click)="cancelStatus()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
         </div>
-        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedProgress !== task.progress && !isProgressEditing}">(Progress state not saved)</span>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedStatus !== task.status && !isStatusEditing}">(Status not saved)</span>
+      </div>
+
+      <!-- Priority -->
+      <div class="progress-field">
+        <span>Priority</span>
+        <div class="row">
+          <div class="progress-field">
+            <select required [(ngModel)]="selectedPriority"
+              (focus)="onPriorityFocus()"
+              (blur)="onPriorityBlur()">
+              <option *ngFor="let option of taskPriorityOptions" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
+          <button class="icon-btn-color" *ngIf="isPriorityEditing || selectedPriority != task.priority"
+              (click)="savePriority()"
+              [disabled] = "task.priority === selectedPriority || selectedPriority === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isPriorityEditing || selectedPriority != task.priority" (click)="cancelPriority()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedPriority !== task.priority && !isPriorityEditing}">(Priority not saved)</span>
       </div>
 
       <!-- created by -->
@@ -135,7 +172,7 @@
               [disabled] = "task.assignUser === selectedAssignUser || selectedAssignUser === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isAssignToEditing || selectedAssignUser != task.assignUser" 
+            <button class="icon-btn" *ngIf="isAssignToEditing || selectedAssignUser != task.assignUser"
               (click)="cancelAssignToEdit()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -158,7 +195,7 @@
               [disabled] = "task.start_date === start_date || start_date === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isStartDateEditing || start_date != task.start_date" 
+            <button class="icon-btn" *ngIf="isStartDateEditing || start_date != task.start_date"
               (click)="cancelStartDate()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -181,7 +218,7 @@
               [disabled] = "task.finish_date === finish_date || finish_date === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isFinishDateEditing || finish_date != task.finish_date" 
+            <button class="icon-btn" *ngIf="isFinishDateEditing || finish_date != task.finish_date"
               (click)="cancelFinishDate()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -204,7 +241,7 @@
               [disabled] = "task.deadline === deadline || deadline === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isDeadlineEditing || deadline != task.deadline" 
+            <button class="icon-btn" *ngIf="isDeadlineEditing || deadline != task.deadline"
               (click)="cancelDeadline()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -214,7 +251,7 @@
       </div>
 
       <!-- SUB TASKS -->
-      <div class="sub-tasks-container">
+      <div class="sub-tasks-container" *ngIf="!task.isSubTask">
         <div class="add-first-sub-task" *ngIf="task.sub_tasks.length === 0 && !isAddingSubTask">
           <button mat-flat-button color="primary" (click)="addSubTask()">
             Add sub task
@@ -228,11 +265,11 @@
           </button>
         </div>
         <div class="sub-tasks">
-          <div class="sub-task" *ngFor="let task of task.sub_tasks">
+          <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openTaskDetails(task)">
             <img src="../../../../assets/images/subTask.png"/>
             <span>{{task.task_id}}</span>
             <span class="task-name">{{task.title}}</span>
-            <span class="task-progress">{{task.progress}}</span>
+            <span class="task-progress">{{task.priority}}</span>
             <button class="icon-btn" (click)="deleteSubTask(task)">
               <mat-icon>close</mat-icon>
             </button>
@@ -252,7 +289,7 @@
       </div>
 
       <!-- CONNECTED TASk -->
-      <div class="connected-tasks-container">
+      <div class="connected-tasks-container" *ngIf="!task.isSubTask">
         <div class="add-first-connected-task" *ngIf="task.connected_tasks.length === 0 && !isAddingConnectedTask">
           <button mat-flat-button color="primary" (click)="addConnectedTask()">
             Add connected task
@@ -266,11 +303,12 @@
           </button>
         </div>
         <div class="connected-tasks">
-          <div class="connected-task" *ngFor="let task of task.connected_tasks">
+          <div class="connected-task" *ngFor="let task of task.connected_tasks" (click)="openTaskDetails(task)">
             <img src="../../../../assets/images/task.png"/>
             <span>{{task.task_id}}</span>
             <span class="task-name">{{task.name}}</span>
-            <span class="task-progress">{{task.progress}}</span>
+            <span class="task-progress">{{task.status}}</span>
+            <span class="task-priority">{{task.priority}}</span>
             <button class="icon-btn" (click)="deleteConnectedTask(task)">
               <mat-icon>close</mat-icon>
             </button>

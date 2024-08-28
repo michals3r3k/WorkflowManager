@@ -1,5 +1,5 @@
-<div class="container">
-  <div class="task-data" *ngIf="task">
+<div class="container" *ngIf="task">
+  <div class="task-data">
     <div class="title-bar">
       <div class="header1">
         <div class="task-id">
@@ -339,6 +339,6 @@
 
   </div>
   <div class="chat-container">
-    <app-chat></app-chat>
+    <app-chat [chatId]="task.chatId"></app-chat>
   </div>
 </div>

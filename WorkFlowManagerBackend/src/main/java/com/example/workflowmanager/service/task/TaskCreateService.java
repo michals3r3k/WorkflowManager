@@ -1,7 +1,9 @@
 package com.example.workflowmanager.service.task;
 
+import com.example.workflowmanager.db.chat.ChatRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskColumnRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
+import com.example.workflowmanager.entity.chat.Chat;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
 import com.example.workflowmanager.rest.organization.project.task.TaskColumnController.TaskCreateRequestRest;
@@ -16,12 +18,14 @@ import java.util.*;
 @Service
 public class TaskCreateService
 {
+    private final ChatRepository chatRepository;
     private final TaskRepository taskRepository;
     private final TaskColumnRepository taskColumnRepository;
 
-    public TaskCreateService(final TaskRepository taskRepository,
+    public TaskCreateService(final ChatRepository chatRepository, final TaskRepository taskRepository,
         final TaskColumnRepository taskColumnRepository)
     {
+        this.chatRepository = chatRepository;
         this.taskRepository = taskRepository;
         this.taskColumnRepository = taskColumnRepository;
     }
@@ -45,13 +49,14 @@ public class TaskCreateService
         {
             return new TaskCreateServiceResult(null, errors);
         }
-        final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(), taskColumnOrNull);
+        final Chat chat = new Chat();
+        chatRepository.save(chat);
+        final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(), taskColumnOrNull, chat);
         taskRepository.save(task);
         return new TaskCreateServiceResult(task.getId(), errors);
     }
 
-    private static boolean isExists(final TaskCreateRequestRest task,
-        final List<Task> tasks)
+    private static boolean isExists(final TaskCreateRequestRest task, final List<Task> tasks)
     {
         return tasks.stream()
             .map(Task::getTitle)

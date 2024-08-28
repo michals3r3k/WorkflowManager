@@ -16,6 +16,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>
             "t " +
         "from " +
             "Task t " +
+            "join fetch t.chat c " +
             "left join fetch t.subTasks " +
             "left join fetch t.parentTask " +
             "left join fetch t.members tm " +

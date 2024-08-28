@@ -1,5 +1,6 @@
 package com.example.workflowmanager.entity.organization.project.task;
 
+import com.example.workflowmanager.entity.chat.Chat;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -41,14 +42,19 @@ public class Task
     private Set<Task> subTasks;
     @OneToMany(mappedBy = "task")
     private Set<TaskMember> members;
+    @OneToOne(optional = false)
+    private Chat chat;
 
-    public Task(final String title, final LocalDateTime createTime, final TaskColumn taskColumn)
+    public Task(final String title, final LocalDateTime createTime,
+        final TaskColumn taskColumn,
+        final Chat chat)
     {
         setTitle(title);
         setCreateTime(createTime);
         setTaskColumn(taskColumn);
         setSubTasks(new HashSet<>());
         setMembers(new HashSet<>());
+        setChat(chat);
     }
 
     protected Task()
@@ -199,6 +205,16 @@ public class Task
     public void setMembers(final Set<TaskMember> members)
     {
         this.members = members;
+    }
+
+    public Chat getChat()
+    {
+        return chat;
+    }
+
+    public void setChat(final Chat chat)
+    {
+        this.chat = chat;
     }
 
     @Override

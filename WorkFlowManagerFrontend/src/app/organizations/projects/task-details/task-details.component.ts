@@ -15,6 +15,8 @@ import { TaskPriority } from '../project-details/project-details.component';
 })
 export class TaskDetailsComponent implements OnInit {
   taskId: number;
+  organizationId: number;
+  projectId: number;
   //@Output() statusChanged = new EventEmitter<{previousStatus: string, newStatus: string}>();
 
   isDescritionEditing: boolean = false;
@@ -79,18 +81,21 @@ export class TaskDetailsComponent implements OnInit {
   task: Task;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) private data: {task: Task, statuses: string[]},
+    @Inject(MAT_DIALOG_DATA) private data: {organizationId: number, projectId: number, taskId: number, statuses: string[]},
     private dialogRef: MatDialogRef<TaskDetailsComponent>,
     private dialog: MatDialog,
     private serviceResultHelper: ServiceResultHelper,
     private http: HttpRequestService) {
-    this.taskId = 1;
 
-    http.getGeneric<TaskRest>(`api/organization/1/project/1/task/${this.taskId}`).subscribe(taskRest => {
+    this.organizationId = data.organizationId;
+    this.projectId = data.projectId;
+    this.taskId = data.taskId;
+
+    http.getGeneric<TaskRest>(`api/organization/${this.organizationId}/project/${this.projectId}/task/${this.taskId}`).subscribe(taskRest => {
       this.title = taskRest.title;
-
       const task = new Task(taskRest.title);
       task.task_id = taskRest.taskId;
+      task.chatId = taskRest.chatId;
       task.create_date = new Date(taskRest.createTime);
       task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
         const subTask = new SubTask();
@@ -211,6 +216,7 @@ export class TaskDetailsComponent implements OnInit {
     this.task.task_id
     const taskRest: TaskRest = {
       taskId: this.task.task_id,
+      chatId: this.task.chatId,
       title: this.task.name,
       descriptionOrNull: this.task.desc,
       createTime: this.task.create_date.toISOString(),
@@ -482,6 +488,7 @@ export class TaskDetailsComponent implements OnInit {
 
 class Task {
   task_id: number;
+  chatId: number;
   name: string = "";
   desc: string = "";
   connected_tasks: SubTask[] = [];
@@ -525,6 +532,7 @@ enum ConnectedTaskRelation {
 
 interface TaskRest {
   taskId: number;
+  chatId: number;
   title: string;
   descriptionOrNull: string | null;
   createTime: string;

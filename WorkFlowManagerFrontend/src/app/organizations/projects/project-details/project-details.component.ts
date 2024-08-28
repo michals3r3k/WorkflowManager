@@ -132,7 +132,7 @@ export class ProjectDetailsComponent {
 
   openTaskDetails(task: Task) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {task: task, statuses: this.taskGroups.map(g => g.groupName)},
+      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: task.taskId, statuses: this.taskGroups.map(g => g.groupName)},
       width: '80vw',
       height: '80vh',
       maxWidth: '80vw',

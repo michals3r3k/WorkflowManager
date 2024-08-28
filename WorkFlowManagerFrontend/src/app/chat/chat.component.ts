@@ -14,7 +14,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class ChatComponent implements OnInit {
   @ViewChild('endOfMessages') endOfMessages: ElementRef | undefined;
   @ViewChild('messagesScroll') messagesScroll: ElementRef | undefined;
-  @Input() chatId: number = 1;
+  @Input() chatId: number;
 
   loggedUser: LoggedUser;
   users: UserModel[];

@@ -46,8 +46,8 @@ public class TaskController
         insert into task(id, organization_id, project_id, task_column_id, title, create_time) values(1, 1, 1, 1, 'test', now());
         insert into chat(id) values(1);
         */
-        final Task task = Iterables.getFirst(taskRepository.getListByIdsWithRelationalTasksAndMembers(
-            Collections.singleton(taskId)), null);
+        final Task task = Iterables.getOnlyElement(taskRepository.getListByIdsWithRelationalTasksAndMembers(
+            Collections.singleton(taskId)) );
         List<TaskMemberRest> members = task.getMembers().stream()
             .map(member -> {
                 final User user = member.getMember().getUser();
@@ -75,7 +75,8 @@ public class TaskController
         final String startDateOrNull = ObjectUtils.accessNullable(task.getStartDate(), date -> date.format(DTF));
         final String finishDateOrNull = ObjectUtils.accessNullable(task.getFinishDate(), date -> date.format(DTF));
         final String deadlineDateOrNull = ObjectUtils.accessNullable(task.getDeadlineDate(), date -> date.format(DTF));
-        return ResponseEntity.ok(new TaskRest(taskId, title, descriptionOrNull, createTime,
+        final Long chatId = task.getChat().getId();
+        return ResponseEntity.ok(new TaskRest(taskId, chatId, title, descriptionOrNull, createTime,
             startDateOrNull, finishDateOrNull, deadlineDateOrNull, parentTaskIdOrNull,
             parentTaskTitleOrNull, members, subTasks));
     }
@@ -83,6 +84,7 @@ public class TaskController
     public static class TaskRest
     {
         private Long taskId;
+        private Long chatId;
         private String title;
         private String descriptionOrNull;
         private String createTime;
@@ -94,7 +96,7 @@ public class TaskController
         private List<TaskMemberRest> members;
         private List<SubTaskRest> subTasks;
 
-        private TaskRest(final Long taskId, final String title,
+        private TaskRest(final Long taskId, Long chatId, final String title,
             final String descriptionOrNull, final String createTime,
             final String startDateOrNull, final String finishDateOrNull,
             final String deadlineDateOrNull, final Long parentTaskIdOrNull,
@@ -102,6 +104,7 @@ public class TaskController
             final List<SubTaskRest> subTasks)
         {
             this.taskId = taskId;
+            this.chatId = chatId;
             this.title = title;
             this.descriptionOrNull = descriptionOrNull;
             this.createTime = createTime;
@@ -127,6 +130,16 @@ public class TaskController
         public void setTaskId(final Long taskId)
         {
             this.taskId = taskId;
+        }
+
+        public Long getChatId()
+        {
+            return chatId;
+        }
+
+        public void setChatId(final Long chatId)
+        {
+            this.chatId = chatId;
         }
 
         public String getTitle()

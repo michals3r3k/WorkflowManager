@@ -18,6 +18,7 @@ public interface TaskColumnRepository extends JpaRepository<TaskColumn, Long>
             "TaskColumn tc " +
             "join tc.project p " +
             "left join fetch tc.tasks t " +
+            "left join fetch t.chat c " +
             "left join fetch t.members tm " +
             "left join fetch tm.member om " +
             "left join fetch om.user " +

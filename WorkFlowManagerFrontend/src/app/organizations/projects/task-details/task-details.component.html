@@ -306,7 +306,7 @@
           <div class="connected-task" *ngFor="let task of task.connected_tasks" (click)="openTaskDetails(task)">
             <img src="../../../../assets/images/task.png"/>
             <span>{{task.task_id}}</span>
-            <span class="task-name">{{task.name}}</span>
+            <span class="task-name">{{task.title}}</span>
             <span class="task-progress">{{task.status}}</span>
             <span class="task-priority">{{task.priority}}</span>
             <button class="icon-btn" (click)="deleteConnectedTask(task)">

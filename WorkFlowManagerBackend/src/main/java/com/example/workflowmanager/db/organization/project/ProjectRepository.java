@@ -13,5 +13,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>
 {
     @Query("select p from Project p join p.organization o where o.id in (?1)")
     List<Project> getListByOrganizationIds(Collection<Long> organizationIds);
+    @Query("select p from Project p where p.id in (?1)")
+    List<Project> getListByIdsWithOrganization(Collection<Long> projectIds);
 
 }

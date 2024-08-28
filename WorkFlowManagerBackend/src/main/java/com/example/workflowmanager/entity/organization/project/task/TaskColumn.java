@@ -17,14 +17,14 @@ public class TaskColumn
     private String name;
     @Column(nullable = false)
     private Short columnOrder;
-    @Column(nullable = false, name = "organization_id", insertable = false, updatable = false)
-    private Long organizationId;
-    @Column(nullable = false, name = "project_id", insertable = false, updatable = false)
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
+    @Column(name = "organization_id", nullable = false)
+    private Long organizationId;
     @ManyToOne(optional = false)
-    @JoinColumns({
-        @JoinColumn(name = "project_id", referencedColumnName = "id"),
-        @JoinColumn(name = "organization_id", referencedColumnName = "organization_id")
+    @JoinColumns(value = {
+        @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false),
+        @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false)
     })
     private Project project;
     @OneToMany(mappedBy = "taskColumn")
@@ -60,24 +60,24 @@ public class TaskColumn
         this.columnOrder = columnOrder;
     }
 
-    public Long getOrganizationId()
-    {
-        return organizationId;
-    }
-
-    public void setOrganizationId(final Long organizationId)
-    {
-        this.organizationId = organizationId;
-    }
-
-    public Long getProjectId()
+    protected Long getProjectId()
     {
         return projectId;
     }
 
-    public void setProjectId(final Long projectId)
+    protected void setProjectId(final Long projectId)
     {
         this.projectId = projectId;
+    }
+
+    protected Long getOrganizationId()
+    {
+        return organizationId;
+    }
+
+    protected void setOrganizationId(final Long organizationId)
+    {
+        this.organizationId = organizationId;
     }
 
     public Project getProject()
@@ -85,9 +85,10 @@ public class TaskColumn
         return project;
     }
 
-    public void setProject(
-        final Project project)
+    public void setProject(final Project project)
     {
+        setProjectId(project.getId());
+        setOrganizationId(project.getOrganization().getId());
         this.project = project;
     }
 

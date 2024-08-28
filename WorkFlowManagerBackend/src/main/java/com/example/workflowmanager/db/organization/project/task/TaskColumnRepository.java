@@ -17,10 +17,10 @@ public interface TaskColumnRepository extends JpaRepository<TaskColumn, Long>
         "from " +
             "TaskColumn tc " +
             "join tc.project p " +
-            "join fetch tc.tasks t " +
-            "join fetch t.members tm " +
-            "join fetch tm.member om " +
-            "join fetch om.user " +
+            "left join fetch tc.tasks t " +
+            "left join fetch t.members tm " +
+            "left join fetch tm.member om " +
+            "left join fetch om.user " +
         "where " +
             "p.id in (?1)")
     List<TaskColumn> getListByProjectIdsWithTaskMembers(Collection<Long> projectIds);

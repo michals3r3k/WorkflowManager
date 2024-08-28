@@ -22,26 +22,15 @@ import { AddStatusComponent } from '../add-status/add-status.component';
   styleUrl: './project-details.component.css'
 })
 export class ProjectDetailsComponent {
-  taskGroups: TaskGroup[] = [
-    {
-      groupName: "Group1",
-      tasks: [new Task('Get to work'), new Task('Pick up groceries'), new Task('Go home'), new Task('Fall asleep')],
-      collapsed: false
-    },
-    {
-      groupName: "Group2",
-      tasks: [],
-      collapsed: false
-    }
-  ];
+  taskGroups: TaskGroup[];
 
-  projectId: string | null;
-  organizationId: string | null;
+  projectId: number | null;
+  organizationId: number | null;
   project: any = null;
 
   constructor(private dialog: MatDialog, private resultToaster: ResultToasterService,
     private http: HttpRequestService, private route: ActivatedRoute) {
-      // itentionally empty
+      this.taskGroups = [];
   }
 
   // Prevent inside clicks from triggering the outside click listener
@@ -51,10 +40,36 @@ export class ProjectDetailsComponent {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.projectId = params.get("projectId");
-      this.organizationId = params.get("organizationId");
-      this.loadProject();
+      const projectId = params.get("projectId");
+      const organizationId = params.get("organizationId");
+      this.projectId = projectId == null ? null : +projectId;
+      this.organizationId = organizationId == null ? null : +organizationId;
+      this.loadTasks();
     })    
+  }
+
+  loadTasks() {
+    if(!this.projectId || !this.organizationId) {
+      return;
+    }
+    this.http.getGeneric<TaskColumnRest[]>(`api/organization/${this.organizationId}/project/${this.projectId}/task/columns`).subscribe(taskColumnsRest => {
+      this.taskGroups = taskColumnsRest.map(taskColumnRest => this._getTaskGroup(taskColumnRest));
+    });
+  }
+
+  _getTaskGroup(taskColumnRest: TaskColumnRest): TaskGroup {
+    const tasks: Task[] = taskColumnRest.tasks.map(taskRest => {
+      const task = new Task(taskRest.title);
+      task.status = taskColumnRest.name;
+      task.taskId = taskRest.taskId;
+      return task;
+    });  
+    const group = new TaskGroup();
+    group.id = taskColumnRest.id;
+    group.collapsed = false;
+    group.groupName = taskColumnRest.name;
+    group.tasks = tasks;
+    return group;
   }
 
   loadProject() {
@@ -161,26 +176,24 @@ export class ProjectDetailsComponent {
 
   addGroup() {
     const dialogRef = this.dialog.open(AddStatusComponent, {
+      data: {organizationId: this.organizationId, projectId: this.projectId},
       width: '280px',
       height: '150px',
     });
     dialogRef.afterClosed().subscribe(result => {
-      if (result === undefined) {
-        return;
-      }
-      if (this.taskGroups.find(g => g.groupName.toLocaleLowerCase().trim() === result.toLocaleLowerCase())) {
-        this.resultToaster.error("You con not add status with the same name as existsing status.")
+      if (result) {
+        this.loadTasks();
       }
 
-      //TODO - dodawanie statusu po stronie serwera
-      let task = new TaskGroup();
-      task.groupName = result;
-      this.taskGroups.push(task);
+      // //TODO - dodawanie statusu po stronie serwera
+      // let task = new TaskGroup();
+      // task.groupName = result;
+      // this.taskGroups.push(task);
     });
   }
 
-  onAddTaskClicked(eventData: string, group: TaskGroup) {
-    let task = new Task(eventData);
+  onAddTaskClicked(taskTitle: string, group: TaskGroup) {
+    let task = new Task(taskTitle);
     task.status = group.groupName;
     group.tasks.push(task);
   }
@@ -192,32 +205,38 @@ export class ProjectDetailsComponent {
 
 }
 
+interface TaskMemberRest {
+  userId: number;
+  email: string;
+}
+
+interface TaskRest {
+  taskId: number;
+  title: string;
+  members: TaskMemberRest[];
+}
+
+interface TaskColumnRest {
+  id: number;
+  name: string;
+  tasks: TaskRest[];
+}
+
 export class TaskGroup {
+  id: number;
   groupName: string = "";
   tasks: Task[] = [];
   collapsed: boolean = false;
 }
 
 class Task {
-  task_id: string = "00001";
-  name: string = "";
-  desc: string = "";
-  connected_tasks: Task[] = [];
-  sub_tasks: Task[] = [];
-  creator: User | null = null;
+  taskId: number;
+  title: string;
   assignUser: User | null = null;
-  create_date: Date | null = new Date();
-  start_date: Date | null = null;
-  finish_date: Date | null = null;
-  deadline: Date | null = null;
   status: string | null = "Group1";
-  priority: TaskPriority = TaskPriority.Medium;
-  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
-  isSubTask: boolean = false;
-
 
   constructor(name: string) {
-    this.name = name;
+    this.title = name;
   }
 }
 
@@ -229,6 +248,7 @@ export enum TaskPriority {
 }
 
 class User {
+  userId: number;
   name: string;
   constructor(name: string) {
     this.name = name;

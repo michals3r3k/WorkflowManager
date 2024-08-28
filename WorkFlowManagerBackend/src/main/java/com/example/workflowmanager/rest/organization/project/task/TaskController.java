@@ -67,7 +67,7 @@ public class TaskController
             .sorted(Comparator.comparing(SubTaskRest::getSubTaskId))
             .collect(Collectors.toList());
         final Task parentTaskOrNull = task.getParentTask();
-        final Long parentTaskIdOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getTaskColumnId);
+        final Long parentTaskIdOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getId);
         final String parentTaskTitleOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getTitle);
         final String title = task.getTitle();
         final String descriptionOrNull = task.getDescription();

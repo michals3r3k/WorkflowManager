@@ -20,17 +20,17 @@ public class Task
     private LocalDateTime startDate;
     private LocalDateTime finishDate;
     private LocalDateTime deadlineDate;
-    @Column(nullable = false, name = "task_column_id", insertable = false, updatable = false)
+    @Column(name = "task_column_id", nullable = false)
     private Long taskColumnId;
-    @Column(nullable = false, name = "organization_id", insertable = false, updatable = false)
-    private Long organizationId;
-    @Column(nullable = false, name = "project_id", insertable = false, updatable = false)
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
+    @Column(name = "organization_id", nullable = false)
+    private Long organizationId;
     @ManyToOne(optional = false)
-    @JoinColumns({
-        @JoinColumn(name = "task_column_id", referencedColumnName = "id"),
-        @JoinColumn(name = "project_id", referencedColumnName = "project_id"),
-        @JoinColumn(name = "organization_id", referencedColumnName = "organization_id")
+    @JoinColumns(value = {
+        @JoinColumn(name = "task_column_id", referencedColumnName = "id", insertable = false, updatable = false),
+        @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false),
+        @JoinColumn(name = "project_id", referencedColumnName = "project_id", insertable = false, updatable = false)
     })
     private TaskColumn taskColumn;
     @ManyToOne
@@ -111,34 +111,34 @@ public class Task
         this.deadlineDate = deadlineDate;
     }
 
-    public Long getTaskColumnId()
+    protected Long getTaskColumnId()
     {
         return taskColumnId;
     }
 
-    public void setTaskColumnId(final Long taskColumnId)
+    protected void setTaskColumnId(final Long taskColumnId)
     {
         this.taskColumnId = taskColumnId;
     }
 
-    public Long getOrganizationId()
-    {
-        return organizationId;
-    }
-
-    public void setOrganizationId(final Long organizationId)
-    {
-        this.organizationId = organizationId;
-    }
-
-    public Long getProjectId()
+    protected Long getProjectId()
     {
         return projectId;
     }
 
-    public void setProjectId(final Long projectId)
+    protected void setProjectId(final Long projectId)
     {
         this.projectId = projectId;
+    }
+
+    protected Long getOrganizationId()
+    {
+        return organizationId;
+    }
+
+    protected void setOrganizationId(final Long organizationId)
+    {
+        this.organizationId = organizationId;
     }
 
     public TaskColumn getTaskColumn()
@@ -146,9 +146,11 @@ public class Task
         return taskColumn;
     }
 
-    public void setTaskColumn(
-        final TaskColumn taskColumn)
+    public void setTaskColumn(final TaskColumn taskColumn)
     {
+        setTaskColumnId(taskColumn.getId());
+        setProjectId(taskColumn.getProjectId());
+        setOrganizationId(taskColumn.getOrganizationId());
         this.taskColumn = taskColumn;
     }
 

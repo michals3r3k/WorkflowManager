@@ -17,31 +17,60 @@
 
 .title-bar {
     display: flex;
-    flex-direction: row;
-    height: 50px;
+    flex-direction: column;
     background: #eee;
     border-radius: 5px;
     align-items: center;
     width: 100%;
 
-    .title {
-        flex: 1;
+    .header1 {
         display: flex;
         flex-direction: row;
-        align-items: center;
+        width: 100%;
+        justify-content: center;
 
         .task-id {
-            margin-left: 5px;
-            font-size: 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            span {
+                margin-left: 5px;
+                font-size: 18px;
+            }
         }
+
+        .title-options {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            padding: 5px;
+
+            .delete-btn {
+                color: #f00;
+            }
+        }
+
+        img {
+            width: 30px;
+            height: 30px;
+            margin-left: 10px;
+        }
+    }
+
+    .header2 {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: center;
 
         .title-input {
             flex: 1;
             background: transparent;
             border: 2px solid transparent;
             font-size: 18px;
-            margin-left: 10px;
-            margin-right: 5px;
+            margin: 0px 10px 10px 10px;
             padding: 5px;
             border-radius: 5px;
             transition: all 0.2s ease;
@@ -55,7 +84,7 @@
                 border: 2px solid rgb(35, 115, 236);
             }
         }
-    
+
         button {
             min-width: 30px;
             width: 30px;
@@ -72,20 +101,6 @@
                 transform: scale(0.7);
             }
         }
-
-        img {
-            width: 30px;
-            height: 30px;
-            margin-left: 10px;
-        }
-    }
-    
-
-    .title-options {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        padding: 5px;
     }
 }
 
@@ -142,6 +157,40 @@
     padding: 10px;
     overflow-y: auto;
 
+    .status-field {
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        select {
+            padding: 9px;
+            border-radius: 10px;
+            font-size: 14px;
+            border: 2px solid rgb(177, 177, 177);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: transparent;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position-x: 100%;
+            background-position-y: 5px;
+            padding-right: 30px; 
+
+            &:focus {
+                border: 2px solid rgb(35, 115, 236);
+                outline: none;
+            }
+        }
+
+        span {
+            margin-left: 10px;
+        }
+    }
+
     .progress-field {
 
         .row {
@@ -179,7 +228,6 @@
     .create-date {
         display: flex;
         flex-direction: row;
-        margin-top: -10px;
         margin-left: 10px;
         margin-bottom: 5px;
         gap: 10px;
@@ -329,9 +377,9 @@
                 flex: 1;
             }
 
-            .task-progress {
+            .task-priority {
                 border-radius: 10px;
-                background: rgba(53, 136, 231, 0.3);
+                background: rgba(212, 167, 70, 0.3);
                 padding: 3px 5px;
             }
         }
@@ -398,6 +446,12 @@
             .task-progress {
                 border-radius: 10px;
                 background: rgba(53, 136, 231, 0.3);
+                padding: 3px 5px;
+            }
+
+            .task-priority {
+                border-radius: 10px;
+                background: rgba(212, 167, 70, 0.3);
                 padding: 3px 5px;
             }
         }

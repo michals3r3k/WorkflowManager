@@ -1,0 +1,15 @@
+<div class="container">
+  <div class="message">
+    Are you sure you want to delete "{{group.groupName}}" status?
+  </div>
+  <div class="buttons">
+    <button mat-flat-button color="primary" (click)="confirm()">
+      Delete
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button mat-raised-button (click)="cancel()">
+      Cancel
+      <mat-icon>cancel</mat-icon>
+    </button>
+  </div>
+</div>

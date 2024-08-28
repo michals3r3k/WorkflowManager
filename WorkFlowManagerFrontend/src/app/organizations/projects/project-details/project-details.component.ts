@@ -198,7 +198,7 @@ export class TaskGroup {
   collapsed: boolean = false;
 }
 
-export class Task {
+class Task {
   task_id: string = "00001";
   name: string = "";
   desc: string = "";

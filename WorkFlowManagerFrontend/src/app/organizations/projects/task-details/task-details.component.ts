@@ -2,8 +2,8 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
-import { Task, TaskPriority } from '../project-details/project-details.component';
+import { debounceTime, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { TaskPriority } from '../project-details/project-details.component';
 import { HttpRequestService } from '../../../services/http/http-request.service';
 import { ServiceResult } from '../../../services/utils/service-result';
 import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
@@ -43,7 +43,7 @@ export class TaskDetailsComponent implements OnInit {
 
   searchConnectedTaskControl = new FormControl();
   connectedTaskOptions$: Observable<any[]>;
-  selectedConnectedTask: Task | null = null;
+  selectedConnectedTask: SubTask | null = null;
 
   searchCreatorControl = new FormControl();
   creatorOptions$: Observable<any[]>;
@@ -94,12 +94,11 @@ export class TaskDetailsComponent implements OnInit {
       task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
         const subTask = new SubTask();
         subTask.task_id = subTaskRest.subTaskId;
-        subTask.progress = TaskProgress.New;
         subTask.title = subTaskRest.title;
+        subTask.priority = TaskPriority.Medium; 
         return subTask;
       });
       this.task = task;
-
       this.title = this.task.name;
       this.description = this.task.desc;
       this.selectedPriority = this.task.priority;
@@ -174,9 +173,23 @@ export class TaskDetailsComponent implements OnInit {
 
   onTaskOptionSelected(event: MatAutocompleteSelectedEvent): void {
     const selectedTaskName = event.option.value;
-    this.found_tasks.subscribe(tasks => {
-      this.selectedConnectedTask = tasks.find(task => task.name === selectedTaskName) || null;
-    });
+    this.found_tasks.pipe(
+      map(tasks => {
+        const task = tasks.find(task => task.name === selectedTaskName);
+        if(!task) {
+          return null;
+        }
+        const subTask: SubTask = {
+          task_id: task.task_id,
+          priority: task.priority,
+          title: task.name,
+          relation_to_parent: ConnectedTaskRelation.RelativeTo,
+          status: "test"
+        };
+        return subTask;
+      })).subscribe(subTask => {
+        this.selectedConnectedTask = subTask; 
+      });
   }
 
   onCreatorOptionSelected(event: MatAutocompleteSelectedEvent): void {
@@ -232,7 +245,7 @@ export class TaskDetailsComponent implements OnInit {
     this.saveDeadline();
   }
 
-  openTaskDetails(task: Task) {
+  openTaskDetails(task: SubTask) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
       data: {task: task, statuses: this.taskStatusesOptions},
       width: '80vw',
@@ -421,7 +434,7 @@ export class TaskDetailsComponent implements OnInit {
 
   onAddConnectedTaskInputChange() {
     const inputValue = this.searchConnectedTaskControl.value;
-    if (!this.selectedConnectedTask || this.selectedConnectedTask.name !== inputValue) {
+    if (!this.selectedConnectedTask || this.selectedConnectedTask.title !== inputValue) {
       this.selectedConnectedTask = null;
     }
   }
@@ -443,7 +456,6 @@ export class TaskDetailsComponent implements OnInit {
   createNewSubTask() {
     let sub_task = new SubTask();
     sub_task.title = this.new_sub_task_name;
-    sub_task.isSubTask = true;
     this.task.sub_tasks.push(sub_task);
     this.new_sub_task_name = "";
     this.isAddingSubTask = false;
@@ -462,8 +474,30 @@ export class TaskDetailsComponent implements OnInit {
     this.task.sub_tasks = this.task.sub_tasks.filter(st => st !== task);
   }
 
-  deleteConnectedTask(task: Task) {
+  deleteConnectedTask(task: SubTask) {
     this.task.connected_tasks = this.task.connected_tasks.filter(ct => ct !== task);
+  }
+}
+
+class Task {
+  task_id: number;
+  name: string = "";
+  desc: string = "";
+  connected_tasks: SubTask[] = [];
+  sub_tasks: SubTask[] = [];
+  creator: User | null = null;
+  assignUser: User | null = null;
+  create_date: Date = new Date();
+  start_date: Date | null = null;
+  finish_date: Date | null = null;
+  deadline: Date | null = null;
+  status: string | null = "Group1";
+  priority: TaskPriority = TaskPriority.Medium;
+  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
+  isSubTask: boolean = false;
+
+  constructor(name: string) {
+    this.name = name;
   }
 }
 
@@ -471,6 +505,8 @@ class SubTask {
   task_id: number | null;
   title: string;
   priority: TaskPriority;
+  relation_to_parent: ConnectedTaskRelation;
+  status: string | null;
 }
 
 class User {

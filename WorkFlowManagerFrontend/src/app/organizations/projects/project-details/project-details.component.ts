@@ -30,14 +30,9 @@ export class ProjectDetailsComponent {
     },
     {
       groupName: "Group2",
-      tasks: [new Task('Get to work'), new Task('Pick up groceries'), new Task('Go home'), new Task('Fall asleep')],
+      tasks: [],
       collapsed: false
-    },
-    {
-      groupName: "Group3",
-      tasks: [new Task('Get to work'), new Task('Pick up groceries'), new Task('Go home'), new Task('Fall asleep')],
-      collapsed: false
-    },
+    }
   ];
 
   projectId: string | null;
@@ -117,13 +112,22 @@ export class ProjectDetailsComponent {
     });
   }
 
-  openTaskDetails(task: any) {
+  openTaskDetails(task: Task) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {task: task},
+      data: {task: task, statuses: this.taskGroups.map(g => g.groupName)},
       width: '80vw',
       height: '80vh',
       maxWidth: '80vw',
       maxHeight: '80vh',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      const previousGroup = this.taskGroups.find(g => g.tasks.some(t => t === task))
+      if (previousGroup) {
+        previousGroup.tasks = previousGroup.tasks.filter(t => t !== task);
+      }
+      const newGroup = this.taskGroups.find(g => g.groupName.toLowerCase() === task.status?.toLowerCase())
+      newGroup?.tasks.push(task);
     });
   }
 
@@ -176,7 +180,9 @@ export class ProjectDetailsComponent {
   }
 
   onAddTaskClicked(eventData: string, group: TaskGroup) {
-    group.tasks.push(new Task(eventData));
+    let task = new Task(eventData);
+    task.status = group.groupName;
+    group.tasks.push(task);
   }
 
 
@@ -204,9 +210,10 @@ export class Task {
   start_date: Date | null = null;
   finish_date: Date | null = null;
   deadline: Date | null = null;
-  status: string | null = "";
+  status: string | null = "Group1";
   priority: TaskPriority = TaskPriority.Medium;
   relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
+  isSubTask: boolean = false;
 
 
   constructor(name: string) {

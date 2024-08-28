@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -11,6 +11,7 @@ import { Task, TaskPriority } from '../project-details/project-details.component
   styleUrls: ['./task-details.component.css']
 })
 export class TaskDetailsComponent implements OnInit {
+  //@Output() statusChanged = new EventEmitter<{previousStatus: string, newStatus: string}>();
 
   isDescritionEditing: boolean = false;
   isTitleEditing: boolean = false;
@@ -20,6 +21,7 @@ export class TaskDetailsComponent implements OnInit {
   isFinishDateEditing: boolean = false;
   isDeadlineEditing: boolean = false;
   isPriorityEditing:boolean = false;
+  isStatusEditing:boolean = false;
 
   isAddingConnectedTask: boolean = false;
   isAddingSubTask: boolean = false;
@@ -30,6 +32,7 @@ export class TaskDetailsComponent implements OnInit {
   finish_date: Date | null = null;
   deadline: Date | null = null;
   selectedPriority: TaskPriority = TaskPriority.Medium;
+  selectedStatus: string | null = "";
   selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
 
   new_sub_task_name = "";
@@ -66,16 +69,28 @@ export class TaskDetailsComponent implements OnInit {
 
 
   taskPriorityOptions = Object.values(TaskPriority);
-  taskRelations = Object.values(ConnectedTaskRelation)
+  taskRelations = Object.values(ConnectedTaskRelation);
+  taskStatusesOptions: string[];
 
   task: Task = new Task("");
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) private data: {task: string},
+    @Inject(MAT_DIALOG_DATA) private data: {task: Task, statuses: string[]},
     private dialogRef: MatDialogRef<TaskDetailsComponent>,
     private dialog: MatDialog) {
-    this.title = data.task;
-    this.task.name = data.task;
+      this.task = data.task;
+      this.title = this.task.name;
+      this.description = this.task.desc;
+      this.selectedPriority = this.task.priority;
+      this.selectedStatus = this.task.status;
+      this.selectedCreator = this.task.creator;
+      this.selectedAssignUser = this.task.assignUser;
+      this.start_date = this.task.start_date;
+      this.finish_date = this.task.finish_date;
+      this.deadline = this.task.deadline;
+
+      //TODO - pobieranie dostępnych statusów z projektu
+      this.taskStatusesOptions = data.statuses;
 
     this.connectedTaskOptions$ = this.searchConnectedTaskControl.valueChanges
       .pipe( 
@@ -161,6 +176,28 @@ export class TaskDetailsComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
+  }
+
+  save() {
+    this.saveTitle();
+    this.saveDescription();
+    this.saveStatus();
+    this.savePriority();
+    this.saveCreator();
+    this.saveAssignTo();
+    this.saveStartDate();
+    this.saveFinishDate();
+    this.saveDeadline();
+  }
+
+  openTaskDetails(task: Task) {
+    const dialogRef = this.dialog.open(TaskDetailsComponent, {
+      data: {task: task, statuses: this.taskStatusesOptions},
+      width: '80vw',
+      height: '80vh',
+      maxWidth: '80vw',
+      maxHeight: '80vh',
+    });
   }
 
   onDescriptionFocus() {
@@ -314,6 +351,24 @@ export class TaskDetailsComponent implements OnInit {
     this.selectedPriority = this.task.priority;
   }
 
+  // STATUS
+  onStatusFocus() {
+    this.isStatusEditing = true;
+  }
+
+  onStatusBlur() {
+    this.isStatusEditing = false;
+  }
+
+  saveStatus() {
+    //this.statusChanged.emit({previousStatus: this.task.status!, newStatus: this.selectedStatus!});
+    this.task.status = this.selectedStatus;
+  }
+
+  cancelStatus() {
+    this.selectedStatus = this.task.status;
+  }
+
   onAddConnectedTaskInputChange() {
     const inputValue = this.searchConnectedTaskControl.value;
     if (!this.selectedConnectedTask || this.selectedConnectedTask.name !== inputValue) {
@@ -338,6 +393,7 @@ export class TaskDetailsComponent implements OnInit {
   createNewSubTask() {
     let sub_task = new Task("");
     sub_task.name = this.new_sub_task_name;
+    sub_task.isSubTask = true;
     this.task.sub_tasks.push(sub_task);
     this.new_sub_task_name = "";
     this.isAddingSubTask = false;

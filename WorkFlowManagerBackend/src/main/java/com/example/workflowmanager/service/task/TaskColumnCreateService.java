@@ -48,6 +48,10 @@ public class TaskColumnCreateService
 
     private static short getNewColumnOrder(final List<TaskColumn> columns)
     {
+        if(columns.isEmpty())
+        {
+            return 0;
+        }
         return (short) (columns.stream()
             .mapToInt(TaskColumn::getColumnOrder)
             .max()

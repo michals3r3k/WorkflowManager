@@ -1,8 +1,12 @@
 package com.example.workflowmanager.rest.organization.project.task;
 
 import com.example.workflowmanager.rest.organization.project.task.TaskColumnRestFactory.TaskColumnRest;
+import com.example.workflowmanager.service.task.TaskColumnChangeOrderService;
+import com.example.workflowmanager.service.task.TaskColumnChangeOrderService.TaskColumnChangeOrderError;
 import com.example.workflowmanager.service.task.TaskColumnCreateService;
 import com.example.workflowmanager.service.task.TaskColumnCreateService.TaskColumnCreateError;
+import com.example.workflowmanager.service.task.TaskColumnDeleteService;
+import com.example.workflowmanager.service.task.TaskColumnDeleteService.TaskColumnDeleteError;
 import com.example.workflowmanager.service.task.TaskCreateService;
 import com.example.workflowmanager.service.task.TaskCreateService.TaskCreateServiceResult;
 import com.example.workflowmanager.service.utils.ServiceResult;
@@ -19,14 +23,20 @@ public class TaskColumnController
     private final TaskColumnRestFactory taskColumnRestFactory;
     private final TaskColumnCreateService taskColumnCreateService;
     private final TaskCreateService taskCreateService;
+    private final TaskColumnChangeOrderService taskColumnChangeOrderService;
+    private final TaskColumnDeleteService taskColumnDeleteService;
 
     public TaskColumnController(final TaskColumnRestFactory taskColumnRestFactory,
         final TaskColumnCreateService taskColumnCreateService,
-        final TaskCreateService taskCreateService)
+        final TaskCreateService taskCreateService,
+        final TaskColumnChangeOrderService taskColumnChangeOrderService,
+        final TaskColumnDeleteService taskColumnDeleteService)
     {
         this.taskColumnRestFactory = taskColumnRestFactory;
         this.taskColumnCreateService = taskColumnCreateService;
         this.taskCreateService = taskCreateService;
+        this.taskColumnChangeOrderService = taskColumnChangeOrderService;
+        this.taskColumnDeleteService = taskColumnDeleteService;
     }
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/add-task")
@@ -51,6 +61,62 @@ public class TaskColumnController
     public ResponseEntity<List<TaskColumnRest>> getList(@PathVariable Long organizationId, @PathVariable Long projectId)
     {
         return ResponseEntity.ok(taskColumnRestFactory.getList(projectId));
+    }
+
+    @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/change-order")
+    @Transactional
+    public ResponseEntity<ServiceResult<TaskColumnChangeOrderError>> saveOrder(
+        @PathVariable Long organizationId, @PathVariable Long projectId,
+        @RequestBody List<TaskColumnOrderRest> taskColumnOrders)
+    {
+        return ResponseEntity.ok(taskColumnChangeOrderService.changeOrder(projectId, taskColumnOrders));
+    }
+
+    @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/column/{taskColumnId}/delete")
+    @Transactional
+    public ResponseEntity<ServiceResult<TaskColumnDeleteError>> delete(@PathVariable Long organizationId,
+        @PathVariable Long projectId, @PathVariable Long taskColumnId)
+    {
+        return ResponseEntity.ok(taskColumnDeleteService.delete(projectId, taskColumnId));
+    }
+
+    public static class TaskColumnOrderRest
+    {
+        private Long taskColumnId;
+        private Short order;
+
+        public TaskColumnOrderRest(final Long taskColumnId,
+            final Short order)
+        {
+            this.taskColumnId = taskColumnId;
+            this.order = order;
+        }
+
+        public TaskColumnOrderRest()
+        {
+            // for Spring
+        }
+
+        public Long getTaskColumnId()
+        {
+            return taskColumnId;
+        }
+
+        public void setTaskColumnId(final Long taskColumnId)
+        {
+            this.taskColumnId = taskColumnId;
+        }
+
+        public Short getOrder()
+        {
+            return order;
+        }
+
+        public void setOrder(final Short order)
+        {
+            this.order = order;
+        }
+
     }
 
     public static class TaskCreateRequestRest

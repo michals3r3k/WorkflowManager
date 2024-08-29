@@ -31,9 +31,7 @@ export class AddStatusComponent implements OnInit {
     }
     this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add`, this.status_name).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res, "Column added successfully", "Errors occured");
-      if(res.success) {
-        this.dialogRef.close(true);    
-      }
+      this.dialogRef.close(true);    
     })
   }
 

@@ -98,7 +98,24 @@ export class ProjectDetailsComponent {
   }
 
   dropGroup(event: CdkDragDrop<TaskGroup[]>) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    if(event.previousIndex === event.currentIndex) {
+      return;
+    }
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    const columnOrderList: {taskColumnId: number, order: number}[] = [];
+    const data = event.container.data;
+    for(let i = 0; i < data.length; ++i) {
+      columnOrderList.push({
+        taskColumnId: data[i].id,
+        order: i,
+      });
+    }
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/change-order`, columnOrderList).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Column moved succesfully", "Errors occured");
+      if(!res.success) {
+        this.loadTasks();
+      }
+    })
   }
 
   _loadOrganizations() {
@@ -172,7 +189,12 @@ export class ProjectDetailsComponent {
         return;
       }
       if (result) {
-        this.taskGroups = this.taskGroups.filter(g => g !== group);
+        this.http.getGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/${group.id}/delete`).subscribe(res => {
+          this.serviceResultHelper.handleServiceResult(res, "Column deleted successfully", "Errors occured");
+          if(res.success) {
+            this.taskGroups = this.taskGroups.filter(g => g !== group);
+          }
+        });
       }
     });
   }
@@ -187,23 +209,13 @@ export class ProjectDetailsComponent {
       if (result) {
         this.loadTasks();
       }
-
-      // //TODO - dodawanie statusu po stronie serwera
-      // let task = new TaskGroup();
-      // task.groupName = result;
-      // this.taskGroups.push(task);
     });
   }
 
   onAddTaskClicked(taskTitle: string, group: TaskGroup) {
     this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: group.id}).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
-      if(res.success && res.taskIdOrNull) {
-        let task = new Task(taskTitle);
-        task.taskId = res.taskIdOrNull;
-        task.status = group.groupName;
-        group.tasks.push(task);
-      }
+      this.loadTasks();
     });
   }
 

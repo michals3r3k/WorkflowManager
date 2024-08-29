@@ -48,7 +48,6 @@ export class ChatComponent implements OnInit {
         this.loggedUser = user;
         this._initMessages();
         this._initMessageWebsocket();
-        this._initUsers();
       }
     });
   }
@@ -85,6 +84,7 @@ export class ChatComponent implements OnInit {
       messagesRest.forEach(messageRes => {
         this._addMessage(messageRes);
       });
+      this._initUsers();
     });
   }
 

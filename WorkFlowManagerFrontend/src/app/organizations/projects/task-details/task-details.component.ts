@@ -21,7 +21,6 @@ export class TaskDetailsComponent implements OnInit {
 
   isDescritionEditing: boolean = false;
   isTitleEditing: boolean = false;
-  isCreatorEditing: boolean = false;
   isAssignToEditing: boolean = false;
   isStartDateEditing: boolean = false;
   isFinishDateEditing: boolean = false;
@@ -47,10 +46,6 @@ export class TaskDetailsComponent implements OnInit {
   connectedTaskOptions$: Observable<any[]>;
   selectedConnectedTask: SubTask | null = null;
 
-  searchCreatorControl = new FormControl();
-  creatorOptions$: Observable<any[]>;
-  selectedCreator: User | null = null;
-
   searchAssignUserControl = new FormControl();
   assignUserOptions$: Observable<any[]>;
   selectedAssignUser: User | null = null;
@@ -59,12 +54,6 @@ export class TaskDetailsComponent implements OnInit {
     new Task("task1"),
     new Task("test task"),
     new Task("do roboty")
-  ]);
-
-  found_creators: Observable<User[]> = of([
-    new User("Tomek"),
-    new User("Marta"),
-    new User("Dominik"),
   ]);
 
   found_users: Observable<User[]> = of([
@@ -96,6 +85,8 @@ export class TaskDetailsComponent implements OnInit {
       const task = new Task(taskRest.title);
       task.task_id = taskRest.taskId;
       task.chatId = taskRest.chatId;
+      task.creatorId = taskRest.creatorId;
+      task.creatorName = taskRest.creatorName;
       task.create_date = new Date(taskRest.createTime);
       task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
         const subTask = new SubTask();
@@ -110,7 +101,6 @@ export class TaskDetailsComponent implements OnInit {
       this.description = this.task.desc;
       this.selectedPriority = this.task.priority;
       this.selectedStatus = this.task.status;
-      this.selectedCreator = this.task.creator;
       this.selectedAssignUser = this.task.assignUser;
       this.start_date = this.task.start_date;
       this.finish_date = this.task.finish_date;
@@ -124,13 +114,6 @@ export class TaskDetailsComponent implements OnInit {
         startWith(''),
         debounceTime(500),
         switchMap(() => { return this.loadSearchConnectedTask(); })
-    )
-
-    this.creatorOptions$ = this.searchCreatorControl.valueChanges
-      .pipe(
-        startWith(''),
-        debounceTime(500),
-        switchMap(() => { return this.loadSearchCreators(); })
     )
 
     this.assignUserOptions$ = this.searchAssignUserControl.valueChanges
@@ -149,18 +132,6 @@ export class TaskDetailsComponent implements OnInit {
           task.name.toLowerCase().includes(searchTerm)
         );
         return of(filteredTasks);
-      })
-    );
-  }
-
-  private loadSearchCreators(): Observable<any[]> {
-    const searchTerm = this.searchCreatorControl.value?.toLowerCase() || '';
-    return this.found_creators.pipe(
-      switchMap(users => {
-        const filteredUsers = users.filter(user =>
-          user.name.toLowerCase().includes(searchTerm)
-        );
-        return of(filteredUsers);
       })
     );
   }
@@ -198,13 +169,6 @@ export class TaskDetailsComponent implements OnInit {
       });
   }
 
-  onCreatorOptionSelected(event: MatAutocompleteSelectedEvent): void {
-    const selectedCreatorName = event.option.value;
-    this.found_creators.subscribe(users => {
-      this.selectedCreator = users.find(user => user.name === selectedCreatorName) || null;
-    });
-  }
-
   onAssignOptionSelected(event: MatAutocompleteSelectedEvent): void {
     const selectedAssignUserName = event.option.value;
     this.found_users.subscribe(users => {
@@ -219,6 +183,8 @@ export class TaskDetailsComponent implements OnInit {
       chatId: this.task.chatId,
       title: this.task.name,
       descriptionOrNull: this.task.desc,
+      creatorId: this.task.creatorId,
+      creatorName: this.task.creatorName,
       createTime: this.task.create_date.toISOString(),
       startDateOrNull: this.task.start_date?.toISOString() || null,
       finishDateOrNull: this.task.finish_date?.toISOString() || null,
@@ -245,7 +211,6 @@ export class TaskDetailsComponent implements OnInit {
     this.saveDescription();
     this.saveStatus();
     this.savePriority();
-    this.saveCreator();
     this.saveAssignTo();
     this.saveStartDate();
     this.saveFinishDate();
@@ -285,24 +250,6 @@ export class TaskDetailsComponent implements OnInit {
 
   onTitleBlur() {
     this.isTitleEditing = false;
-  }
-
-  onCreatorFocus() {
-    this.isCreatorEditing = true;
-  }
-
-  onCreatorBlur() {
-    this.isCreatorEditing = false;
-  }
-
-  saveCreator() {
-    this.task.creator = this.selectedCreator;
-    this._saveTask();
-  }
-
-  cancelCreatorEdit() {
-    this.selectedCreator = this.task.creator;
-    this.searchCreatorControl.setValue(this.selectedCreator?.name ?? "");
   }
 
   onAssignToFocus() {
@@ -446,13 +393,6 @@ export class TaskDetailsComponent implements OnInit {
     }
   }
 
-  onCreatorInputChange() {
-    const inputValue = this.searchCreatorControl.value;
-    if (!this.selectedCreator || this.selectedCreator.name !== inputValue) {
-      this.selectedCreator = null;
-    }
-  }
-
   onAssignToInputChange() {
     const inputValue = this.searchAssignUserControl.value;
     if (!this.selectedAssignUser || this.selectedAssignUser.name !== inputValue) {
@@ -491,6 +431,8 @@ class Task {
   chatId: number;
   name: string = "";
   desc: string = "";
+  creatorId: number;
+  creatorName: string;
   connected_tasks: SubTask[] = [];
   sub_tasks: SubTask[] = [];
   creator: User | null = null;
@@ -536,6 +478,8 @@ interface TaskRest {
   title: string;
   descriptionOrNull: string | null;
   createTime: string;
+  creatorId: number;
+  creatorName: string;
   startDateOrNull: string | null;
   finishDateOrNull: string | null;
   deadlineDateOrNull: string | null;

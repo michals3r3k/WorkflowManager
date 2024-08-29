@@ -41,14 +41,9 @@ public class TaskController
     public ResponseEntity<TaskRest> getTask(@PathVariable Long organizationId,
         @PathVariable Long projectId, @PathVariable Long taskId)
     {
-        /*
-        insert into task_column(id, column_order, organization_id, project_id, name) values(1, 1, 1, 1, 'test');
-        insert into task(id, organization_id, project_id, task_column_id, title, create_time) values(1, 1, 1, 1, 'test', now());
-        insert into chat(id) values(1);
-        */
         final Task task = Iterables.getOnlyElement(taskRepository.getListByIdsWithRelationalTasksAndMembers(
             Collections.singleton(taskId)) );
-        List<TaskMemberRest> members = task.getMembers().stream()
+        final List<TaskMemberRest> members = task.getMembers().stream()
             .map(member -> {
                 final User user = member.getMember().getUser();
                 final Long userId = user.getId();
@@ -58,7 +53,7 @@ public class TaskController
             .sorted(Comparator.comparing(TaskMemberRest::getEmail, Comparator.naturalOrder())
                 .thenComparing(TaskMemberRest::getUserId))
             .collect(Collectors.toList());
-        List<SubTaskRest> subTasks = task.getSubTasks().stream()
+        final List<SubTaskRest> subTasks = task.getSubTasks().stream()
             .map(subTask -> {
                 final Long subTaskId = subTask.getId();
                 final String title = subTask.getTitle();
@@ -76,9 +71,13 @@ public class TaskController
         final String finishDateOrNull = ObjectUtils.accessNullable(task.getFinishDate(), date -> date.format(DTF));
         final String deadlineDateOrNull = ObjectUtils.accessNullable(task.getDeadlineDate(), date -> date.format(DTF));
         final Long chatId = task.getChat().getId();
-        return ResponseEntity.ok(new TaskRest(taskId, chatId, title, descriptionOrNull, createTime,
-            startDateOrNull, finishDateOrNull, deadlineDateOrNull, parentTaskIdOrNull,
-            parentTaskTitleOrNull, members, subTasks));
+        final User creator = task.getCreator();
+        final Long creatorId = creator.getId();
+        final String creatorName = creator.getEmail();
+        return ResponseEntity.ok(new TaskRest(taskId, chatId, title, descriptionOrNull,
+            createTime, creatorId, creatorName, startDateOrNull, finishDateOrNull,
+            deadlineDateOrNull, parentTaskIdOrNull, parentTaskTitleOrNull,
+            members, subTasks));
     }
 
     public static class TaskRest
@@ -88,6 +87,8 @@ public class TaskController
         private String title;
         private String descriptionOrNull;
         private String createTime;
+        private Long creatorId;
+        private String creatorName;
         private String startDateOrNull;
         private String finishDateOrNull;
         private String deadlineDateOrNull;
@@ -98,16 +99,18 @@ public class TaskController
 
         private TaskRest(final Long taskId, Long chatId, final String title,
             final String descriptionOrNull, final String createTime,
-            final String startDateOrNull, final String finishDateOrNull,
-            final String deadlineDateOrNull, final Long parentTaskIdOrNull,
-            final String parentTaskTitleOrNull, final List<TaskMemberRest> members,
-            final List<SubTaskRest> subTasks)
+            final Long creatorId, final String creatorName, final String startDateOrNull,
+            final String finishDateOrNull, final String deadlineDateOrNull,
+            final Long parentTaskIdOrNull, final String parentTaskTitleOrNull,
+            final List<TaskMemberRest> members, final List<SubTaskRest> subTasks)
         {
             this.taskId = taskId;
             this.chatId = chatId;
             this.title = title;
             this.descriptionOrNull = descriptionOrNull;
             this.createTime = createTime;
+            this.creatorId = creatorId;
+            this.creatorName = creatorName;
             this.startDateOrNull = startDateOrNull;
             this.finishDateOrNull = finishDateOrNull;
             this.deadlineDateOrNull = deadlineDateOrNull;
@@ -160,6 +163,26 @@ public class TaskController
         public void setCreateTime(final String createTime)
         {
             this.createTime = createTime;
+        }
+
+        public Long getCreatorId()
+        {
+            return creatorId;
+        }
+
+        public void setCreatorId(final Long creatorId)
+        {
+            this.creatorId = creatorId;
+        }
+
+        public String getCreatorName()
+        {
+            return creatorName;
+        }
+
+        public void setCreatorName(final String creatorName)
+        {
+            this.creatorName = creatorName;
         }
 
         public String getStartDateOrNull()

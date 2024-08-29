@@ -70,6 +70,7 @@ import { MemberDeleteButton } from './organizations/organization-details/member-
 import { AddTaskComponent } from './organizations/projects/add-task/add-task.component';
 import { DeleteGroupConfirmComponent } from './organizations/projects/delete-group-confirm/delete-group-confirm.component';
 import { AddStatusComponent } from './organizations/projects/add-status/add-status.component';
+import { UserImgPipe } from './Pipes/user-img.pipe';
 
 @NgModule({
   declarations: [
@@ -112,7 +113,8 @@ import { AddStatusComponent } from './organizations/projects/add-status/add-stat
     TaskDetailsComponent,
     AddTaskComponent,
     DeleteGroupConfirmComponent,
-    AddStatusComponent
+    AddStatusComponent,
+    UserImgPipe
    ],
   imports: [
     BrowserModule,

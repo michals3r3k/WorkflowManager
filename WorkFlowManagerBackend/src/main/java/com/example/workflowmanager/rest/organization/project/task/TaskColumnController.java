@@ -1,6 +1,8 @@
 package com.example.workflowmanager.rest.organization.project.task;
 
+import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskColumnRestFactory.TaskColumnRest;
+import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.task.TaskColumnChangeOrderService;
 import com.example.workflowmanager.service.task.TaskColumnChangeOrderService.TaskColumnChangeOrderError;
 import com.example.workflowmanager.service.task.TaskColumnCreateService;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @CrossOrigin
 @RestController
@@ -25,18 +28,21 @@ public class TaskColumnController
     private final TaskCreateService taskCreateService;
     private final TaskColumnChangeOrderService taskColumnChangeOrderService;
     private final TaskColumnDeleteService taskColumnDeleteService;
+    private final CurrentUserService currentUserService;
 
     public TaskColumnController(final TaskColumnRestFactory taskColumnRestFactory,
         final TaskColumnCreateService taskColumnCreateService,
         final TaskCreateService taskCreateService,
         final TaskColumnChangeOrderService taskColumnChangeOrderService,
-        final TaskColumnDeleteService taskColumnDeleteService)
+        final TaskColumnDeleteService taskColumnDeleteService,
+        final CurrentUserService currentUserService)
     {
         this.taskColumnRestFactory = taskColumnRestFactory;
         this.taskColumnCreateService = taskColumnCreateService;
         this.taskCreateService = taskCreateService;
         this.taskColumnChangeOrderService = taskColumnChangeOrderService;
         this.taskColumnDeleteService = taskColumnDeleteService;
+        this.currentUserService = currentUserService;
     }
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/add-task")
@@ -45,7 +51,9 @@ public class TaskColumnController
         @PathVariable Long organizationId, @PathVariable Long projectId,
         @RequestBody TaskCreateRequestRest task)
     {
-        return ResponseEntity.ok(taskCreateService.create(projectId, task));
+        final User user = currentUserService.getCurrentUser()
+            .orElseThrow(NoSuchElementException::new);
+        return ResponseEntity.ok(taskCreateService.create(projectId, task, user));
     }
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/add")

@@ -7,8 +7,7 @@
 
         <div [ngClass]="message.own ? 'message own' : 'message' "
           *ngFor="let message of messages">
-          <img class="profile-img" *ngIf="getSenderImgUrl(message) as imgUrl" [src]="imgUrl" />
-          <img class="profile-img" *ngIf="!getSenderImgUrl(message) as imgUrl" src="../../../../assets/images/creator-dummy-img.jpg" />
+          <img class="profile-img" *ngIf="message.senderId | userImg | async as imgUrl; else defaultProfileImg" [src]="imgUrl"/>
           <div class="texts">
             <span class="sender-name">{{message.sender}}</span>
             <div class="message-border">
@@ -65,8 +64,7 @@
         <hr />
         <div class="users-list">
           <div class="chat-user" *ngFor="let user of users">
-            <img class="profile-img" *ngIf="user.imgUrl" [src]="user.imgUrl"/>
-            <img class="profile-img" *ngIf="!user.imgUrl" src="/assets/images/creator-dummy-img.jpg"/>
+            <img class="profile-img" *ngIf="user.userId | userImg | async as imgUrl; else defaultProfileImg" [src]="imgUrl"/>
             {{user.name}}
           </div>
         </div>
@@ -93,5 +91,7 @@
     </div>
 
   </div>
-
+  <ng-template #defaultProfileImg>
+    <img class="profile-img" src="/assets/images/creator-dummy-img.jpg"/>
+  </ng-template>  
 </div>

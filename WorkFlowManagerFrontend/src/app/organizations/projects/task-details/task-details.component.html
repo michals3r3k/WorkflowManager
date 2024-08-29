@@ -120,33 +120,16 @@
       <div class="auto-complete-field">
         <span>Created by</span>
         <div class="row">
-          <div class="inputbox" [ngClass]="{'inputbox-focus' : isCreatorEditing}">
-            <img src="../../../../assets/images/creator-dummy-img.jpg"/>
-            <input type="text"
-              (focus)="onCreatorFocus()"
-              (blur)="onCreatorBlur()"
-              (input)="onCreatorInputChange()"
-              [formControl]="searchCreatorControl" [matAutocomplete]="creatorAutocomplete"
-              placeholder="Selected task creator" />
-            <mat-autocomplete #creatorAutocomplete="matAutocomplete" (optionSelected)="onCreatorOptionSelected($event)"  >
-              <mat-option *ngFor="let userOption of creatorOptions$ | async" [value]="userOption.name">
-                  {{userOption.name}}
-              </mat-option>
-            </mat-autocomplete>
-          </div>
-          <div class="buttons">
-            <button class="icon-btn-color" *ngIf="isCreatorEditing || selectedCreator != task.creator"
-              (click)="saveCreator()"
-              [disabled] = "task.creator === selectedCreator || selectedCreator === null">
-              <mat-icon>save</mat-icon>
-            </button>
-            <button class="icon-btn" *ngIf="isCreatorEditing || selectedCreator != task.creator" (click)="cancelCreatorEdit()">
-              <mat-icon>keyboard_return</mat-icon>
-            </button>
+          <div class="inputbox" style="border: 0;">
+            <img class="profile-img" *ngIf="task.creatorId | userImg | async as imgUrl; else defaultProfileImg" [src]="imgUrl"/>
+            {{task.creatorName}}
           </div>
         </div>
-        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedCreator !== task.creator && !isCreatorEditing}">(Creator not saved)</span>
       </div>
+
+      <ng-template #defaultProfileImg>
+        <img class="profile-img" src="/assets/images/creator-dummy-img.jpg"/>
+      </ng-template>  
 
       <!-- assign to-->
       <div class="auto-complete-field">
@@ -288,7 +271,7 @@
         </div>
       </div>
 
-      <!-- CONNECTED TASk -->
+      <!-- CONNECTED TASK -->
       <div class="connected-tasks-container" *ngIf="!task.isSubTask">
         <div class="add-first-connected-task" *ngIf="task.connected_tasks.length === 0 && !isAddingConnectedTask">
           <button mat-flat-button color="primary" (click)="addConnectedTask()">

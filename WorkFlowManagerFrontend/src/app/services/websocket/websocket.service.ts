@@ -69,4 +69,14 @@ export class WebsocketService {
     }
   }
 
+  disconnect() {
+    if (this.connected && this.stompClient) {
+      this.stompClient.deactivate();
+      this.connected = false;
+      console.log('Disconnected from websocket');
+    } else {
+      console.log('Websocket is already disconnected');
+    }
+  }
+
 }

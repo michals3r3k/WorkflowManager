@@ -23,6 +23,16 @@ public class TaskMember
     })
     private OrganizationMember member;
 
+    public TaskMember(final TaskMemberId id)
+    {
+        this.id = id;
+    }
+
+    protected TaskMember()
+    {
+        // for hibernate
+    }
+
     public TaskMemberId getId()
     {
         return id;

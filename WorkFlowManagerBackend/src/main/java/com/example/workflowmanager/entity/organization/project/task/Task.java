@@ -156,7 +156,7 @@ public class Task
         this.projectId = projectId;
     }
 
-    protected Long getOrganizationId()
+    public Long getOrganizationId()
     {
         return organizationId;
     }

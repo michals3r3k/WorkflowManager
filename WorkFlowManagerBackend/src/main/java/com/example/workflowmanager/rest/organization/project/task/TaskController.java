@@ -1,8 +1,14 @@
 package com.example.workflowmanager.rest.organization.project.task;
 
+import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
+import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
+import com.example.workflowmanager.entity.organization.Organization;
+import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.service.task.TaskEditService;
+import com.example.workflowmanager.service.task.TaskEditService.TaskEditError;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.collect.Iterables;
@@ -14,26 +20,56 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @CrossOrigin
 @RestController
 public class TaskController
 {
     private static final DateTimeFormatter DTF = DateTimeFormatter.ISO_DATE_TIME;
-    private final TaskRepository taskRepository;
 
-    public TaskController(final TaskRepository taskRepository)
+    private final TaskRepository taskRepository;
+    private final OrganizationMemberRepository organizationMemberRepository;
+    private final OrganizationRepository organizationRepository;
+    private final TaskEditService taskEditService;
+
+    public TaskController(final TaskRepository taskRepository,
+        final OrganizationMemberRepository organizationMemberRepository,
+        final OrganizationRepository organizationRepository,
+        final TaskEditService taskEditService)
     {
         this.taskRepository = taskRepository;
+        this.organizationMemberRepository = organizationMemberRepository;
+        this.organizationRepository = organizationRepository;
+        this.taskEditService = taskEditService;
+    }
+
+    @GetMapping("/api/organization/{organizationId}/task/member/options")
+    @Transactional
+    public ResponseEntity<List<TaskMemberOptionRest>> getMemberOptions(@PathVariable Long organizationId)
+    {
+        final Set<Long> organizationIds = Collections.singleton(organizationId);
+        final List<TaskMemberOptionRest> options = Stream.concat(
+            organizationRepository.getList(organizationIds).stream()
+                .map(Organization::getUser),
+            organizationMemberRepository.getListByOrganization(organizationIds).stream()
+                .map(OrganizationMember::getUser))
+            .distinct()
+            .sorted(Comparator.comparing(User::getEmail, Comparator.naturalOrder())
+                .thenComparing(User::getId))
+            .map(TaskMemberOptionRest::new)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(options);
     }
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/save")
     @Transactional
-    public ResponseEntity<ServiceResult<?>> getTask(@PathVariable Long organizationId,
+    public ResponseEntity<ServiceResult<TaskEditError>> save(@PathVariable Long organizationId,
         @PathVariable Long projectId, @RequestBody TaskRest task)
     {
-        return ResponseEntity.ok(ServiceResult.ok());
+        return ResponseEntity.ok(taskEditService.save(projectId, task));
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/{taskId}")
@@ -43,16 +79,8 @@ public class TaskController
     {
         final Task task = Iterables.getOnlyElement(taskRepository.getListByIdsWithRelationalTasksAndMembers(
             Collections.singleton(taskId)) );
-        final List<TaskMemberRest> members = task.getMembers().stream()
-            .map(member -> {
-                final User user = member.getMember().getUser();
-                final Long userId = user.getId();
-                final String email = user.getEmail();
-                return new TaskMemberRest(userId, email);
-            })
-            .sorted(Comparator.comparing(TaskMemberRest::getEmail, Comparator.naturalOrder())
-                .thenComparing(TaskMemberRest::getUserId))
-            .collect(Collectors.toList());
+
+        final List<TaskMemberRest> members = TaskColumnRestFactory.getMembers(task);
         final List<SubTaskRest> subTasks = task.getSubTasks().stream()
             .map(subTask -> {
                 final Long subTaskId = subTask.getId();
@@ -304,11 +332,10 @@ public class TaskController
 
     public static class TaskMemberRest
     {
-
         private Long userId;
         private String email;
 
-        private TaskMemberRest(final Long userId, final String email)
+        TaskMemberRest(final Long userId, final String email)
         {
             this.userId = userId;
             this.email = email;
@@ -332,6 +359,27 @@ public class TaskController
         public void setEmail(final String email)
         {
             this.email = email;
+        }
+
+    }
+
+    public static class TaskMemberOptionRest
+    {
+        private User user;
+
+        private TaskMemberOptionRest(User user)
+        {
+            this.user = user;
+        }
+
+        public Long getUserId()
+        {
+            return user.getId();
+        }
+
+        public String getName()
+        {
+            return user.getEmail();
         }
 
     }

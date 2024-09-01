@@ -40,6 +40,8 @@ export class TaskDetailsComponent implements OnInit {
   selectedStatus: string | null = "";
   selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
 
+  userOptions$: Observable<User[]>;
+
   new_sub_task_name = "";
 
   searchConnectedTaskControl = new FormControl();
@@ -55,13 +57,6 @@ export class TaskDetailsComponent implements OnInit {
     new Task("test task"),
     new Task("do roboty")
   ]);
-
-  found_users: Observable<User[]> = of([
-    new User("Rafał"),
-    new User("Marcin"),
-    new User("Kacper"),
-  ]);
-
 
   taskPriorityOptions = Object.values(TaskPriority);
   taskRelations = Object.values(ConnectedTaskRelation);
@@ -84,6 +79,7 @@ export class TaskDetailsComponent implements OnInit {
       this.title = taskRest.title;
       const task = new Task(taskRest.title);
       task.task_id = taskRest.taskId;
+      task.desc = taskRest.descriptionOrNull || "";
       task.chatId = taskRest.chatId;
       task.creatorId = taskRest.creatorId;
       task.creatorName = taskRest.creatorName;
@@ -106,6 +102,14 @@ export class TaskDetailsComponent implements OnInit {
       this.finish_date = this.task.finish_date;
       this.deadline = this.task.deadline;
     });
+
+    this.userOptions$ = this.http.getGeneric<TaskMemberOptionRest[]>(`api/organization/${this.organizationId}/task/member/options`).pipe(
+      map(usersRest => usersRest.map(userRest => {
+        const user = new User(userRest.name);
+        user.userId = userRest.userId;
+        return user;
+      }))
+    );
     //TODO - pobieranie dostępnych statusów z projektu
     this.taskStatusesOptions = data.statuses;
 
@@ -138,7 +142,7 @@ export class TaskDetailsComponent implements OnInit {
 
   private loadSearchAssignUsers(): Observable<any[]> {
     const searchTerm = this.searchAssignUserControl.value?.toLowerCase() || '';
-    return this.found_users.pipe(
+    return this.userOptions$.pipe(
       switchMap(users => {
         const filteredUsers = users.filter(user =>
           user.name.toLowerCase().includes(searchTerm)
@@ -171,13 +175,14 @@ export class TaskDetailsComponent implements OnInit {
 
   onAssignOptionSelected(event: MatAutocompleteSelectedEvent): void {
     const selectedAssignUserName = event.option.value;
-    this.found_users.subscribe(users => {
+    this.userOptions$.subscribe(users => {
       this.selectedAssignUser = users.find(user => user.name === selectedAssignUserName) || null;
     });
   }
 
   _saveTask() {
-    this.task.task_id
+    this.task.task_id;
+    const members: TaskMemberRest[] = !this.task.assignUser || !this.task.assignUser.userId ? [] : [{userId: this.task.assignUser.userId}]
     const taskRest: TaskRest = {
       taskId: this.task.task_id,
       chatId: this.task.chatId,
@@ -191,7 +196,7 @@ export class TaskDetailsComponent implements OnInit {
       deadlineDateOrNull: this.task.deadline?.toISOString() || null,
       parentTaskIdOrNull: null,
       parentTaskTitleOrNull: null,
-      members: [],
+      members: members,
       subTasks: [],
     }
     this.http.postGeneric<ServiceResult>(`api/organization/1/project/1/task/save`, taskRest).subscribe(res => {
@@ -207,14 +212,15 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   save() {
-    this.saveTitle();
-    this.saveDescription();
-    this.saveStatus();
-    this.savePriority();
-    this.saveAssignTo();
-    this.saveStartDate();
-    this.saveFinishDate();
-    this.saveDeadline();
+    this._saveTitle();
+    this._saveDescription();
+    this._saveStatus();
+    this._savePriority();
+    this._saveAssignTo();
+    this._saveStartDate();
+    this._saveFinishDate();
+    this._saveDeadline();
+    this._saveTask();
   }
 
   openTaskDetails(task: SubTask) {
@@ -236,8 +242,12 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   saveDescription() {
-    this.task.desc = this.description;
+    this._saveDescription();
     this._saveTask();
+  }
+
+  _saveDescription() {
+    this.task.desc = this.description;
   }
 
   cancelDescriptionEdit() {
@@ -261,8 +271,12 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   saveAssignTo() {
-    this.task.assignUser = this.selectedAssignUser;
+    this._saveAssignTo();
     this._saveTask();
+  }
+
+  _saveAssignTo() {
+    this.task.assignUser = this.selectedAssignUser;
   }
 
   cancelAssignToEdit() {
@@ -271,8 +285,12 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   saveTitle() {
-    this.task.name = this.title;
+    this._saveTitle();
     this._saveTask();
+  }
+
+  _saveTitle() {
+    this.task.name = this.title;
   }
 
   cancelTitleEdit() {
@@ -305,8 +323,12 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   saveStartDate() {
-    this.task.start_date = this.start_date;
+    this._saveStartDate();
     this._saveTask();
+  }
+
+  _saveStartDate() {
+    this.task.start_date = this.start_date;
   }
 
   cancelStartDate() {
@@ -323,8 +345,12 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   saveFinishDate() {
-    this.task.finish_date = this.finish_date;
+    this._saveFinishDate();
     this._saveTask();
+  }
+
+  _saveFinishDate() {
+    this.task.finish_date = this.finish_date;
   }
 
   cancelFinishDate() {
@@ -341,8 +367,12 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   saveDeadline() {
-    this.task.deadline = this.deadline;
+    this._saveDeadline();
     this._saveTask();
+  }
+
+  _saveDeadline() {
+    this.task.deadline = this.deadline;
   }
 
   cancelDeadline() {
@@ -360,8 +390,12 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   savePriority() {
-    this.task.priority = this.selectedPriority;
+    this._savePriority();
     this._saveTask();
+  }
+
+  _savePriority() {
+    this.task.priority = this.selectedPriority;
   }
 
   cancelPriority() {
@@ -378,6 +412,11 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   saveStatus() {
+    this._saveStatus();
+    this._saveTask();
+  }
+
+  _saveStatus() {
     //this.statusChanged.emit({previousStatus: this.task.status!, newStatus: this.selectedStatus!});
     this.task.status = this.selectedStatus;
   }
@@ -460,6 +499,7 @@ class SubTask {
 }
 
 class User {
+  userId: number;
   name: string;
   constructor(name: string) {
     this.name = name;
@@ -491,11 +531,16 @@ interface TaskRest {
 
 interface TaskMemberRest {
   userId: number;
-  email: string;
+  email?: string;
 }
 
 interface SubTaskRest {
   subTaskId: number;
   title: string;
+}
+
+interface TaskMemberOptionRest {
+  userId: number;
+  name: string
 }
 

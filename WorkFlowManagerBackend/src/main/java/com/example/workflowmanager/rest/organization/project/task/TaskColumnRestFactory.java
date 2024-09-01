@@ -1,10 +1,10 @@
 package com.example.workflowmanager.rest.organization.project.task;
 
-import com.example.workflowmanager.db.organization.project.ProjectRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskColumnRepository;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
 import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskMemberRest;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -16,14 +16,11 @@ import java.util.stream.Collectors;
 public class TaskColumnRestFactory
 {
     private final TaskColumnRepository taskColumnRepository;
-    private final ProjectRepository projectRepository;
 
     public TaskColumnRestFactory(
-        final TaskColumnRepository taskColumnRepository,
-        final ProjectRepository projectRepository)
+        final TaskColumnRepository taskColumnRepository)
     {
         this.taskColumnRepository = taskColumnRepository;
-        this.projectRepository = projectRepository;
     }
 
     public List<TaskColumnRest> getList(final Long projectId)
@@ -54,7 +51,7 @@ public class TaskColumnRestFactory
         return new TaskRest(taskId, title, members);
     }
 
-    private static List<TaskMemberRest> getMembers(final Task task)
+    static List<TaskMemberRest> getMembers(final Task task)
     {
         return task.getMembers().stream()
             .map(member -> {
@@ -130,26 +127,4 @@ public class TaskColumnRestFactory
 
     }
 
-    public static class TaskMemberRest
-    {
-        private final Long userId;
-        private final String email;
-
-        private TaskMemberRest(final Long userId, final String email)
-        {
-            this.userId = userId;
-            this.email = email;
-        }
-
-        public Long getUserId()
-        {
-            return userId;
-        }
-
-        public String getEmail()
-        {
-            return email;
-        }
-
-    }
 }

@@ -157,12 +157,13 @@ export class ProjectDetailsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      const previousGroup = this.taskGroups.find(g => g.tasks.some(t => t === task))
-      if (previousGroup) {
-        previousGroup.tasks = previousGroup.tasks.filter(t => t !== task);
-      }
-      const newGroup = this.taskGroups.find(g => g.groupName.toLowerCase() === task.status?.toLowerCase())
-      newGroup?.tasks.push(task);
+      this.loadTasks();
+      // const previousGroup = this.taskGroups.find(g => g.tasks.some(t => t === task))
+      // if (previousGroup) {
+      //   previousGroup.tasks = previousGroup.tasks.filter(t => t !== task);
+      // }
+      // const newGroup = this.taskGroups.find(g => g.groupName.toLowerCase() === task.status?.toLowerCase())
+      // newGroup?.tasks.push(task);
     });
   }
 

@@ -38,25 +38,20 @@ export class TaskDetailsComponent implements OnInit {
   deadline: Date | null = null;
   selectedPriority: TaskPriority = TaskPriority.Medium;
   selectedStatus: string | null = "";
-  selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
+  selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.IS_RELATIVE_TO;
 
   userOptions$: Observable<User[]>;
+  taskRelationOptions$: Observable<TaskRelationOptionRest[]>;
 
   new_sub_task_name = "";
 
   searchConnectedTaskControl = new FormControl();
-  connectedTaskOptions$: Observable<any[]>;
-  selectedConnectedTask: SubTask | null = null;
+  connectedTaskOptions$: Observable<TaskRelationOptionRest[]>;
+  selectedConnectedTask: TaskRelation | null = null;
 
   searchAssignUserControl = new FormControl();
   assignUserOptions$: Observable<any[]>;
   selectedAssignUser: User | null = null;
-
-  found_tasks: Observable<Task[]> = of([
-    new Task("task1"),
-    new Task("test task"),
-    new Task("do roboty")
-  ]);
 
   taskPriorityOptions = Object.values(TaskPriority);
   taskRelations = Object.values(ConnectedTaskRelation);
@@ -74,8 +69,90 @@ export class TaskDetailsComponent implements OnInit {
     this.organizationId = data.organizationId;
     this.projectId = data.projectId;
     this.taskId = data.taskId;
+    //TODO - pobieranie dostępnych statusów z projektu
+    this.taskStatusesOptions = data.statuses;
+  }
 
-    http.getGeneric<TaskRest>(`api/organization/${this.organizationId}/project/${this.projectId}/task/${this.taskId}`).subscribe(taskRest => {
+  private loadSearchConnectedTask(): Observable<any[]> {
+    const searchTerm = this.searchConnectedTaskControl.value?.toLowerCase() || '';
+    return this.taskRelationOptions$.pipe(
+      switchMap(tasks => {
+        const filteredTasks = tasks.filter(task =>
+          task.title.toLowerCase().includes(searchTerm)
+        );
+        return of(filteredTasks);
+      })
+    );
+  }
+
+  private loadSearchAssignUsers(): Observable<any[]> {
+    const searchTerm = this.searchAssignUserControl.value?.toLowerCase() || '';
+    return this.userOptions$.pipe(
+      switchMap(users => {
+        const filteredUsers = users.filter(user =>
+          user.name.toLowerCase().includes(searchTerm)
+        );
+        return of(filteredUsers);
+      })
+    );
+  }
+
+  onTaskOptionSelected(event: MatAutocompleteSelectedEvent): void {
+    const selectedTaskName = event.option.value;
+    this.taskRelationOptions$.pipe(
+      map(tasks => {
+        const task = tasks.find(task => task.title === selectedTaskName);
+        if(!task) {
+          return null;
+        }
+        const taskRelation: TaskRelation = {
+          taskId: task.taskId,
+          title: task.title,
+          relationType: ConnectedTaskRelation.IS_RELATIVE_TO,
+        };
+        return taskRelation;
+      })).subscribe(subTask => {
+        this.selectedConnectedTask = subTask; 
+      });
+  }
+
+  onAssignOptionSelected(event: MatAutocompleteSelectedEvent): void {
+    const selectedAssignUserName = event.option.value;
+    this.userOptions$.subscribe(users => {
+      this.selectedAssignUser = users.find(user => user.name === selectedAssignUserName) || null;
+    });
+  }
+
+  _saveTask() {
+    this.task.task_id;
+    const members: TaskMemberRest[] = !this.task.assignUser || !this.task.assignUser.userId ? [] : [{userId: this.task.assignUser.userId}]
+    const taskRelations: TaskRelationRest[] = this.task.connected_tasks.map(taskRelation => {
+      return {taskId: taskRelation.taskId, title: taskRelation.title, relationType: taskRelation.relationType};
+    });
+    const taskRest: TaskRest = {
+      taskId: this.task.task_id,
+      chatId: this.task.chatId,
+      title: this.task.name,
+      descriptionOrNull: this.task.desc,
+      creatorId: this.task.creatorId,
+      creatorName: this.task.creatorName,
+      createTime: this.task.create_date.toISOString(),
+      startDateOrNull: this.task.start_date?.toISOString() || null,
+      finishDateOrNull: this.task.finish_date?.toISOString() || null,
+      deadlineDateOrNull: this.task.deadline?.toISOString() || null,
+      parentTaskIdOrNull: null,
+      parentTaskTitleOrNull: null,
+      members: members,
+      subTasks: [],
+      taskRelations: taskRelations,
+    }
+    this.http.postGeneric<ServiceResult>(`api/organization/1/project/1/task/save`, taskRest).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Task saved successfully", "Errors occured");
+    });
+  }
+
+  ngOnInit() {
+    this.http.getGeneric<TaskRest>(`api/organization/${this.organizationId}/project/${this.projectId}/task/${this.taskId}`).subscribe(taskRest => {
       this.title = taskRest.title;
       const task = new Task(taskRest.title);
       task.task_id = taskRest.taskId;
@@ -84,6 +161,13 @@ export class TaskDetailsComponent implements OnInit {
       task.creatorId = taskRest.creatorId;
       task.creatorName = taskRest.creatorName;
       task.create_date = new Date(taskRest.createTime);
+      task.connected_tasks = taskRest.taskRelations.map(taskRelationRest => {
+        const taskRelation = new TaskRelation();
+        taskRelation.taskId = taskRelationRest.taskId;
+        taskRelation.title = taskRelationRest.title;
+        taskRelation.relationType = taskRelationRest.relationType;
+        return taskRelation;
+      });
       task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
         const subTask = new SubTask();
         subTask.task_id = subTaskRest.subTaskId;
@@ -110,101 +194,22 @@ export class TaskDetailsComponent implements OnInit {
         return user;
       }))
     );
-    //TODO - pobieranie dostępnych statusów z projektu
-    this.taskStatusesOptions = data.statuses;
+    this.taskRelationOptions$ = this.http.getGeneric<TaskRelationOptionRest[]>(
+      `api/organization/${this.organizationId}/project/${this.projectId}/task/${this.taskId}/relation/options`);
 
     this.connectedTaskOptions$ = this.searchConnectedTaskControl.valueChanges
       .pipe(
         startWith(''),
         debounceTime(500),
         switchMap(() => { return this.loadSearchConnectedTask(); })
-    )
+    );
 
     this.assignUserOptions$ = this.searchAssignUserControl.valueChanges
       .pipe(
         startWith(''),
         debounceTime(500),
         switchMap(() => { return this.loadSearchAssignUsers(); })
-    )
-  }
-
-  private loadSearchConnectedTask(): Observable<any[]> {
-    const searchTerm = this.searchConnectedTaskControl.value?.toLowerCase() || '';
-    return this.found_tasks.pipe(
-      switchMap(tasks => {
-        const filteredTasks = tasks.filter(task =>
-          task.name.toLowerCase().includes(searchTerm)
-        );
-        return of(filteredTasks);
-      })
     );
-  }
-
-  private loadSearchAssignUsers(): Observable<any[]> {
-    const searchTerm = this.searchAssignUserControl.value?.toLowerCase() || '';
-    return this.userOptions$.pipe(
-      switchMap(users => {
-        const filteredUsers = users.filter(user =>
-          user.name.toLowerCase().includes(searchTerm)
-        );
-        return of(filteredUsers);
-      })
-    );
-  }
-
-  onTaskOptionSelected(event: MatAutocompleteSelectedEvent): void {
-    const selectedTaskName = event.option.value;
-    this.found_tasks.pipe(
-      map(tasks => {
-        const task = tasks.find(task => task.name === selectedTaskName);
-        if(!task) {
-          return null;
-        }
-        const subTask: SubTask = {
-          task_id: task.task_id,
-          priority: task.priority,
-          title: task.name,
-          relation_to_parent: ConnectedTaskRelation.RelativeTo,
-          status: "test"
-        };
-        return subTask;
-      })).subscribe(subTask => {
-        this.selectedConnectedTask = subTask; 
-      });
-  }
-
-  onAssignOptionSelected(event: MatAutocompleteSelectedEvent): void {
-    const selectedAssignUserName = event.option.value;
-    this.userOptions$.subscribe(users => {
-      this.selectedAssignUser = users.find(user => user.name === selectedAssignUserName) || null;
-    });
-  }
-
-  _saveTask() {
-    this.task.task_id;
-    const members: TaskMemberRest[] = !this.task.assignUser || !this.task.assignUser.userId ? [] : [{userId: this.task.assignUser.userId}]
-    const taskRest: TaskRest = {
-      taskId: this.task.task_id,
-      chatId: this.task.chatId,
-      title: this.task.name,
-      descriptionOrNull: this.task.desc,
-      creatorId: this.task.creatorId,
-      creatorName: this.task.creatorName,
-      createTime: this.task.create_date.toISOString(),
-      startDateOrNull: this.task.start_date?.toISOString() || null,
-      finishDateOrNull: this.task.finish_date?.toISOString() || null,
-      deadlineDateOrNull: this.task.deadline?.toISOString() || null,
-      parentTaskIdOrNull: null,
-      parentTaskTitleOrNull: null,
-      members: members,
-      subTasks: [],
-    }
-    this.http.postGeneric<ServiceResult>(`api/organization/1/project/1/task/save`, taskRest).subscribe(res => {
-      this.serviceResultHelper.handleServiceResult(res, "Task saved successfully", "Errors occured");
-    });
-  }
-
-  ngOnInit() {
   }
 
   close() {
@@ -223,9 +228,17 @@ export class TaskDetailsComponent implements OnInit {
     this._saveTask();
   }
 
-  openTaskDetails(task: SubTask) {
+  openSubTaskDetails(task: SubTask) {
+    this._openTaskDetails(task.task_id);
+  }
+
+  openTaskDetails(task: TaskRelation) {
+    this._openTaskDetails(task.taskId);
+  }
+
+  _openTaskDetails(taskId: number | null) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {task: task, statuses: this.taskStatusesOptions},
+      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: taskId, statuses: this.taskStatusesOptions},
       width: '80vw',
       height: '80vh',
       maxWidth: '80vw',
@@ -449,10 +462,11 @@ export class TaskDetailsComponent implements OnInit {
 
   addSelectedConnectedTask() {
     if (this.selectedConnectedTask !== null) {
-      this.selectedConnectedTask.relation_to_parent = this.selectedConnectedTaskRelation;
+      this.selectedConnectedTask.relationType = this.selectedConnectedTaskRelation;
       this.task.connected_tasks.push(this.selectedConnectedTask);
       this.searchConnectedTaskControl.setValue("");
       this.selectedConnectedTask = null;
+      this._saveTask();
     }
   }
 
@@ -460,9 +474,10 @@ export class TaskDetailsComponent implements OnInit {
     this.task.sub_tasks = this.task.sub_tasks.filter(st => st !== task);
   }
 
-  deleteConnectedTask(task: SubTask) {
+  deleteConnectedTask(task: TaskRelation) {
     this.task.connected_tasks = this.task.connected_tasks.filter(ct => ct !== task);
   }
+
 }
 
 class Task {
@@ -472,7 +487,7 @@ class Task {
   desc: string = "";
   creatorId: number;
   creatorName: string;
-  connected_tasks: SubTask[] = [];
+  connected_tasks: TaskRelation[] = [];
   sub_tasks: SubTask[] = [];
   creator: User | null = null;
   assignUser: User | null = null;
@@ -482,7 +497,7 @@ class Task {
   deadline: Date | null = null;
   status: string | null = "Group1";
   priority: TaskPriority = TaskPriority.Medium;
-  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
+  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.IS_RELATIVE_TO;
   isSubTask: boolean = false;
 
   constructor(name: string) {
@@ -498,6 +513,12 @@ class SubTask {
   relation_to_parent: ConnectedTaskRelation;
 }
 
+class TaskRelation {
+  taskId: number;
+  title: string;
+  relationType: ConnectedTaskRelation;
+}
+
 class User {
   userId: number;
   name: string;
@@ -507,9 +528,9 @@ class User {
 }
 
 enum ConnectedTaskRelation {
-  Blocks = "blocks",
-  BlockedBy = "Blocked by",
-  RelativeTo = "Relative to"
+  BLOCKS = "BLOCKS",
+  IS_BLOCKED_BY = "IS_BLOCKED_BY",
+  IS_RELATIVE_TO = "IS_RELATIVE_TO"
 }
 
 interface TaskRest {
@@ -527,6 +548,7 @@ interface TaskRest {
   parentTaskTitleOrNull: string | null;
   members: TaskMemberRest[];
   subTasks: SubTaskRest[];
+  taskRelations: TaskRelationRest[];
 }
 
 interface TaskMemberRest {
@@ -539,8 +561,18 @@ interface SubTaskRest {
   title: string;
 }
 
+interface TaskRelationRest {
+  taskId: number;
+  title: string;
+  relationType: ConnectedTaskRelation;
+}
+
 interface TaskMemberOptionRest {
   userId: number;
   name: string
 }
 
+interface TaskRelationOptionRest {
+  taskId: number;
+  title: string;
+}

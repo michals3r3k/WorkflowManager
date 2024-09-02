@@ -37,7 +37,11 @@ public class Task
     })
     private TaskColumn taskColumn;
     @ManyToOne
-    @JoinColumn(name = "parent_task_id")
+    @JoinColumns(value = {
+        @JoinColumn(name = "parent_task_id", referencedColumnName = "id", insertable = false, updatable = false),
+        @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false),
+        @JoinColumn(name = "project_id", referencedColumnName = "project_id", insertable = false, updatable = false)
+    })
     private Task parentTask;
     @OneToMany(mappedBy = "parentTask")
     private Set<Task> subTasks;
@@ -146,7 +150,7 @@ public class Task
         this.taskColumnId = taskColumnId;
     }
 
-    protected Long getProjectId()
+    public Long getProjectId()
     {
         return projectId;
     }

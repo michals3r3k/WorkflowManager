@@ -260,7 +260,7 @@
           </button>
         </div>
         <div class="sub-tasks">
-          <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openTaskDetails(task)">
+          <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openSubTaskDetails(task)">
             <img src="../../../../assets/images/subTask.png"/>
             <span>{{task.task_id}}</span>
             <span class="task-name">{{task.title}}</span>
@@ -300,10 +300,10 @@
         <div class="connected-tasks">
           <div class="connected-task" *ngFor="let task of task.connected_tasks" (click)="openTaskDetails(task)">
             <img src="../../../../assets/images/task.png"/>
-            <span>{{task.task_id}}</span>
-            <span class="task-name">{{task.title}}</span>
-            <span class="task-progress">{{task.status}}</span>
-            <span class="task-priority">{{task.priority}}</span>
+            <span>{{task.taskId}}</span>
+            <span class="task-name">{{task.taskId}}</span>
+            <span class="task-progress"><!-- {{task.status}} --></span>
+            <span class="task-priority">{{task.relationType}}</span>
             <button class="icon-btn" (click)="deleteConnectedTask(task)">
               <mat-icon>close</mat-icon>
             </button>
@@ -318,8 +318,8 @@
             (input)="onAddConnectedTaskInputChange()"
             [formControl]="searchConnectedTaskControl" [matAutocomplete]="userAutocomplete" />
             <mat-autocomplete #userAutocomplete="matAutocomplete" (optionSelected)="onTaskOptionSelected($event)"  >
-              <mat-option *ngFor="let taskOption of connectedTaskOptions$ | async" [value]="taskOption.name">
-                  {{taskOption.name}}
+              <mat-option *ngFor="let taskOption of connectedTaskOptions$ | async" [value]="taskOption.title">
+                  {{taskOption.title}}
               </mat-option>
           </mat-autocomplete>
           <button class="icon-btn-color add-task-btn" [disabled]="selectedConnectedTask === null" (click)="addSelectedConnectedTask()">

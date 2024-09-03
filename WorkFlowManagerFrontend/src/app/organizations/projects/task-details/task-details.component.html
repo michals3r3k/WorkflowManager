@@ -8,7 +8,7 @@
           <span>#{{task.task_id}}</span>
         </div>
         <div class="title-options">
-          <button class="icon-btn delete-btn" (click)="close()">
+          <button class="icon-btn delete-btn" (click)="deleteTask()">
             <mat-icon>delete</mat-icon>
           </button>
           <button class="icon-btn" (click)="save()">
@@ -37,12 +37,6 @@
     <!--FIELDS -->
     <div class="fields">
 
-      <!-- CREATE DATE -->
-      <div class="create-date">
-        <span>Create date:</span>
-        <span>{{task.create_date | date: 'yyyy-MM-dd'}}</span>
-      </div>
-
       <!-- description -->
       <div class="description-container">
         <div class="description-label">
@@ -67,53 +61,15 @@
       </div>
 
       <!-- STATUS -->
-      <div class="status-field" *ngIf="!task.isSubTask">
-        <span>Status</span>
-        <div class="row">
-          <div class="progress-field">
-            <select required [(ngModel)]="selectedStatus"
-              (focus)="onStatusFocus()"
-              (blur)="onStatusBlur()">
-              <option *ngFor="let option of taskStatusesOptions" [value]="option">
-                {{ option }}
-              </option>
-            </select>
-          </div>
-          <button class="icon-btn-color" *ngIf="isStatusEditing || selectedStatus != task.status"
-              (click)="saveStatus()"
-              [disabled] = "task.status === selectedStatus || selectedStatus === null">
-              <mat-icon>save</mat-icon>
-            </button>
-            <button class="icon-btn" *ngIf="isStatusEditing || selectedStatus != task.status" (click)="cancelStatus()">
-              <mat-icon>keyboard_return</mat-icon>
-            </button>
-        </div>
-        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedStatus !== task.status && !isStatusEditing}">(Status not saved)</span>
+      <div class="create-date">
+        <span>Status:</span>
+        <span>{{task.status}}</span>
       </div>
 
-      <!-- Priority -->
-      <div class="progress-field">
-        <span>Priority</span>
-        <div class="row">
-          <div class="progress-field">
-            <select required [(ngModel)]="selectedPriority"
-              (focus)="onPriorityFocus()"
-              (blur)="onPriorityBlur()">
-              <option *ngFor="let option of taskPriorityOptions" [value]="option">
-                {{ option }}
-              </option>
-            </select>
-          </div>
-          <button class="icon-btn-color" *ngIf="isPriorityEditing || selectedPriority != task.priority"
-              (click)="savePriority()"
-              [disabled] = "task.priority === selectedPriority || selectedPriority === null">
-              <mat-icon>save</mat-icon>
-            </button>
-            <button class="icon-btn" *ngIf="isPriorityEditing || selectedPriority != task.priority" (click)="cancelPriority()">
-              <mat-icon>keyboard_return</mat-icon>
-            </button>
-        </div>
-        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedPriority !== task.priority && !isPriorityEditing}">(Priority not saved)</span>
+      <!-- CREATE DATE -->
+      <div class="create-date">
+        <span>Create date:</span>
+        <span>{{task.create_date | date: 'yyyy-MM-dd'}}</span>
       </div>
 
       <!-- created by -->
@@ -125,11 +81,7 @@
             {{task.creatorName}}
           </div>
         </div>
-      </div>
-
-      <ng-template #defaultProfileImg>
-        <img class="profile-img" src="/assets/images/creator-dummy-img.jpg"/>
-      </ng-template>  
+      </div> 
 
       <!-- assign to-->
       <div class="auto-complete-field">
@@ -162,6 +114,35 @@
           </div>
         </div>
         <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedAssignUser !== task.assignUser && !isAssignToEditing}">(Assigned user not saved)</span>
+      </div>
+
+      <ng-template #defaultProfileImg>
+        <img class="profile-img" src="/assets/images/creator-dummy-img.jpg"/>
+      </ng-template> 
+
+      <!-- Priority -->
+      <div class="progress-field">
+        <span>Priority</span>
+        <div class="row">
+          <div class="progress-field">
+            <select required [(ngModel)]="selectedPriority"
+              (focus)="onPriorityFocus()"
+              (blur)="onPriorityBlur()">
+              <option *ngFor="let option of taskPriorityOptions" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
+          <button class="icon-btn-color" *ngIf="isPriorityEditing || selectedPriority != task.priority"
+              (click)="savePriority()"
+              [disabled] = "task.priority === selectedPriority || selectedPriority === null">
+              <mat-icon>save</mat-icon>
+            </button>
+            <button class="icon-btn" *ngIf="isPriorityEditing || selectedPriority != task.priority" (click)="cancelPriority()">
+              <mat-icon>keyboard_return</mat-icon>
+            </button>
+        </div>
+        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedPriority !== task.priority && !isPriorityEditing}">(Priority not saved)</span>
       </div>
 
       <!-- start date -->

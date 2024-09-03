@@ -72,6 +72,13 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       const task = new Task(taskRest.title);
       task.status = taskColumnRest.name;
       task.taskId = taskRest.taskId;
+      task.priority = taskRest.priority;
+      if(taskRest.members.length !== 0) {
+        const taskMember: TaskMemberRest = taskRest.members[0];
+        const user = new User(taskMember.email);
+        user.userId = taskMember.userId;
+        task.assignUser = user;
+      }
       return task;
     });  
     const group = new TaskGroup();
@@ -156,7 +163,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   openTaskDetails(task: Task) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: task.taskId, statuses: this.taskGroups.map(g => g.groupName)},
+      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: task.taskId},
       width: '80vw',
       height: '80vh',
       maxWidth: '80vw',
@@ -165,12 +172,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       this.loadTasks();
-      // const previousGroup = this.taskGroups.find(g => g.tasks.some(t => t === task))
-      // if (previousGroup) {
-      //   previousGroup.tasks = previousGroup.tasks.filter(t => t !== task);
-      // }
-      // const newGroup = this.taskGroups.find(g => g.groupName.toLowerCase() === task.status?.toLowerCase())
-      // newGroup?.tasks.push(task);
     });
   }
 
@@ -227,7 +228,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-
   edit(project: any) {
     console.log(project);
   }
@@ -242,7 +242,8 @@ interface TaskMemberRest {
 interface TaskRest {
   taskId: number;
   title: string;
-  members: TaskMemberRest[];
+  members: TaskMemberRest[]
+  priority: TaskPriority;
 }
 
 interface TaskColumnRest {
@@ -262,7 +263,8 @@ class Task {
   taskId: number;
   title: string;
   assignUser: User | null = null;
-  status: string | null = "Group1";
+  status: string | null;
+  priority: TaskPriority;
 
   constructor(name: string) {
     this.title = name;
@@ -270,10 +272,11 @@ class Task {
 }
 
 export enum TaskPriority {
-  Low = "Low",
-  Medium = "Medium",
-  High = "High",
-  Highest = "Highest"
+  VERY_LOW = "VERY_LOW",
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  VERY_HIGH = "VERY_HIGH"
 }
 
 class User {

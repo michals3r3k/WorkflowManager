@@ -58,7 +58,6 @@ public class TaskEditService
         {
             return new TaskEditServiceResult(taskRest, Collections.singleton(TaskEditError.DUPLICATED_TITLE));
         }
-
         final Set<TaskEditError> errors = getTaskRelationErrors(taskRest, taskMap);
         if(!errors.isEmpty())
         {
@@ -69,6 +68,7 @@ public class TaskEditService
         task.setStartDate(getLocalDateOrNull(taskRest.getStartDateOrNull()));
         task.setFinishDate(getLocalDateOrNull(taskRest.getFinishDateOrNull()));
         task.setDeadlineDate(getLocalDateOrNull(taskRest.getDeadlineDateOrNull()));
+        task.setPriority(taskRest.getPriority());
         taskRepository.save(task);
         updateSubTasks(taskRest, task, subTaskCreator, projectId);
         updateMembers(taskRest, task);
@@ -86,7 +86,6 @@ public class TaskEditService
         final Set<Task> subTasksToDelete = task.getSubTasks().stream()
             .filter(subTask -> !subTaskIdsToStay.contains(subTask.getId()))
             .collect(Collectors.toSet());
-
         taskRepository.deleteAll(subTasksToDelete);
         for(final SubTaskRest subTaskRest : taskRest.getSubTasks())
         {

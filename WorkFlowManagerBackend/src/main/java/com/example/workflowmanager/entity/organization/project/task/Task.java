@@ -19,6 +19,9 @@ public class Task
     private String title;
     @Column(nullable = false)
     private LocalDateTime createTime;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskPriority priority;
     private String description;
     private LocalDateTime startDate;
     private LocalDateTime finishDate;
@@ -55,8 +58,8 @@ public class Task
     private User creator;
 
     public Task(final String title, final LocalDateTime createTime,
-        final TaskColumn taskColumn,
-        final Chat chat, User creator)
+        final TaskColumn taskColumn, final Chat chat, final User creator,
+        final TaskPriority priority)
     {
         setTitle(title);
         setCreateTime(createTime);
@@ -65,6 +68,7 @@ public class Task
         setMembers(new HashSet<>());
         setChat(chat);
         setCreator(creator);
+        setPriority(priority);
     }
 
     protected Task()
@@ -264,6 +268,17 @@ public class Task
     public void setParentTaskId(final Long parentTaskId)
     {
         this.parentTaskId = parentTaskId;
+    }
+
+    public TaskPriority getPriority()
+    {
+        return priority;
+    }
+
+    public void setPriority(
+        final TaskPriority priority)
+    {
+        this.priority = priority;
     }
 
 }

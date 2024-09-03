@@ -3,6 +3,7 @@ package com.example.workflowmanager.rest.organization.project.task;
 import com.example.workflowmanager.db.organization.project.task.TaskColumnRepository;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
+import com.example.workflowmanager.entity.organization.project.task.TaskPriority;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskMemberRest;
 import org.springframework.stereotype.Component;
@@ -47,8 +48,9 @@ public class TaskColumnRestFactory
     {
         final Long taskId = task.getId();
         final String title = task.getTitle();
+        final TaskPriority priority = task.getPriority();
         final List<TaskMemberRest> members = getMembers(task);
-        return new TaskRest(taskId, title, members);
+        return new TaskRest(taskId, title, members, priority);
     }
 
     static List<TaskMemberRest> getMembers(final Task task)
@@ -101,13 +103,16 @@ public class TaskColumnRestFactory
         private final Long taskId;
         private final String title;
         private final List<TaskMemberRest> members;
+        private final TaskPriority priority;
 
         private TaskRest(final Long taskId, final String title,
-            final List<TaskMemberRest> members)
+            final List<TaskMemberRest> members,
+            final TaskPriority priority)
         {
             this.taskId = taskId;
             this.title = title;
             this.members = members;
+            this.priority = priority;
         }
 
         public Long getTaskId()
@@ -123,6 +128,11 @@ public class TaskColumnRestFactory
         public List<TaskMemberRest> getMembers()
         {
             return members;
+        }
+
+        public TaskPriority getPriority()
+        {
+            return priority;
         }
 
     }

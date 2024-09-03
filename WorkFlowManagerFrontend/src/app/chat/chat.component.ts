@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnChanges, OnInit, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
 import { WebsocketService } from '../services/websocket/websocket.service';
 import { interval, map, merge, Observable, Observer, of, startWith, Subject, Subscription } from 'rxjs';
 import { LoggedUser, LoggedUserService } from '../services/login/logged-user.service';
@@ -11,7 +11,7 @@ import { DomSanitizer } from '@angular/platform-browser';
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnChanges {
   @ViewChild('endOfMessages') endOfMessages: ElementRef | undefined;
   @ViewChild('messagesScroll') messagesScroll: ElementRef | undefined;
   @Input() chatId: number;
@@ -40,14 +40,20 @@ export class ChatComponent implements OnInit {
     private http: HttpRequestService,
     private httpClient: HttpClient,
     private websocketService: WebsocketService) {
-      this.users = [];
-      this.messages = [];
-      this.attachments = [];
-      this.attachments_to_send = [];
-      this.message_text = "";
+  }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes["chatId"]) {
+      this.init();
+    }
   }
 
-  ngOnInit() {
+  init() {
+    this.users = [];
+    this.messages = [];
+    this.attachments = [];
+    this.attachments_to_send = [];
+    this.message_text = "";
     this._initCurrentDate();
     this.loggedUserSubscription = this.loggedUserService.user$.subscribe(user => {
       if(user) {

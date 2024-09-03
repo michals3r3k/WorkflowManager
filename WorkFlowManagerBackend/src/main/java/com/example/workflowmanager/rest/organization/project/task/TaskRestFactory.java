@@ -3,6 +3,7 @@ package com.example.workflowmanager.rest.organization.project.task;
 import com.example.workflowmanager.db.organization.project.task.TaskRelationRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.organization.project.task.Task;
+import com.example.workflowmanager.entity.organization.project.task.TaskPriority;
 import com.example.workflowmanager.entity.organization.project.task.TaskRelation;
 import com.example.workflowmanager.entity.organization.project.task.TaskRelationType;
 import com.example.workflowmanager.entity.user.User;
@@ -51,10 +52,12 @@ public class TaskRestFactory
         final User creator = task.getCreator();
         final Long creatorId = creator.getId();
         final String creatorName = creator.getEmail();
+        final TaskPriority priorityOrNull = task.getPriority();
+        final String columnName = task.getTaskColumn().getName();
         return new TaskRest(taskId, chatId, title, descriptionOrNull,
             createTime, creatorId, creatorName, startDateOrNull, finishDateOrNull,
             deadlineDateOrNull, parentTaskIdOrNull, parentTaskTitleOrNull,
-            members, subTasks, taskRelations);
+            members, subTasks, taskRelations, priorityOrNull, columnName);
     }
 
     private static List<SubTaskRest> getSubTasks(final Task task)
@@ -107,14 +110,17 @@ public class TaskRestFactory
         private List<TaskMemberRest> members;
         private List<SubTaskRest> subTasks;
         private List<TaskRelationRest> taskRelations;
+        private TaskPriority priority;
+        private String columnName;
 
-        private TaskRest(final Long taskId, Long chatId, final String title,
+        private TaskRest(final Long taskId, final Long chatId, final String title,
             final String descriptionOrNull, final String createTime,
             final Long creatorId, final String creatorName, final String startDateOrNull,
             final String finishDateOrNull, final String deadlineDateOrNull,
             final Long parentTaskIdOrNull, final String parentTaskTitleOrNull,
             final List<TaskMemberRest> members, final List<SubTaskRest> subTasks,
-            final List<TaskRelationRest> taskRelations)
+            final List<TaskRelationRest> taskRelations, final TaskPriority priority,
+            final String columnName)
         {
             this.taskId = taskId;
             this.chatId = chatId;
@@ -131,6 +137,8 @@ public class TaskRestFactory
             this.members = members;
             this.subTasks = subTasks;
             this.taskRelations = taskRelations;
+            this.priority = priority;
+            this.columnName = columnName;
         }
 
         public TaskRest()
@@ -288,6 +296,26 @@ public class TaskRestFactory
         public void setTaskRelations(final List<TaskRelationRest> taskRelations)
         {
             this.taskRelations = taskRelations;
+        }
+
+        public TaskPriority getPriority()
+        {
+            return priority;
+        }
+
+        public void setPriority(final TaskPriority priority)
+        {
+            this.priority = priority;
+        }
+
+        public String getColumnName()
+        {
+            return columnName;
+        }
+
+        public void setColumnName(final String columnName)
+        {
+            this.columnName = columnName;
         }
 
     }

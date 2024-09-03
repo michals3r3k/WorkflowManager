@@ -6,6 +6,7 @@ import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.chat.Chat;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
+import com.example.workflowmanager.entity.organization.project.task.TaskPriority;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskColumnController.TaskCreateRequestRest;
 import com.example.workflowmanager.service.utils.ObjectUtils;
@@ -53,7 +54,8 @@ public class TaskCreateService
         }
         final Chat chat = new Chat();
         chatRepository.save(chat);
-        final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(), taskColumnOrNull, chat, creator);
+        final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(),
+            taskColumnOrNull, chat, creator, TaskPriority.MEDIUM);
         taskRepository.save(task);
         return new TaskCreateServiceResult(task, errors);
     }

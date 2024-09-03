@@ -230,6 +230,7 @@
         flex-direction: row;
         margin-left: 10px;
         margin-bottom: 5px;
+        margin-top: 5px;
         gap: 10px;
 
         span {
@@ -238,6 +239,7 @@
     }
 
     .auto-complete-field {
+        margin-top: 5px;
         span {
             margin-left: 10px;
         }

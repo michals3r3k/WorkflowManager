@@ -2,19 +2,14 @@ package com.example.workflowmanager.entity.organization;
 
 import com.example.workflowmanager.entity.organization.project.Project;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Check;
 
 import java.util.Objects;
 
 @Entity
-@Check(name = "chk_invitation_status", constraints = "(role = 'OWNER') = (invitation_status is null)")
 public class OrganizationInProject
 {
     @EmbeddedId
     private OrganizationInProjectId id;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private OrganizationInProjectRole role;
     @Enumerated(EnumType.STRING)
     @Column(name = "invitation_status")
     private OrganizationInvitationStatus invitationStatus;
@@ -49,17 +44,6 @@ public class OrganizationInProject
     public OrganizationInProjectId getId()
     {
         return id;
-    }
-
-    public OrganizationInProjectRole getRole()
-    {
-        return role;
-    }
-
-    public void setRole(
-        OrganizationInProjectRole role)
-    {
-        this.role = role;
     }
 
     public OrganizationInvitationStatus getInvitationStatus()

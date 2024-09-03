@@ -71,7 +71,6 @@ public class OrganizationInviteController
         // TODO: add service with validation
         OrganizationInProject organizationInProject = new OrganizationInProject(
             new OrganizationInProjectId(request.getOrganizationId(), request.getProjectId()));
-        organizationInProject.setRole(OrganizationInProjectRole.REPORTER);
         organizationInProject.setInvitationStatus(OrganizationInvitationStatus.INVITED);
         organizationInProjectRepository.save(organizationInProject);
         return ResponseEntity.ok(new OrganizationInviteServiceResult(true));

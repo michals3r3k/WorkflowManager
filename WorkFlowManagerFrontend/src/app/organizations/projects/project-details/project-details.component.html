@@ -36,10 +36,10 @@
                             <div class="task">
                                 <div class="task-id">
                                     <img src="../../../../assets/images/task.png"/>
-                                    <span class="task-id-span">00001</span>
+                                    <span class="task-id-span">#{{task.taskId}}</span>
                                     <span class="task-priority">Medium</span>
                                 </div>
-                                <span class="task-name">{{task.name}}</span>
+                                <span class="task-name">{{task.title}}</span>
                                 <div class="assigned-to" *ngIf="task.assignUser; else noUser">
                                     <img src="../../../../assets/images/creator-dummy-img.jpg" />
                                     <span>{{ task.assignUser.name }}</span>

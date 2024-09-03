@@ -1,5 +1,8 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { HttpRequestService } from '../../../services/http/http-request.service';
+import { ServiceResult } from '../../../services/utils/service-result';
+import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-add-status',
@@ -7,12 +10,16 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
   styleUrls: ['./add-status.component.css']
 })
 export class AddStatusComponent implements OnInit {
-
   status_name = "";
+  organizationId: number;
+  projectId: number;
 
-  constructor(@Inject(MAT_DIALOG_DATA) private data: {task: string},
+  constructor(@Inject(MAT_DIALOG_DATA) data: {organizationId: number, projectId: number},
   private dialogRef: MatDialogRef<AddStatusComponent>,
-  private dialog: MatDialog) {
+  private serviceResultHelper: ServiceResultHelper,
+  private http: HttpRequestService) {
+    this.organizationId = data.organizationId;
+    this.projectId = data.projectId;
   }
 
   ngOnInit() {
@@ -22,11 +29,14 @@ export class AddStatusComponent implements OnInit {
     if (this.status_name.length === 0){
       return;
     }
-
-    this.dialogRef.close(this.status_name);
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add`, this.status_name).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Column added successfully", "Errors occured");
+      this.dialogRef.close(true);    
+    })
   }
 
   cancel() {
-    this.dialogRef.close(undefined);
+    this.dialogRef.close(false);
   }
+
 }

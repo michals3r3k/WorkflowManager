@@ -1,11 +1,11 @@
-<div class="container">
+<div class="container" *ngIf="task">
   <div class="task-data">
     <div class="title-bar">
       <div class="header1">
         <div class="task-id">
-          <img src="../../../../assets/images/task.png" *ngIf="!task.isSubTask; else subTaskImg"/>
+          <img *ngIf="!task.isSubTask; else subTaskImg" src="../../../../assets/images/task.png"/>
           <ng-template #subTaskImg><img src="../../../../assets/images/subTask.png" /></ng-template>
-          <span>{{task.task_id}}</span>
+          <span>#{{task.task_id}}</span>
         </div>
         <div class="title-options">
           <button class="icon-btn delete-btn" (click)="close()">
@@ -120,40 +120,23 @@
       <div class="auto-complete-field">
         <span>Created by</span>
         <div class="row">
-          <div class="inputbox" [ngClass]="{'inputbox-focus' : isCreatorEditing}">
-            <img src="../../../../assets/images/creator-dummy-img.jpg"/>
-            <input type="text"
-              (focus)="onCreatorFocus()"
-              (blur)="onCreatorBlur()"
-              (input)="onCreatorInputChange()"
-              [formControl]="searchCreatorControl" [matAutocomplete]="creatorAutocomplete"
-              placeholder="Selected task creator" />
-            <mat-autocomplete #creatorAutocomplete="matAutocomplete" (optionSelected)="onCreatorOptionSelected($event)"  >
-              <mat-option *ngFor="let userOption of creatorOptions$ | async" [value]="userOption.name">
-                  {{userOption.name}}
-              </mat-option>
-            </mat-autocomplete>
-          </div>
-          <div class="buttons">
-            <button class="icon-btn-color" *ngIf="isCreatorEditing || selectedCreator != task.creator"
-              (click)="saveCreator()"
-              [disabled] = "task.creator === selectedCreator || selectedCreator === null">
-              <mat-icon>save</mat-icon>
-            </button>
-            <button class="icon-btn" *ngIf="isCreatorEditing || selectedCreator != task.creator" (click)="cancelCreatorEdit()">
-              <mat-icon>keyboard_return</mat-icon>
-            </button>
+          <div class="inputbox" style="border: 0;">
+            <img class="profile-img" *ngIf="task.creatorId | userImg | async as imgUrl; else defaultProfileImg" [src]="imgUrl"/>
+            {{task.creatorName}}
           </div>
         </div>
-        <span class="not-saved-label" [ngClass]="{'not-saved-label-appear': selectedCreator !== task.creator && !isCreatorEditing}">(Creator not saved)</span>
       </div>
+
+      <ng-template #defaultProfileImg>
+        <img class="profile-img" src="/assets/images/creator-dummy-img.jpg"/>
+      </ng-template>  
 
       <!-- assign to-->
       <div class="auto-complete-field">
         <span>Assigned to</span>
         <div class="row">
           <div class="inputbox" [ngClass]="{'inputbox-focus' : isAssignToEditing}">
-            <img src="../../../../assets/images/creator-dummy-img.jpg"/>
+            <img *ngIf="selectedAssignUser && selectedAssignUser.userId | userImg | async as imgUrl; else defaultProfileImg" [src]="imgUrl"/>
             <input type="text"
               (focus)="onAssignToFocus()"
               (blur)="onAssignToBlur()"
@@ -172,7 +155,7 @@
               [disabled] = "task.assignUser === selectedAssignUser || selectedAssignUser === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isAssignToEditing || selectedAssignUser != task.assignUser" 
+            <button class="icon-btn" *ngIf="isAssignToEditing || selectedAssignUser != task.assignUser"
               (click)="cancelAssignToEdit()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -185,17 +168,21 @@
       <div class="date-field">
         <span>Start date</span>
         <div class="row">
-          <input type="date"
-            (focus)="onStartDateFocus()"
-            (blur)="onStartDateBlur()"
-            [(ngModel)]="start_date"/>
+          <div class="date-input-wrapper">
+            <input matInput [matDatepicker]="startDatePicker"  
+              (focus)="onStartDateFocus()"
+              (blur)="onStartDateBlur()"
+              [(ngModel)]="start_date">
+            <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #startDatePicker></mat-datepicker>
+          </div>
           <div class="buttons">
             <button class="icon-btn-color" *ngIf="isStartDateEditing || start_date != task.start_date"
               (click)="saveStartDate()"
               [disabled] = "task.start_date === start_date || start_date === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isStartDateEditing || start_date != task.start_date" 
+            <button class="icon-btn" *ngIf="isStartDateEditing || start_date != task.start_date"
               (click)="cancelStartDate()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -208,17 +195,21 @@
       <div class="date-field">
         <span>Finish date</span>
         <div class="row">
-          <input type="date"
-            (focus)="onFinishDateFocus()"
-            (blur)="onFinishDateBlur()"
-            [(ngModel)]="finish_date"/>
+          <div class="date-input-wrapper">
+            <input matInput [matDatepicker]="finishDatePicker"
+              (focus)="onFinishDateFocus()"
+              (blur)="onFinishDateBlur()"
+              [(ngModel)]="finish_date"/>
+              <mat-datepicker-toggle matIconSuffix [for]="finishDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #finishDatePicker></mat-datepicker>
+          </div>
           <div class="buttons">
             <button class="icon-btn-color" *ngIf="isFinishDateEditing || finish_date != task.finish_date"
               (click)="saveFinishDate()"
               [disabled] = "task.finish_date === finish_date || finish_date === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isFinishDateEditing || finish_date != task.finish_date" 
+            <button class="icon-btn" *ngIf="isFinishDateEditing || finish_date != task.finish_date"
               (click)="cancelFinishDate()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -231,17 +222,21 @@
       <div class="date-field">
         <span>Deadline</span>
         <div class="row">
-          <input type="date"
-            (focus)="onDeadlineFocus()"
-            (blur)="onDeadlineBlur()"
-            [(ngModel)]="deadline"/>
+          <div class="date-input-wrapper">
+            <input matInput [matDatepicker]="deadlineDatePicker"
+              (focus)="onDeadlineFocus()"
+              (blur)="onDeadlineBlur()"
+              [(ngModel)]="deadline"/>
+            <mat-datepicker-toggle matIconSuffix [for]="deadlineDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #deadlineDatePicker></mat-datepicker>
+          </div>
           <div class="buttons">
             <button class="icon-btn-color" *ngIf="isDeadlineEditing || deadline != task.deadline"
               (click)="saveDeadline()"
               [disabled] = "task.deadline === deadline || deadline === null">
               <mat-icon>save</mat-icon>
             </button>
-            <button class="icon-btn" *ngIf="isDeadlineEditing || deadline != task.deadline" 
+            <button class="icon-btn" *ngIf="isDeadlineEditing || deadline != task.deadline"
               (click)="cancelDeadline()">
               <mat-icon>keyboard_return</mat-icon>
             </button>
@@ -254,7 +249,7 @@
       <div class="sub-tasks-container" *ngIf="!task.isSubTask">
         <div class="add-first-sub-task" *ngIf="task.sub_tasks.length === 0 && !isAddingSubTask">
           <button mat-flat-button color="primary" (click)="addSubTask()">
-            Add sub task
+            Create sub task
             <mat-icon>add</mat-icon>
           </button>
         </div>
@@ -265,11 +260,11 @@
           </button>
         </div>
         <div class="sub-tasks">
-          <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openTaskDetails(task)">
+          <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openSubTaskDetails(task)">
             <img src="../../../../assets/images/subTask.png"/>
-            <span>{{task.task_id}}</span>
-            <span class="task-name">{{task.name}}</span>
-            <span class="task-priority">{{task.priority}}</span>
+            <span>#{{task.task_id}}</span>
+            <span class="task-name">{{task.title}}</span>
+            <span class="task-progress">{{task.priority}}</span>
             <button class="icon-btn" (click)="deleteSubTask(task)">
               <mat-icon>close</mat-icon>
             </button>
@@ -288,7 +283,7 @@
         </div>
       </div>
 
-      <!-- CONNECTED TASk -->
+      <!-- CONNECTED TASK -->
       <div class="connected-tasks-container" *ngIf="!task.isSubTask">
         <div class="add-first-connected-task" *ngIf="task.connected_tasks.length === 0 && !isAddingConnectedTask">
           <button mat-flat-button color="primary" (click)="addConnectedTask()">
@@ -305,10 +300,10 @@
         <div class="connected-tasks">
           <div class="connected-task" *ngFor="let task of task.connected_tasks" (click)="openTaskDetails(task)">
             <img src="../../../../assets/images/task.png"/>
-            <span>{{task.task_id}}</span>
-            <span class="task-name">{{task.name}}</span>
-            <span class="task-progress">{{task.status}}</span>
-            <span class="task-priority">{{task.priority}}</span>
+            <span>#{{task.taskId}}</span>
+            <span class="task-name">{{task.title}}</span>
+            <span class="task-progress">{{task.columnName}}</span>
+            <span class="task-priority">{{task.relationType | connectedTaskRelationTranslation}}</span>
             <button class="icon-btn" (click)="deleteConnectedTask(task)">
               <mat-icon>close</mat-icon>
             </button>
@@ -316,15 +311,15 @@
         </div>
         <div class="add-connected-tasks" *ngIf="isAddingConnectedTask">
           <select class="connection-type-select" required [(ngModel)]="selectedConnectedTaskRelation" required>
-            <option *ngFor="let option of taskRelations" [value]="option">{{option}}</option>
+            <option *ngFor="let option of taskRelations" [value]="option">{{option | connectedTaskRelationTranslation}}</option>
           </select>
           <input class="search-connected-task-field"
             placeholder="Search task"
             (input)="onAddConnectedTaskInputChange()"
             [formControl]="searchConnectedTaskControl" [matAutocomplete]="userAutocomplete" />
             <mat-autocomplete #userAutocomplete="matAutocomplete" (optionSelected)="onTaskOptionSelected($event)"  >
-              <mat-option *ngFor="let taskOption of connectedTaskOptions$ | async" [value]="taskOption.name">
-                  {{taskOption.name}}
+              <mat-option *ngFor="let taskOption of connectedTaskOptions$ | async" [value]="taskOption.title">
+                  {{taskOption.title}}
               </mat-option>
           </mat-autocomplete>
           <button class="icon-btn-color add-task-btn" [disabled]="selectedConnectedTask === null" (click)="addSelectedConnectedTask()">
@@ -339,6 +334,6 @@
 
   </div>
   <div class="chat-container">
-    <app-chat></app-chat>
+    <app-chat [chatId]="task.chatId"></app-chat>
   </div>
 </div>

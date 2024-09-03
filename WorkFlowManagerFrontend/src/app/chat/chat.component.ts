@@ -14,7 +14,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class ChatComponent implements OnInit {
   @ViewChild('endOfMessages') endOfMessages: ElementRef | undefined;
   @ViewChild('messagesScroll') messagesScroll: ElementRef | undefined;
-  @Input() chatId: number = 1;
+  @Input() chatId: number;
 
   loggedUser: LoggedUser;
   users: UserModel[];
@@ -22,11 +22,17 @@ export class ChatComponent implements OnInit {
   messages: MessageModel[];
   message_text: string;
   messageAddedSubject = new Subject<void>();
-  chatSubscription?: Subscription;
 
   attachments: AttachmentModel[];
   attachments_to_send :AttachmentModel[];
   currentDate$: Observable<Date>;
+
+  chatSubscription?: Subscription;
+  loggedUserSubscription?: Subscription;
+  usersSubscription?: Subscription;
+  fileSubscription?: Subscription;
+  initMessagesSubscription?: Subscription;
+  wsMessageSubscription?: Subscription;
 
   private messagesScrollListener: (() => void) | undefined;
 
@@ -43,12 +49,11 @@ export class ChatComponent implements OnInit {
 
   ngOnInit() {
     this._initCurrentDate();
-    this.loggedUserService.user$.subscribe(user => {
+    this.loggedUserSubscription = this.loggedUserService.user$.subscribe(user => {
       if(user) {
         this.loggedUser = user;
-        this._initMessages();
-        this._initMessageWebsocket();
         this._initUsers();
+        this._initMessageWebsocket();
       }
     });
   }
@@ -67,21 +72,46 @@ export class ChatComponent implements OnInit {
 
   _initMessageWebsocket() {
     this.websocketService.connect();
-    this.websocketService.getConnectedObservable().subscribe(() => {
-      this._subscribeStompMessages();
+    this.websocketService.getConnectedObservable().subscribe(connected => {
+      if(connected) {
+        this._subscribeStompMessages();
+      }
     });
   }
 
   _subscribeStompMessages() {
-    this.websocketService.subscribe<MessageResponse>(`/topic/chat/${this.chatId}/messages`).subscribe(messageRes => {
+    this.wsMessageSubscription = this.websocketService.subscribe<MessageResponse>(`/topic/chat/${this.chatId}/messages`).subscribe(messageRes => {
+      this._registerNewUser(messageRes.creatorId, messageRes.creatorName);
       this._addMessage(messageRes);
       this.messageAddedSubject.next();
-      this._registerNewUser(messageRes.creatorId, messageRes.creatorName);
+    });
+  }
+
+  _registerNewUser(userId: number, name: string) {
+    const exists = this.users.some(user => user.userId == userId);
+    if(exists) {
+      return; 
+    }
+    const user = new UserModel();
+    user.userId = userId;
+    user.name = name;
+    this.users.push(user);
+  }
+
+  _initUsers() {
+    this.usersSubscription = this.http.getGeneric<UserRest[]>(`api/chat/${this.chatId}/users`).subscribe(usersRest => {
+      usersRest.forEach(userRest => {
+        const user = new UserModel();
+        user.userId = userRest.id;
+        user.name = userRest.name;
+        this.users.push(user);
+        this._initMessages();
+      });
     });
   }
 
   _initMessages() {
-    this.http.getGeneric<MessageResponse[]>(`api/chat/${this.chatId}/init-chat`).subscribe(messagesRest => {
+    this.initMessagesSubscription = this.http.getGeneric<MessageResponse[]>(`api/chat/${this.chatId}/init-chat`).subscribe(messagesRest => {
       messagesRest.forEach(messageRes => {
         this._addMessage(messageRes);
       });
@@ -106,44 +136,6 @@ export class ChatComponent implements OnInit {
     this.messages.push(message);
   }
 
-  _registerNewUser(userId: number, name: string) {
-    const exists = this.users.some(user => user.userId == userId);
-    if(exists) {
-      return; 
-    }
-    const user = new UserModel();
-    user.userId = userId;
-    user.name = name;
-    this.users.push(user);
-    this._initUser(user);
-  }
-
-  _initUsers() {
-    this.http.getGeneric<UserRest[]>(`api/chat/${this.chatId}/users`).subscribe(usersRest => {
-      usersRest.forEach(userRest => {
-        const user = new UserModel();
-        user.userId = userRest.id;
-        user.name = userRest.name;
-        this.users.push(user);
-        this._initUser(user);
-      });
-    });
-  }
-
-  _initUser(user: UserModel) {
-    if(!user.userId) {
-      return;
-    }
-    const headers = this.http.getHttpHeaders()
-    if(!headers) {
-      return;
-    }
-    this.httpClient.get(`http://localhost:8080/api/chat/user/${user.userId}/img`, {headers: headers, responseType: 'blob'}).subscribe(blob => {
-      const objectURL = !!blob.size ? URL.createObjectURL(blob) : null;
-      user.imgUrl = objectURL;
-    });
-  }
-
   ngAfterViewInit() {
     if (this.endOfMessages) {
       this.endOfMessages.nativeElement.scrollIntoView({ behavior: 'smooth' });
@@ -165,6 +157,11 @@ export class ChatComponent implements OnInit {
       this.messagesScroll.nativeElement.removeEventListener('scroll', this.messagesScrollListener);
     }
     this.chatSubscription?.unsubscribe();
+    this.loggedUserSubscription?.unsubscribe();
+    this.usersSubscription?.unsubscribe();
+    this.fileSubscription?.unsubscribe();
+    this.initMessagesSubscription?.unsubscribe();
+    this.wsMessageSubscription?.unsubscribe();
   }
 
   sendMessageArea(event: KeyboardEvent) {
@@ -188,7 +185,7 @@ export class ChatComponent implements OnInit {
     if (this.message_text.length === 0 && this.attachments_to_send. length === 0) {
       return;
     }
-    this.uploadFile(this.attachments_to_send[0]).subscribe(messageIdOrNull => {
+    this.fileSubscription = this.uploadFile(this.attachments_to_send[0]).subscribe(messageIdOrNull => {
       const messageRequest: MessageRequestWs = {userId: this.loggedUser.id, message: this.message_text, messageId: messageIdOrNull};
       this.websocketService.send(`/app/chat/${this.chatId}/send-message`, messageRequest);
       this.attachments_to_send = [];
@@ -271,16 +268,11 @@ export class ChatComponent implements OnInit {
     });
   }
 
-  getSenderImgUrl(message: MessageModel): string | null {
-    return this.users.filter(user => user.userId == message.senderId)[0].imgUrl;
-  }
-
 }
 
 class UserModel {
   userId: number;
   name: string;
-  imgUrl: string | null;
 }
 
 interface UserRest {

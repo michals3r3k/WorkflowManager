@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, Pipe, PipeTransform } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -15,33 +15,27 @@ import { ActivatedRoute } from '@angular/router';
 import { TaskDetailsComponent } from '../task-details/task-details.component';
 import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-group-confirm.component';
 import { AddStatusComponent } from '../add-status/add-status.component';
+import { ServiceResult } from '../../../services/utils/service-result';
+import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
+import { WebsocketService } from '../../../services/websocket/websocket.service';
 
 @Component({
   selector: 'app-project-details',
   templateUrl: './project-details.component.html',
   styleUrl: './project-details.component.css'
 })
-export class ProjectDetailsComponent {
-  taskGroups: TaskGroup[] = [
-    {
-      groupName: "Group1",
-      tasks: [new Task('Get to work'), new Task('Pick up groceries'), new Task('Go home'), new Task('Fall asleep')],
-      collapsed: false
-    },
-    {
-      groupName: "Group2",
-      tasks: [],
-      collapsed: false
-    }
-  ];
+export class ProjectDetailsComponent implements OnInit, OnDestroy {
+  taskGroups: TaskGroup[];
 
-  projectId: string | null;
-  organizationId: string | null;
+  projectId: number | null;
+  organizationId: number | null;
   project: any = null;
 
   constructor(private dialog: MatDialog, private resultToaster: ResultToasterService,
-    private http: HttpRequestService, private route: ActivatedRoute) {
-      // itentionally empty
+    private serviceResultHelper: ServiceResultHelper,
+    private http: HttpRequestService, private route: ActivatedRoute,
+    private webSocketService: WebsocketService) {
+      this.taskGroups = [];
   }
 
   // Prevent inside clicks from triggering the outside click listener
@@ -51,10 +45,41 @@ export class ProjectDetailsComponent {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.projectId = params.get("projectId");
-      this.organizationId = params.get("organizationId");
-      this.loadProject();
-    })    
+      const projectId = params.get("projectId");
+      const organizationId = params.get("organizationId");
+      this.projectId = projectId == null ? null : +projectId;
+      this.organizationId = organizationId == null ? null : +organizationId;
+      this.loadTasks();
+      this.webSocketService.connect();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.webSocketService.disconnect();
+  }
+
+  loadTasks() {
+    if(!this.projectId || !this.organizationId) {
+      return;
+    }
+    this.http.getGeneric<TaskColumnRest[]>(`api/organization/${this.organizationId}/project/${this.projectId}/task/columns`).subscribe(taskColumnsRest => {
+      this.taskGroups = taskColumnsRest.map(taskColumnRest => this._getTaskGroup(taskColumnRest));
+    });
+  }
+
+  _getTaskGroup(taskColumnRest: TaskColumnRest): TaskGroup {
+    const tasks: Task[] = taskColumnRest.tasks.map(taskRest => {
+      const task = new Task(taskRest.title);
+      task.status = taskColumnRest.name;
+      task.taskId = taskRest.taskId;
+      return task;
+    });  
+    const group = new TaskGroup();
+    group.id = taskColumnRest.id;
+    group.collapsed = false;
+    group.groupName = taskColumnRest.name;
+    group.tasks = tasks;
+    return group;
   }
 
   loadProject() {
@@ -80,7 +105,24 @@ export class ProjectDetailsComponent {
   }
 
   dropGroup(event: CdkDragDrop<TaskGroup[]>) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    if(event.previousIndex === event.currentIndex) {
+      return;
+    }
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    const columnOrderList: {taskColumnId: number, order: number}[] = [];
+    const data = event.container.data;
+    for(let i = 0; i < data.length; ++i) {
+      columnOrderList.push({
+        taskColumnId: data[i].id,
+        order: i,
+      });
+    }
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/change-order`, columnOrderList).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Column moved succesfully", "Errors occured");
+      if(!res.success) {
+        this.loadTasks();
+      }
+    })
   }
 
   _loadOrganizations() {
@@ -114,7 +156,7 @@ export class ProjectDetailsComponent {
 
   openTaskDetails(task: Task) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {task: task, statuses: this.taskGroups.map(g => g.groupName)},
+      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: task.taskId, statuses: this.taskGroups.map(g => g.groupName)},
       width: '80vw',
       height: '80vh',
       maxWidth: '80vw',
@@ -122,12 +164,13 @@ export class ProjectDetailsComponent {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      const previousGroup = this.taskGroups.find(g => g.tasks.some(t => t === task))
-      if (previousGroup) {
-        previousGroup.tasks = previousGroup.tasks.filter(t => t !== task);
-      }
-      const newGroup = this.taskGroups.find(g => g.groupName.toLowerCase() === task.status?.toLowerCase())
-      newGroup?.tasks.push(task);
+      this.loadTasks();
+      // const previousGroup = this.taskGroups.find(g => g.tasks.some(t => t === task))
+      // if (previousGroup) {
+      //   previousGroup.tasks = previousGroup.tasks.filter(t => t !== task);
+      // }
+      // const newGroup = this.taskGroups.find(g => g.groupName.toLowerCase() === task.status?.toLowerCase())
+      // newGroup?.tasks.push(task);
     });
   }
 
@@ -154,35 +197,34 @@ export class ProjectDetailsComponent {
         return;
       }
       if (result) {
-        this.taskGroups = this.taskGroups.filter(g => g !== group);
+        this.http.getGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/${group.id}/delete`).subscribe(res => {
+          this.serviceResultHelper.handleServiceResult(res, "Column deleted successfully", "Errors occured");
+          if(res.success) {
+            this.taskGroups = this.taskGroups.filter(g => g !== group);
+          }
+        });
       }
     });
   }
 
   addGroup() {
     const dialogRef = this.dialog.open(AddStatusComponent, {
+      data: {organizationId: this.organizationId, projectId: this.projectId},
       width: '280px',
       height: '150px',
     });
     dialogRef.afterClosed().subscribe(result => {
-      if (result === undefined) {
-        return;
+      if (result) {
+        this.loadTasks();
       }
-      if (this.taskGroups.find(g => g.groupName.toLocaleLowerCase().trim() === result.toLocaleLowerCase())) {
-        this.resultToaster.error("You con not add status with the same name as existsing status.")
-      }
-
-      //TODO - dodawanie statusu po stronie serwera
-      let task = new TaskGroup();
-      task.groupName = result;
-      this.taskGroups.push(task);
     });
   }
 
-  onAddTaskClicked(eventData: string, group: TaskGroup) {
-    let task = new Task(eventData);
-    task.status = group.groupName;
-    group.tasks.push(task);
+  onAddTaskClicked(taskTitle: string, group: TaskGroup) {
+    this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: group.id}).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
+      this.loadTasks();
+    });
   }
 
 
@@ -192,32 +234,38 @@ export class ProjectDetailsComponent {
 
 }
 
+interface TaskMemberRest {
+  userId: number;
+  email: string;
+}
+
+interface TaskRest {
+  taskId: number;
+  title: string;
+  members: TaskMemberRest[];
+}
+
+interface TaskColumnRest {
+  id: number;
+  name: string;
+  tasks: TaskRest[];
+}
+
 export class TaskGroup {
+  id: number;
   groupName: string = "";
   tasks: Task[] = [];
   collapsed: boolean = false;
 }
 
-export class Task {
-  task_id: string = "00001";
-  name: string = "";
-  desc: string = "";
-  connected_tasks: Task[] = [];
-  sub_tasks: Task[] = [];
-  creator: User | null = null;
+class Task {
+  taskId: number;
+  title: string;
   assignUser: User | null = null;
-  create_date: Date | null = new Date();
-  start_date: Date | null = null;
-  finish_date: Date | null = null;
-  deadline: Date | null = null;
   status: string | null = "Group1";
-  priority: TaskPriority = TaskPriority.Medium;
-  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.RelativeTo;
-  isSubTask: boolean = false;
-
 
   constructor(name: string) {
-    this.name = name;
+    this.title = name;
   }
 }
 
@@ -229,14 +277,9 @@ export enum TaskPriority {
 }
 
 class User {
+  userId: number;
   name: string;
   constructor(name: string) {
     this.name = name;
   }
-}
-
-enum ConnectedTaskRelation {
-  Blocks = "blocks",
-  BlockedBy = "Blocked by",
-  RelativeTo = "Relative to"
 }

@@ -13,8 +13,8 @@ import java.util.List;
 @Repository
 public interface OrganizationMemberRepository extends JpaRepository<OrganizationMember, OrganizationMemberId>
 {
-    @Query("select om from OrganizationMember om where om.id.organizationId in (?1)")
-    List<OrganizationMember> getListByOrganization(Collection<Long> organizationIds);
+    @Query("select om from OrganizationMember om where om.id.organizationId in (?1) and om.invitationStatus in (?2)")
+    List<OrganizationMember> getListByOrganization(Collection<Long> organizationIds, Collection<OrganizationMemberInvitationStatus> invitationStatuses);
 
     @Query("select om from OrganizationMember om where om.id in (?1)")
     List<OrganizationMember> getListByIds(Collection<OrganizationMemberId> ids);

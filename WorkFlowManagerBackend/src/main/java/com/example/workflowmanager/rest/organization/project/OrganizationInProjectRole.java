@@ -1,4 +1,4 @@
-package com.example.workflowmanager.entity.organization;
+package com.example.workflowmanager.rest.organization.project;
 
 public enum OrganizationInProjectRole
 {

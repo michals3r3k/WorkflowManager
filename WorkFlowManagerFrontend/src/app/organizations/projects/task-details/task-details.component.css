@@ -302,18 +302,22 @@
             flex-direction: row;
             align-items: center;
 
-            input {
+            .date-input-wrapper {
                 flex-direction: row;
                 display: flex;
-                padding: 8px;
+                padding: .2em 1em;
                 align-items: center;
                 border-radius: 10px;
                 font-size: 14px;
                 border: 2px solid rgb(177, 177, 177);
                 transition: all 0.2s ease-out;
-                outline: none;
+
+                input {
+                    border: none;
+                    outline: none;
+                }
     
-                &:focus {
+                &:focus-within {
                     border: 2px solid rgb(35, 115, 236);
                     outline: none;
                 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,8 @@ public class OrganizationMemberController
     public ResponseEntity<List<OrganizationMemberRest>> getDetails(@PathVariable Long organizationId)
     {
         List<OrganizationMemberRest> members = organizationMemberRepository
-            .getListByOrganization(Collections.singleton(organizationId)).stream()
+            .getListByOrganization(Collections.singleton(organizationId),
+                EnumSet.allOf(OrganizationMemberInvitationStatus.class)).stream()
             .map(OrganizationMemberRest::new)
             .sorted(Comparator.comparing(OrganizationMemberRest::getName, Comparator.naturalOrder()))
             .collect(Collectors.toList());

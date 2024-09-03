@@ -9,4 +9,8 @@ import { OrderFieldModel } from '../order.component';
 export class FieldDefinitionEditComponent {
   @Input() field: OrderFieldModel;
   @Input() statuses: any[];
+
+  delete() {
+    
+  }
 }

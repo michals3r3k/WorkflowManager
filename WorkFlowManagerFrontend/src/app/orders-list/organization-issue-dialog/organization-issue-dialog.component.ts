@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
 import { FormControl } from '@angular/forms';
@@ -8,6 +8,7 @@ import { ServiceResultHelper } from '../../services/utils/service-result-helper'
 import { ProjectCreateModel, ProjectService } from '../../services/project/project.service';
 import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
 import { IssueDetailsRest, IssueDetailsService } from '../../services/issue/issue-details.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-organization-issue-dialog',
@@ -28,17 +29,21 @@ export class OrganizationIssueDialogComponent implements OnInit{
   projectCreateModel: ProjectCreateModel = new ProjectCreateModel();
 
   @Output() closeDialog = new EventEmitter<null>();
+
+  issueStatusOptions: string[] = ["New", "In progress", "Completed"]
   
   constructor(private http: HttpRequestService, 
     private serviceResultHelper: ServiceResultHelper,
     private projectService: ProjectService,
     private issueDetailsService: IssueDetailsService,
     private resultToasterService: ResultToasterService,
+    private dialogRef: MatDialogRef<OrganizationIssueDialogComponent>,
     @Inject(MAT_DIALOG_DATA) private data: {
       readOnly?: boolean,
       organizationId: number,
       issueId: number
-    }) {
+    },
+    public router: Router) {
     this.organizationId = data.organizationId;
     this.issueId = data.issueId;
     this.readOnly = data.readOnly;
@@ -89,6 +94,22 @@ export class OrganizationIssueDialogComponent implements OnInit{
         this.close();
       }
     });
+  }
+
+  goToProjectTasks() {
+    this.dialogRef.close();
+    this.router.navigate(['project-details', 4, 1]);
+  }
+
+  onAddTaskClicked(taskTitle: string) {
+    // this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: group.id}).subscribe(res => {
+    //   this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
+    //   this.loadTasks();
+    // });
+  }
+
+  save() {
+    // SAVE TASK LOGIC
   }
 
   close() {

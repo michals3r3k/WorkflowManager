@@ -1,7 +1,7 @@
 .order-field-row1 {
     grid-column: span 2;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
     align-items: center;
 }
 

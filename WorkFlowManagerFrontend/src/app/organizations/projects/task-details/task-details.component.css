@@ -305,7 +305,7 @@
             .date-input-wrapper {
                 flex-direction: row;
                 display: flex;
-                padding: .2em 1em;
+                padding: 3px;
                 align-items: center;
                 border-radius: 10px;
                 font-size: 14px;

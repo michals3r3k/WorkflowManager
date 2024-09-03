@@ -8,7 +8,7 @@ import { TaskGroup } from '../project-details/project-details.component';
 })
 export class AddTaskComponent implements OnInit {
   @ViewChild('taskNameInput') inputField: ElementRef | undefined;
-  @Input() group: TaskGroup;
+  @Input() group: TaskGroup | null;
 
   @Output() addTaskClicked = new EventEmitter<string>();
 

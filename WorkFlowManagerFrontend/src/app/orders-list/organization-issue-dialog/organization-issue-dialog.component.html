@@ -1,39 +1,100 @@
-<div style="margin: 2em;">
-    <div *ngIf="issue$ | async as issue">
-        <h1>#{{issue.id}} {{issue.title}}</h1>
-        Organization: {{readOnly ? issue.destinationOrganizationName: issue.sourceOrganizationName}}
-        <issue-form [issueForm]="issue.form"/>
-        <div *ngIf="!readOnly">
-            Existing project: <mat-slide-toggle color="primary" [(ngModel)]="existingProject"/><br/><br/>
-            @if(existingProject) {
-                <mat-form-field>
-                    <input matInput type="text" placeholder="Project name"
-                        [formControl]="projectNameControl" [matAutocomplete]="projectAutocomplete"/>
-                    <mat-autocomplete #projectAutocomplete="matAutocomplete">
-                        <mat-option *ngFor="let projectOption of projectOptions$ | async" [value]="projectOption.name">
-                            {{projectOption.name}}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field> <br/>
-                <button mat-flat-button color="primary" (click)="toExistingProject(issue)">
-                    <mat-icon>add</mat-icon>
-                    Add to existing project
+<div class="container">
+    <div class="fields-container">
+        <div *ngIf="issue$ | async as issue">
+            <div class="header">
+                <img src="../../../../../assets/images/issue-icon.png"/>
+                <h1 class>#{{issue.id}} | {{issue.title}}</h1>
+                <button class="save-btn" (click)="save()">
+                    <mat-icon>save</mat-icon>
                 </button>
-            }
-            @else {
-                <mat-form-field>
-                    <mat-label>Project name</mat-label>
-                    <input matInput name="name" [(ngModel)]="projectCreateModel.name"/>
-                </mat-form-field> <br/>
-                <mat-form-field>
-                    <mat-label>Project description</mat-label>
-                    <input matInput name="description" [(ngModel)]="projectCreateModel.description"/>
-                </mat-form-field> <br/>
-                <button mat-raised-button color="primary" (click)="toNewProject(organizationId, issue)">
-                    <mat-icon>add</mat-icon>
-                    Add to new project
-                </button>
-            }
+            </div>
+    
+            <div class="organization">
+                <span>Organization: {{readOnly ? issue.destinationOrganizationName: issue.sourceOrganizationName}}</span>
+            </div>
+    
+            <div class="description-container">
+                <span>Description</span>
+                <div class="description">
+                    <p [innerHTML]="issue.title | newline"></p>
+                </div>
+            </div>
+
+            <div class="status-container">
+                <span>Status:</span>
+                <select required [(ngModel)]="issue.status">
+                    <option *ngFor="let option of issueStatusOptions" [value]="option">
+                        {{ option }}
+                    </option>
+                </select>
+            </div>
+    
+            <issue-form [issueForm]="issue.form"/>
+    
+            <div class="project-container" *ngIf="!readOnly">
+                <span>Connected project</span>
+                <ng-container *ngIf="issue.projectName || true; else addProject">
+                   <div class="project">
+                        <img src="../../../assets/images/project.png"/>
+                        <span>{{issue.projectName}}</span>
+                        <button (click)="goToProjectTasks()">Tasks</button>
+                        <button>Issues</button>
+                   </div>
+                </ng-container>
+                <ng-template #addProject>
+                    <div class="no-project">
+                        <span>No connected project</span>
+                        <button>
+                            <mat-icon>add</mat-icon>
+                            Connect project    
+                        </button>
+                    </div>
+                </ng-template>
+            </div>
+
+            <div class="connected-tasks">
+                <span>Connected tasks</span>
+                <ng-container *ngIf="issue.projectName || true; else noProject">
+                    <div class="tasks">
+                        <ng-container *ngIf="(issue.connectedTasks && issue.connectedTasks.length !== 0) || true; else noTasks">
+                            <div class="tasks-list">
+                                <!-- <div class="task" *ngFor="let task of issue.connectedTasks">
+
+                                </div> -->
+                                <!--NA SZTYWNO. TRZEBA DODAĆ NGFOR JAK DO GÓRY-->
+                                <div class="task">
+                                    <img src="../../../../assets/images/task.png"/>
+                                    <span>#1</span> <!--task id-->
+                                    <span class="task-name">connected task</span> <!--task name-->
+                                    <span class="task-progress">new</span> <!--task status-->
+                                    <button class="icon-btn" >
+                                    <mat-icon>close</mat-icon>
+                                    </button>
+                                </div>
+                           </div>
+                        </ng-container>
+                        <ng-template #noTasks>
+                            <span>No connected tasks</span>
+                        </ng-template>
+                        <app-add-task [group]="null"
+                            (addTaskClicked)="onAddTaskClicked($event)" />
+                    </div>
+                </ng-container>
+                <ng-template #noProject>
+                    <div class="no-project">
+                        <span>No connected project</span>
+                        <button>
+                            <mat-icon>add</mat-icon>
+                            Connect project    
+                        </button>
+                    </div>
+                </ng-template>
+            </div>
+
         </div>
+    </div>
+    <div class="chat-container">
+        <!-- DO ODKOMENTOWANIA -->
+        <!-- <app-chat /> -->
     </div>
 </div>

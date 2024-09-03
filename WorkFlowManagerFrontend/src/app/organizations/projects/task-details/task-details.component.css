@@ -368,6 +368,7 @@
             align-items: center;
             gap: 10px;
             border-radius: 5px;
+            height: 36px;
             
             &:hover {
                 background-color: #eee;

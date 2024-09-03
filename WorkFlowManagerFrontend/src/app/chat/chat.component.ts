@@ -44,6 +44,7 @@ export class ChatComponent implements OnChanges {
   
   ngOnChanges(changes: SimpleChanges): void {
     if(changes["chatId"]) {
+      this._unsubscribe();
       this.init();
     }
   }
@@ -162,6 +163,10 @@ export class ChatComponent implements OnChanges {
     if (this.messagesScroll && this.messagesScrollListener) {
       this.messagesScroll.nativeElement.removeEventListener('scroll', this.messagesScrollListener);
     }
+    this._unsubscribe();
+  }
+
+  _unsubscribe() {
     this.chatSubscription?.unsubscribe();
     this.loggedUserSubscription?.unsubscribe();
     this.usersSubscription?.unsubscribe();

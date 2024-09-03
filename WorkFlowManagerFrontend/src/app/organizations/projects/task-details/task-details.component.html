@@ -241,7 +241,7 @@
           </button>
         </div>
         <div class="sub-tasks">
-          <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openSubTaskDetails(task)">
+          <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openTaskDetails(task.task_id)">
             <img src="../../../../assets/images/subTask.png"/>
             <span>#{{task.task_id}}</span>
             <span class="task-name">{{task.title}}</span>
@@ -263,6 +263,21 @@
         </button>
         </div>
       </div>
+ 
+      <!-- PARENT TASK -->
+      <div class="sub-tasks-container" *ngIf="task.parentTaskIdOrNull">
+        <div class="sub-tasks-label">
+          Parent task
+        </div>
+        <div class="sub-tasks">
+          <div class="sub-task" (click)="openTaskDetails(task.parentTaskIdOrNull)">
+            <img src="../../../../assets/images/task.png"/>
+            <span>#{{task.parentTaskIdOrNull}}</span>
+            <span class="task-name">{{task.parentTaskTitleOrNull}}</span>
+            <span class="task-progress">{{task.parentTaskPriorityOrNull}}</span>
+          </div>
+        </div>
+      </div>
 
       <!-- CONNECTED TASK -->
       <div class="connected-tasks-container" *ngIf="!task.isSubTask">
@@ -279,7 +294,7 @@
           </button>
         </div>
         <div class="connected-tasks">
-          <div class="connected-task" *ngFor="let task of task.connected_tasks" (click)="openTaskDetails(task)">
+          <div class="connected-task" *ngFor="let task of task.connected_tasks" (click)="openTaskDetails(task.taskId)">
             <img src="../../../../assets/images/task.png"/>
             <span>#{{task.taskId}}</span>
             <span class="task-name">{{task.title}}</span>

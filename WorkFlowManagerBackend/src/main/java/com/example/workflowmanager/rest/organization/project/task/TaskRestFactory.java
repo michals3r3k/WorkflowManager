@@ -54,10 +54,13 @@ public class TaskRestFactory
         final String creatorName = creator.getEmail();
         final TaskPriority priorityOrNull = task.getPriority();
         final String columnName = task.getTaskColumn().getName();
+        final TaskPriority parentTaskPriorityOrNull = ObjectUtils.accessNullable(
+            parentTaskOrNull, Task::getPriority);
         return new TaskRest(taskId, chatId, title, descriptionOrNull,
             createTime, creatorId, creatorName, startDateOrNull, finishDateOrNull,
             deadlineDateOrNull, parentTaskIdOrNull, parentTaskTitleOrNull,
-            members, subTasks, taskRelations, priorityOrNull, columnName);
+            parentTaskPriorityOrNull, members, subTasks, taskRelations,
+            priorityOrNull, columnName);
     }
 
     private static List<SubTaskRest> getSubTasks(final Task task)
@@ -107,6 +110,7 @@ public class TaskRestFactory
         private String deadlineDateOrNull;
         private Long parentTaskIdOrNull;
         private String parentTaskTitleOrNull;
+        private TaskPriority parentTaskPriorityOrNull;
         private List<TaskMemberRest> members;
         private List<SubTaskRest> subTasks;
         private List<TaskRelationRest> taskRelations;
@@ -118,9 +122,9 @@ public class TaskRestFactory
             final Long creatorId, final String creatorName, final String startDateOrNull,
             final String finishDateOrNull, final String deadlineDateOrNull,
             final Long parentTaskIdOrNull, final String parentTaskTitleOrNull,
-            final List<TaskMemberRest> members, final List<SubTaskRest> subTasks,
-            final List<TaskRelationRest> taskRelations, final TaskPriority priority,
-            final String columnName)
+            final TaskPriority parentTaskPriorityOrNull, final List<TaskMemberRest> members,
+            final List<SubTaskRest> subTasks, final List<TaskRelationRest> taskRelations,
+            final TaskPriority priority, final String columnName)
         {
             this.taskId = taskId;
             this.chatId = chatId;
@@ -134,6 +138,7 @@ public class TaskRestFactory
             this.deadlineDateOrNull = deadlineDateOrNull;
             this.parentTaskIdOrNull = parentTaskIdOrNull;
             this.parentTaskTitleOrNull = parentTaskTitleOrNull;
+            this.parentTaskPriorityOrNull = parentTaskPriorityOrNull;
             this.members = members;
             this.subTasks = subTasks;
             this.taskRelations = taskRelations;
@@ -316,6 +321,17 @@ public class TaskRestFactory
         public void setColumnName(final String columnName)
         {
             this.columnName = columnName;
+        }
+
+        public TaskPriority getParentTaskPriorityOrNull()
+        {
+            return parentTaskPriorityOrNull;
+        }
+
+        public void setParentTaskPriorityOrNull(
+            final TaskPriority parentTaskPriorityOrNull)
+        {
+            this.parentTaskPriorityOrNull = parentTaskPriorityOrNull;
         }
 
     }

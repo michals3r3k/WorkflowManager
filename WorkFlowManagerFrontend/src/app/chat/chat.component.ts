@@ -72,8 +72,10 @@ export class ChatComponent implements OnInit {
 
   _initMessageWebsocket() {
     this.websocketService.connect();
-    this.websocketService.getConnectedObservable().subscribe(() => {
-      this._subscribeStompMessages();
+    this.websocketService.getConnectedObservable().subscribe(connected => {
+      if(connected) {
+        this._subscribeStompMessages();
+      }
     });
   }
 
@@ -160,7 +162,6 @@ export class ChatComponent implements OnInit {
     this.fileSubscription?.unsubscribe();
     this.initMessagesSubscription?.unsubscribe();
     this.wsMessageSubscription?.unsubscribe();
-    this.websocketService.disconnect();
   }
 
   sendMessageArea(event: KeyboardEvent) {

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Pipe, PipeTransform } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -188,7 +188,6 @@ export class TaskDetailsComponent implements OnInit {
         return subTask;
       });
       this.task = task;
-
       this.title = this.task.name;
       this.description = this.task.desc;
       this.selectedPriority = this.task.priority;
@@ -590,4 +589,29 @@ interface TaskRelationOptionRest {
   taskId: number;
   title: string;
   columnName: string;
+
+
+}
+
+@Pipe({
+  name: 'connectedTaskRelationTranslation'
+})
+export class ConnectedTaskRelationTranslationPipe implements PipeTransform {
+
+  transform(taskRelation: ConnectedTaskRelation | null): string {
+    if (!taskRelation) {
+      return "";
+    }
+    if(taskRelation == ConnectedTaskRelation.BLOCKS) {
+      return "blocks";
+    }
+    if(taskRelation == ConnectedTaskRelation.IS_BLOCKED_BY) {
+      return "is blocked by";
+    }
+    if(taskRelation == ConnectedTaskRelation.IS_RELATIVE_TO) {
+      return "is relative to";
+    }
+    return "";
+  }
+
 }

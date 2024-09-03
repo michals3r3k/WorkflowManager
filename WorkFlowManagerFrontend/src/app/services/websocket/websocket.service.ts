@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Stomp } from '@stomp/stompjs';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import SockJS from 'sockjs-client/dist/sockjs';
 import { EventEmitter } from 'ws';
 import { HttpRequestService } from '../http/http-request.service';
@@ -11,11 +11,11 @@ import { HttpRequestService } from '../http/http-request.service';
 export class WebsocketService {
   stompClient: any;
   connected = false
-  connectedSubject: Subject<void> = new Subject;
+  connectedSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(private http: HttpRequestService) {}
 
-  getConnectedObservable(): Observable<void> {
+  getConnectedObservable(): Observable<boolean> {
     return this.connectedSubject.asObservable();
   }
 
@@ -56,7 +56,7 @@ export class WebsocketService {
       this.stompClient.onConnect = (frame: any) => {
         console.log('Connected to websocket');
         this.connected = true
-        this.connectedSubject.next();
+        this.connectedSubject.next(true);
       };
 
       // Zarejestruj funkcję wywołania zwrotnego na zdarzenie połączenia
@@ -73,6 +73,7 @@ export class WebsocketService {
     if (this.connected && this.stompClient) {
       this.stompClient.deactivate();
       this.connected = false;
+      this.connectedSubject.next(false);
       console.log('Disconnected from websocket');
     } else {
       console.log('Websocket is already disconnected');

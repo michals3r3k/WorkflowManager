@@ -303,7 +303,7 @@
             <span>#{{task.taskId}}</span>
             <span class="task-name">{{task.title}}</span>
             <span class="task-progress">{{task.columnName}}</span>
-            <span class="task-priority">{{task.relationType}}</span>
+            <span class="task-priority">{{task.relationType | connectedTaskRelationTranslation}}</span>
             <button class="icon-btn" (click)="deleteConnectedTask(task)">
               <mat-icon>close</mat-icon>
             </button>
@@ -311,7 +311,7 @@
         </div>
         <div class="add-connected-tasks" *ngIf="isAddingConnectedTask">
           <select class="connection-type-select" required [(ngModel)]="selectedConnectedTaskRelation" required>
-            <option *ngFor="let option of taskRelations" [value]="option">{{option}}</option>
+            <option *ngFor="let option of taskRelations" [value]="option">{{option | connectedTaskRelationTranslation}}</option>
           </select>
           <input class="search-connected-task-field"
             placeholder="Search task"

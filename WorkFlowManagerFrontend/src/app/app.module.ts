@@ -71,6 +71,7 @@ import { AddTaskComponent } from './organizations/projects/add-task/add-task.com
 import { DeleteGroupConfirmComponent } from './organizations/projects/delete-group-confirm/delete-group-confirm.component';
 import { AddStatusComponent } from './organizations/projects/add-status/add-status.component';
 import { UserImgPipe } from './Pipes/user-img.pipe';
+import { ConnectedTaskRelationTranslationPipe } from './organizations/projects/task-details/task-details.component';
 
 @NgModule({
   declarations: [
@@ -114,7 +115,8 @@ import { UserImgPipe } from './Pipes/user-img.pipe';
     AddTaskComponent,
     DeleteGroupConfirmComponent,
     AddStatusComponent,
-    UserImgPipe
+    UserImgPipe,
+    ConnectedTaskRelationTranslationPipe
    ],
   imports: [
     BrowserModule,

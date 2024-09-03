@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, Pipe, PipeTransform } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -17,13 +17,14 @@ import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-grou
 import { AddStatusComponent } from '../add-status/add-status.component';
 import { ServiceResult } from '../../../services/utils/service-result';
 import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
+import { WebsocketService } from '../../../services/websocket/websocket.service';
 
 @Component({
   selector: 'app-project-details',
   templateUrl: './project-details.component.html',
   styleUrl: './project-details.component.css'
 })
-export class ProjectDetailsComponent {
+export class ProjectDetailsComponent implements OnInit, OnDestroy {
   taskGroups: TaskGroup[];
 
   projectId: number | null;
@@ -32,7 +33,8 @@ export class ProjectDetailsComponent {
 
   constructor(private dialog: MatDialog, private resultToaster: ResultToasterService,
     private serviceResultHelper: ServiceResultHelper,
-    private http: HttpRequestService, private route: ActivatedRoute) {
+    private http: HttpRequestService, private route: ActivatedRoute,
+    private webSocketService: WebsocketService) {
       this.taskGroups = [];
   }
 
@@ -48,7 +50,12 @@ export class ProjectDetailsComponent {
       this.projectId = projectId == null ? null : +projectId;
       this.organizationId = organizationId == null ? null : +organizationId;
       this.loadTasks();
-    })    
+      this.webSocketService.connect();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.webSocketService.disconnect();
   }
 
   loadTasks() {
@@ -275,10 +282,4 @@ class User {
   constructor(name: string) {
     this.name = name;
   }
-}
-
-enum ConnectedTaskRelation {
-  Blocks = "blocks",
-  BlockedBy = "Blocked by",
-  RelativeTo = "Relative to"
 }

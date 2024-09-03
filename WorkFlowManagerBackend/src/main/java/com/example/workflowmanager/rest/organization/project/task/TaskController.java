@@ -6,6 +6,7 @@ import com.example.workflowmanager.db.organization.project.task.TaskRelationRepo
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
+import com.example.workflowmanager.entity.organization.OrganizationMemberInvitationStatus;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskRelation;
 import com.example.workflowmanager.entity.organization.project.task.TaskRelationType;
@@ -73,7 +74,8 @@ public class TaskController
         final List<TaskMemberOptionRest> options = Stream.concat(
             organizationRepository.getList(organizationIds).stream()
                 .map(Organization::getUser),
-            organizationMemberRepository.getListByOrganization(organizationIds).stream()
+            organizationMemberRepository.getListByOrganization(organizationIds, Collections.singleton(
+                OrganizationMemberInvitationStatus.ACCEPTED)).stream()
                 .map(OrganizationMember::getUser))
             .distinct()
             .sorted(Comparator.comparing(User::getEmail, Comparator.naturalOrder())
@@ -139,7 +141,8 @@ public class TaskController
         final Task displayedTask = relationOwner ? taskRelation.getTargetTask() : taskRelation.getSourceTask();
         final TaskRelationTypeRest relationTypeRest = TaskRelationTypeRest.valueOf(
             taskRelation.getId().getRelationType(), !relationOwner);
-        return new TaskRelationRest(displayedTask.getId(), displayedTask.getTitle(), relationTypeRest);
+        return new TaskRelationRest(displayedTask.getId(), displayedTask.getTitle(), relationTypeRest,
+            displayedTask.getTaskColumn().getName());
     }
 
 
@@ -383,13 +386,15 @@ public class TaskController
         private Long taskId;
         private String title;
         private TaskRelationTypeRest relationType;
+        private String columnName;
 
         TaskRelationRest(final Long taskId, final String title,
-            final TaskRelationTypeRest relationType)
+            final TaskRelationTypeRest relationType, final String columnName)
         {
             this.taskId = taskId;
             this.title = title;
             this.relationType = relationType;
+            this.columnName = columnName;
         }
 
         public TaskRelationRest()
@@ -425,6 +430,16 @@ public class TaskController
         public void setRelationType(final TaskRelationTypeRest relationType)
         {
             this.relationType = relationType;
+        }
+
+        public String getColumnName()
+        {
+            return columnName;
+        }
+
+        public void setColumnName(final String columnName)
+        {
+            this.columnName = columnName;
         }
 
     }
@@ -548,6 +563,11 @@ public class TaskController
         public String getTitle()
         {
             return task.getTitle();
+        }
+
+        public String getColumnName()
+        {
+            return task.getTaskColumn().getName();
         }
 
     }

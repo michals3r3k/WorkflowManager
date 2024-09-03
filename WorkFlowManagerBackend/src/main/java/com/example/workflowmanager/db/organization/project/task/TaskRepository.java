@@ -21,7 +21,6 @@ public interface TaskRepository extends JpaRepository<Task, Long>
             "left join fetch t.parentTask " +
             "left join fetch t.members tm " +
             "left join fetch tm.member m " +
-            "left join fetch m.user " +
         "where " +
             "t.id in (?1)")
     List<Task> getListByIdsWithRelationalTasksAndMembers(Collection<Long> ids);

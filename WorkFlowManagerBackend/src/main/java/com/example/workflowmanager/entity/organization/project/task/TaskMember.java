@@ -1,6 +1,6 @@
 package com.example.workflowmanager.entity.organization.project.task;
 
-import com.example.workflowmanager.entity.organization.OrganizationMember;
+import com.example.workflowmanager.entity.user.User;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -17,11 +17,8 @@ public class TaskMember
     })
     private Task task;
     @ManyToOne()
-    @JoinColumns({
-        @JoinColumn(name = "userId", referencedColumnName = "userId", insertable = false, updatable = false),
-        @JoinColumn(name = "organizationId", referencedColumnName = "organizationId", insertable = false, updatable = false),
-    })
-    private OrganizationMember member;
+    @JoinColumn(name = "userId", referencedColumnName = "id", insertable = false, updatable = false)
+    private User member;
 
     public TaskMember(final TaskMemberId id)
     {
@@ -53,12 +50,12 @@ public class TaskMember
         this.task = task;
     }
 
-    public OrganizationMember getMember()
+    public User getMember()
     {
         return member;
     }
 
-    public void setMember(final OrganizationMember member)
+    public void setMember(final User member)
     {
         this.member = member;
     }

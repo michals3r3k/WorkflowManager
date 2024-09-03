@@ -5,7 +5,7 @@
         <div class="task-id">
           <img src="../../../../assets/images/task.png" *ngIf="!task.isSubTask; else subTaskImg"/>
           <ng-template #subTaskImg><img src="../../../../assets/images/subTask.png" /></ng-template>
-          <span>{{task.task_id}}</span>
+          <span>#{{task.task_id}}</span>
         </div>
         <div class="title-options">
           <button class="icon-btn delete-btn" (click)="close()">
@@ -300,9 +300,9 @@
         <div class="connected-tasks">
           <div class="connected-task" *ngFor="let task of task.connected_tasks" (click)="openTaskDetails(task)">
             <img src="../../../../assets/images/task.png"/>
-            <span>{{task.taskId}}</span>
-            <span class="task-name">{{task.taskId}}</span>
-            <span class="task-progress"><!-- {{task.status}} --></span>
+            <span>#{{task.taskId}}</span>
+            <span class="task-name">{{task.title}}</span>
+            <span class="task-progress">{{task.columnName}}</span>
             <span class="task-priority">{{task.relationType}}</span>
             <button class="icon-btn" (click)="deleteConnectedTask(task)">
               <mat-icon>close</mat-icon>

@@ -55,7 +55,7 @@ public class TaskColumnRestFactory
     {
         return task.getMembers().stream()
             .map(member -> {
-                final User user = member.getMember().getUser();
+                final User user = member.getMember();
                 final Long userId = user.getId();
                 final String email = user.getEmail();
                 return new TaskMemberRest(userId, email);

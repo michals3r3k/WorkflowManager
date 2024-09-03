@@ -22,7 +22,7 @@ export class TaskDetailsComponent implements OnInit {
   isDescritionEditing: boolean = false;
   isTitleEditing: boolean = false;
   isAssignToEditing: boolean = false;
-  isStartDateEditing: boolean = false;
+  isStartDateEditing: boolean = false; 
   isFinishDateEditing: boolean = false;
   isDeadlineEditing: boolean = false;
   isPriorityEditing:boolean = false;
@@ -39,23 +39,23 @@ export class TaskDetailsComponent implements OnInit {
   selectedPriority: TaskPriority = TaskPriority.Medium;
   selectedStatus: string | null = "";
   selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.IS_RELATIVE_TO;
+  selectedConnectedTask: TaskRelation | null = null;
+  selectedAssignUser: User | null = null;
 
   userOptions$: Observable<User[]>;
   taskRelationOptions$: Observable<TaskRelationOptionRest[]>;
+  connectedTaskOptions$: Observable<TaskRelationOptionRest[]>;
+  assignUserOptions$: Observable<any[]>;
 
   new_sub_task_name = "";
 
   searchConnectedTaskControl = new FormControl();
-  connectedTaskOptions$: Observable<TaskRelationOptionRest[]>;
-  selectedConnectedTask: TaskRelation | null = null;
-
   searchAssignUserControl = new FormControl();
-  assignUserOptions$: Observable<any[]>;
-  selectedAssignUser: User | null = null;
 
+
+  taskStatusesOptions: string[];
   taskPriorityOptions = Object.values(TaskPriority);
   taskRelations = Object.values(ConnectedTaskRelation);
-  taskStatusesOptions: string[];
 
   task: Task;
 
@@ -109,6 +109,7 @@ export class TaskDetailsComponent implements OnInit {
           taskId: task.taskId,
           title: task.title,
           relationType: ConnectedTaskRelation.IS_RELATIVE_TO,
+          columnName: task.columnName
         };
         return taskRelation;
       })).subscribe(subTask => {
@@ -127,7 +128,7 @@ export class TaskDetailsComponent implements OnInit {
     this.task.task_id;
     const members: TaskMemberRest[] = !this.task.assignUser || !this.task.assignUser.userId ? [] : [{userId: this.task.assignUser.userId}]
     const taskRelations: TaskRelationRest[] = this.task.connected_tasks.map(taskRelation => {
-      return {taskId: taskRelation.taskId, title: taskRelation.title, relationType: taskRelation.relationType};
+      return {taskId: taskRelation.taskId, title: taskRelation.title, relationType: taskRelation.relationType, columnName: taskRelation.columnName};
     });
     const taskRest: TaskRest = {
       taskId: this.task.task_id,
@@ -161,11 +162,22 @@ export class TaskDetailsComponent implements OnInit {
       task.creatorId = taskRest.creatorId;
       task.creatorName = taskRest.creatorName;
       task.create_date = new Date(taskRest.createTime);
+      task.start_date = taskRest.startDateOrNull ? new Date(taskRest.startDateOrNull) : null;
+      task.finish_date = taskRest.finishDateOrNull ? new Date(taskRest.finishDateOrNull) : null;
+      task.deadline = taskRest.deadlineDateOrNull? new Date(taskRest.deadlineDateOrNull) : null;
+      if(taskRest.members.length !== 0) {
+        const taskMemberRest: TaskMemberRest = taskRest.members[0];
+        const assignUser = new User(taskMemberRest.email || "");
+        assignUser.userId = taskMemberRest.userId;
+        task.assignUser = assignUser;
+        this.searchAssignUserControl.setValue(assignUser.name);
+      }
       task.connected_tasks = taskRest.taskRelations.map(taskRelationRest => {
         const taskRelation = new TaskRelation();
         taskRelation.taskId = taskRelationRest.taskId;
         taskRelation.title = taskRelationRest.title;
         taskRelation.relationType = taskRelationRest.relationType;
+        taskRelation.columnName = taskRelationRest.columnName;
         return taskRelation;
       });
       task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
@@ -517,6 +529,7 @@ class TaskRelation {
   taskId: number;
   title: string;
   relationType: ConnectedTaskRelation;
+  columnName: string;
 }
 
 class User {
@@ -565,6 +578,7 @@ interface TaskRelationRest {
   taskId: number;
   title: string;
   relationType: ConnectedTaskRelation;
+  columnName: string;
 }
 
 interface TaskMemberOptionRest {
@@ -575,4 +589,5 @@ interface TaskMemberOptionRest {
 interface TaskRelationOptionRest {
   taskId: number;
   title: string;
+  columnName: string;
 }

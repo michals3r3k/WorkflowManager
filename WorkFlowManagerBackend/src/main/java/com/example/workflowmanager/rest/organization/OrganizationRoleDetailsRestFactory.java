@@ -63,7 +63,8 @@ public class OrganizationRoleDetailsRestFactory
             .map(OrganizationMemberRoleId::getUserId)
             .collect(Collectors.toSet());
         final Set<Long> userIdsAll = memberRepository.getListByOrganization(
-                Collections.singleton(organizationRoleId.getOrganizationId())).stream()
+            Collections.singleton(organizationRoleId.getOrganizationId()),
+            EnumSet.allOf(OrganizationMemberInvitationStatus.class)).stream()
             .filter(member -> member.getInvitationStatus() == OrganizationMemberInvitationStatus.ACCEPTED)
             .map(OrganizationMember::getId)
             .map(OrganizationMemberId::getUserId)

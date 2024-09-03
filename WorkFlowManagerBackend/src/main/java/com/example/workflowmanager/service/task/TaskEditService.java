@@ -6,10 +6,10 @@ import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.organization.project.task.*;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskColumnController.TaskCreateRequestRest;
-import com.example.workflowmanager.rest.organization.project.task.TaskController.SubTaskRest;
-import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskRelationRest;
-import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskRelationTypeRest;
-import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskRest;
+import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.SubTaskRest;
+import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskRelationRest;
+import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskRelationTypeRest;
+import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskRest;
 import com.example.workflowmanager.service.task.TaskCreateService.TaskCreateServiceResult;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
@@ -207,7 +207,6 @@ public class TaskEditService
         }
 
     }
-
 
     public enum TaskEditError
     {

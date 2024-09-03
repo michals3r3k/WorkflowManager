@@ -126,7 +126,7 @@ export class TaskDetailsComponent implements OnInit {
 
   _saveTask() {
     this.task.task_id;
-    const members: TaskMemberRest[] = !this.task.assignUser || !this.task.assignUser.userId ? [] : [{userId: this.task.assignUser.userId}]
+    const members: TaskMemberRest[] = !this.task.assignUser || !this.task.assignUser.userId ? [] : [{userId: this.task.assignUser.userId, email: this.task.assignUser.name}]
     const taskRelations: TaskRelationRest[] = this.task.connected_tasks.map(taskRelation => {
       return {taskId: taskRelation.taskId, title: taskRelation.title, relationType: taskRelation.relationType, columnName: taskRelation.columnName};
     });

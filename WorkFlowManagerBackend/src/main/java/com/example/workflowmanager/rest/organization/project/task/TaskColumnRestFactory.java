@@ -4,7 +4,7 @@ import com.example.workflowmanager.db.organization.project.task.TaskColumnReposi
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
 import com.example.workflowmanager.entity.user.User;
-import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskMemberRest;
+import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskMemberRest;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

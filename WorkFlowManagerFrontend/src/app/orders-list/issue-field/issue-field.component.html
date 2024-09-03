@@ -1,26 +1,28 @@
-@if(issueFormGroup) {
-    <mat-form-field *ngIf="field.type == 'TEXT'">
-        <mat-label>{{field.name}}</mat-label>
-        <input matInput [formControl]="valueControl">
-        <mat-error *ngIf="valueControl.invalid && valueControl.hasError('required')">value is required</mat-error>
-    </mat-form-field>
-    <mat-form-field *ngIf="field.type == 'NUMBER'">
-        <mat-label>{{field.name}}</mat-label>
-        <input type="number" matInput [formControl]="valueControl">
-        <mat-error *ngIf="valueControl.invalid && valueControl.hasError('required')">value is required</mat-error>
-    </mat-form-field>
-    <mat-form-field *ngIf="field.type == 'DATE'">
-        <mat-label>{{field.name}}</mat-label>
-        <input matInput [matDatepicker]="picker" [formControl]="valueControl">
-        <mat-hint>MM/DD/YYYY</mat-hint>
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-        <mat-error *ngIf="valueControl.invalid && valueControl.hasError('required')">value is required</mat-error>
-    </mat-form-field>
-    @if(field.type == 'FLAG') {
-        {{field.name}}: <mat-checkbox *ngIf="field.type == 'FLAG'" color="primary" [formControl]="valueControl"/>
+<div class="container">
+    @if(issueFormGroup) {
+        <mat-form-field *ngIf="field.type == 'TEXT'">
+            <mat-label>{{field.name}}</mat-label>
+            <input matInput [formControl]="valueControl">
+            <mat-error *ngIf="valueControl.invalid && valueControl.hasError('required')">value is required</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="field.type == 'NUMBER'">
+            <mat-label>{{field.name}}</mat-label>
+            <input type="number" matInput [formControl]="valueControl">
+            <mat-error *ngIf="valueControl.invalid && valueControl.hasError('required')">value is required</mat-error>
+        </mat-form-field>
+        <mat-form-field *ngIf="field.type == 'DATE'">
+            <mat-label>{{field.name}}</mat-label>
+            <input matInput [matDatepicker]="picker" [formControl]="valueControl">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="valueControl.invalid && valueControl.hasError('required')">value is required</mat-error>
+        </mat-form-field>
+        @if(field.type == 'FLAG') {
+            {{field.name}}: <mat-checkbox *ngIf="field.type == 'FLAG'" color="primary" [formControl]="valueControl"/>
+        }
     }
-}
-@else {
-    {{field.name}}: {{field.value || ''}}
-}
+    @else {
+        {{field.name}}: {{field.value || ''}}
+    }
+</div>

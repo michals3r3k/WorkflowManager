@@ -24,5 +24,8 @@ export interface IssueDetailsRest {
   sourceOrganizationId: number;
   destinationOrganizationId: number;
   form: IssueFormRest;
+  description: string;
+  connectedTasks: string[];
+  status: string;
 }
 

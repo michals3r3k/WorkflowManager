@@ -11,10 +11,10 @@ import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskRelation;
 import com.example.workflowmanager.entity.organization.project.task.TaskRelationType;
 import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.task.TaskEditService;
-import com.example.workflowmanager.service.task.TaskEditService.TaskEditError;
+import com.example.workflowmanager.service.task.TaskEditService.TaskEditServiceResult;
 import com.example.workflowmanager.service.utils.ObjectUtils;
-import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -38,17 +38,20 @@ public class TaskController
     private final OrganizationRepository organizationRepository;
     private final TaskRelationRepository taskRelationRepository;
     private final TaskEditService taskEditService;
+    private final CurrentUserService currentUserService;
 
     public TaskController(final TaskRepository taskRepository,
         final OrganizationMemberRepository organizationMemberRepository,
         final OrganizationRepository organizationRepository,
-        final TaskRelationRepository taskRelationRepository, final TaskEditService taskEditService)
+        final TaskRelationRepository taskRelationRepository, final TaskEditService taskEditService,
+        final CurrentUserService currentUserService)
     {
         this.taskRepository = taskRepository;
         this.organizationMemberRepository = organizationMemberRepository;
         this.organizationRepository = organizationRepository;
         this.taskRelationRepository = taskRelationRepository;
         this.taskEditService = taskEditService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/{taskId}/relation/options")
@@ -87,10 +90,11 @@ public class TaskController
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/save")
     @Transactional
-    public ResponseEntity<ServiceResult<TaskEditError>> save(@PathVariable Long organizationId,
+    public ResponseEntity<TaskEditServiceResult> save(@PathVariable Long organizationId,
         @PathVariable Long projectId, @RequestBody TaskRest task)
     {
-        return ResponseEntity.ok(taskEditService.save(projectId, task));
+        final User user = currentUserService.getCurrentUser().orElseThrow();
+        return ResponseEntity.ok(taskEditService.save(projectId, task, user));
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/{taskId}")

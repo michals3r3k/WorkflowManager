@@ -4,9 +4,13 @@ import com.example.workflowmanager.db.organization.project.task.TaskMemberReposi
 import com.example.workflowmanager.db.organization.project.task.TaskRelationRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.organization.project.task.*;
+import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.rest.organization.project.task.TaskColumnController.TaskCreateRequestRest;
+import com.example.workflowmanager.rest.organization.project.task.TaskController.SubTaskRest;
 import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskRelationRest;
 import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskRelationTypeRest;
 import com.example.workflowmanager.rest.organization.project.task.TaskController.TaskRest;
+import com.example.workflowmanager.service.task.TaskCreateService.TaskCreateServiceResult;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.collect.Maps;
@@ -26,44 +30,83 @@ public class TaskEditService
     private final TaskRepository taskRepository;
     private final TaskMemberRepository taskMemberRepository;
     private final TaskRelationRepository taskRelationRepository;
+    private final TaskCreateService taskCreateService;
 
     public TaskEditService(final TaskRepository taskRepository,
         final TaskMemberRepository taskMemberRepository,
-        final TaskRelationRepository taskRelationRepository)
+        final TaskRelationRepository taskRelationRepository,
+        final TaskCreateService taskCreateService)
     {
         this.taskRepository = taskRepository;
         this.taskMemberRepository = taskMemberRepository;
         this.taskRelationRepository = taskRelationRepository;
+        this.taskCreateService = taskCreateService;
     }
 
-    public ServiceResult<TaskEditError> save(final Long projectId, final TaskRest taskRest)
+    public TaskEditServiceResult save(final Long projectId, final TaskRest taskRest,
+        final User subTaskCreator)
     {
         final Map<Long, Task> taskMap = Maps.uniqueIndex(taskRepository
             .getListByProjectIds(Collections.singleton(projectId)), Task::getId);
         final Task task = taskMap.get(taskRest.getTaskId());
         if(task == null)
         {
-            return ServiceResult.error(TaskEditError.TASK_DOESNT_EXISTS);
+            return new TaskEditServiceResult(taskRest, Collections.singleton(TaskEditError.TASK_DOESNT_EXISTS));
         }
         final boolean duplicatedName = isDuplicatedName(taskRest, taskMap.values());
         if(duplicatedName)
         {
-            return ServiceResult.error(TaskEditError.DUPLICATED_TITLE);
+            return new TaskEditServiceResult(taskRest, Collections.singleton(TaskEditError.DUPLICATED_TITLE));
         }
+
         final Set<TaskEditError> errors = getTaskRelationErrors(taskRest, taskMap);
         if(!errors.isEmpty())
         {
-            return new ServiceResult<>(errors);
+            return new TaskEditServiceResult(taskRest, errors);
         }
         task.setTitle(taskRest.getTitle());
         task.setDescription(taskRest.getDescriptionOrNull());
         task.setStartDate(getLocalDateOrNull(taskRest.getStartDateOrNull()));
         task.setFinishDate(getLocalDateOrNull(taskRest.getFinishDateOrNull()));
         task.setDeadlineDate(getLocalDateOrNull(taskRest.getDeadlineDateOrNull()));
+        taskRepository.save(task);
+        updateSubTasks(taskRest, task, subTaskCreator, projectId);
         updateMembers(taskRest, task);
         updateTaskRelations(taskRest, task);
-        taskRepository.save(task);
-        return ServiceResult.ok();
+        return new TaskEditServiceResult(taskRest, errors);
+    }
+
+    private void updateSubTasks(final TaskRest taskRest, final Task task,
+        final User subTaskCreator, final Long projectId)
+    {
+        final Set<Long> subTaskIdsToStay = taskRest.getSubTasks().stream()
+            .map(SubTaskRest::getSubTaskId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        final Set<Task> subTasksToDelete = task.getSubTasks().stream()
+            .filter(subTask -> !subTaskIdsToStay.contains(subTask.getId()))
+            .collect(Collectors.toSet());
+
+        taskRepository.deleteAll(subTasksToDelete);
+        for(final SubTaskRest subTaskRest : taskRest.getSubTasks())
+        {
+            if(subTaskRest.getSubTaskId() == null)
+            {
+                final TaskCreateRequestRest subTaskDto = new TaskCreateRequestRest();
+                subTaskDto.setTaskColumnId(task.getTaskColumn().getId());
+                subTaskDto.setTitle(subTaskRest.getTitle());
+                final TaskCreateServiceResult taskCreateServiceResult = taskCreateService.create(
+                    projectId, subTaskDto, subTaskCreator);
+                if(!taskCreateServiceResult.isSuccess())
+                {
+                    throw new IllegalStateException("Unknown error: " + taskCreateServiceResult.getErrors());
+                }
+                final Task subTask = taskCreateServiceResult.getTaskOrNull();
+                subTask.setParentTaskId(task.getId());
+                taskRepository.save(subTask);
+                subTaskRest.setSubTaskId(subTask.getId());
+            }
+        }
     }
 
     private static boolean isDuplicatedName(final TaskRest taskRest,
@@ -147,6 +190,24 @@ public class TaskEditService
         return ObjectUtils.accessNullable(dateOrNull,
             date -> LocalDateTime.parse(date, DTF));
     }
+
+    public static class TaskEditServiceResult extends ServiceResult<TaskEditError>
+    {
+        private final TaskRest taskRest;
+
+        public TaskEditServiceResult(final TaskRest taskRest, final Collection<TaskEditError> errors)
+        {
+            super(errors);
+            this.taskRest = taskRest;
+        }
+
+        public TaskRest getTaskRest()
+        {
+            return taskRest;
+        }
+
+    }
+
 
     public enum TaskEditError
     {

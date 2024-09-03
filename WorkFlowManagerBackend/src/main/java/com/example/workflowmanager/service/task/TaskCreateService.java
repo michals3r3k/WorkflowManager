@@ -8,6 +8,7 @@ import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskColumnController.TaskCreateRequestRest;
+import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +55,7 @@ public class TaskCreateService
         chatRepository.save(chat);
         final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(), taskColumnOrNull, chat, creator);
         taskRepository.save(task);
-        return new TaskCreateServiceResult(task.getId(), errors);
+        return new TaskCreateServiceResult(task, errors);
     }
 
     private static boolean isExists(final TaskCreateRequestRest task, final List<Task> tasks)
@@ -66,18 +67,23 @@ public class TaskCreateService
 
     public static class TaskCreateServiceResult extends ServiceResult<TaskCreateError>
     {
-        private final Long taskIdOrNull;
+        private final Task taskOrNull;
 
-        public TaskCreateServiceResult(final Long taskIdOrNull,
+        public TaskCreateServiceResult(final Task taskOrNull,
             final Collection<TaskCreateError> errors)
         {
             super(errors);
-            this.taskIdOrNull = taskIdOrNull;
+            this.taskOrNull = taskOrNull;
         }
 
         public Long getTaskIdOrNull()
         {
-            return taskIdOrNull;
+            return ObjectUtils.accessNullable(taskOrNull, Task::getId);
+        }
+
+        Task getTaskOrNull()
+        {
+            return taskOrNull;
         }
 
     }

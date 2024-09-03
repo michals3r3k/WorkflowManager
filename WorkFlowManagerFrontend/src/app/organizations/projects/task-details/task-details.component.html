@@ -3,7 +3,7 @@
     <div class="title-bar">
       <div class="header1">
         <div class="task-id">
-          <img src="../../../../assets/images/task.png" *ngIf="!task.isSubTask; else subTaskImg"/>
+          <img *ngIf="!task.isSubTask; else subTaskImg" src="../../../../assets/images/task.png"/>
           <ng-template #subTaskImg><img src="../../../../assets/images/subTask.png" /></ng-template>
           <span>#{{task.task_id}}</span>
         </div>
@@ -262,7 +262,7 @@
         <div class="sub-tasks">
           <div class="sub-task" *ngFor="let task of task.sub_tasks" (click)="openSubTaskDetails(task)">
             <img src="../../../../assets/images/subTask.png"/>
-            <span>{{task.task_id}}</span>
+            <span>#{{task.task_id}}</span>
             <span class="task-name">{{task.title}}</span>
             <span class="task-progress">{{task.priority}}</span>
             <button class="icon-btn" (click)="deleteSubTask(task)">

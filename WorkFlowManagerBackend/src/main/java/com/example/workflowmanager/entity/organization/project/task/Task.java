@@ -23,6 +23,8 @@ public class Task
     private LocalDateTime startDate;
     private LocalDateTime finishDate;
     private LocalDateTime deadlineDate;
+    @Column(name = "parent_task_id")
+    private Long parentTaskId;
     @Column(name = "task_column_id", nullable = false)
     private Long taskColumnId;
     @Column(name = "project_id", nullable = false)
@@ -188,8 +190,7 @@ public class Task
         return parentTask;
     }
 
-    public void setParentTask(
-        final Task parentTask)
+    public void setParentTask(final Task parentTask)
     {
         this.parentTask = parentTask;
     }
@@ -199,8 +200,7 @@ public class Task
         return subTasks;
     }
 
-    public void setSubTasks(
-        final Set<Task> subTasks)
+    public void setSubTasks(final Set<Task> subTasks)
     {
         this.subTasks = subTasks;
     }
@@ -254,6 +254,16 @@ public class Task
     public int hashCode()
     {
         return Objects.hash(id);
+    }
+
+    public Long getParentTaskId()
+    {
+        return parentTaskId;
+    }
+
+    public void setParentTaskId(final Long parentTaskId)
+    {
+        this.parentTaskId = parentTaskId;
     }
 
 }

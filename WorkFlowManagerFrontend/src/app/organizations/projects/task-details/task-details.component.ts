@@ -130,6 +130,9 @@ export class TaskDetailsComponent implements OnInit {
     const taskRelations: TaskRelationRest[] = this.task.connected_tasks.map(taskRelation => {
       return {taskId: taskRelation.taskId, title: taskRelation.title, relationType: taskRelation.relationType, columnName: taskRelation.columnName};
     });
+    const subTasks: SubTaskRest[] = this.task.sub_tasks.map(subTask => {
+      return {subTaskId: subTask.task_id, title: subTask.title};
+    })
     const taskRest: TaskRest = {
       taskId: this.task.task_id,
       chatId: this.task.chatId,
@@ -141,61 +144,23 @@ export class TaskDetailsComponent implements OnInit {
       startDateOrNull: this.task.start_date?.toISOString() || null,
       finishDateOrNull: this.task.finish_date?.toISOString() || null,
       deadlineDateOrNull: this.task.deadline?.toISOString() || null,
-      parentTaskIdOrNull: null,
+      parentTaskIdOrNull: this.task.parentTaskIdOrNull,
       parentTaskTitleOrNull: null,
       members: members,
-      subTasks: [],
+      subTasks: subTasks,
       taskRelations: taskRelations,
     }
-    this.http.postGeneric<ServiceResult>(`api/organization/1/project/1/task/save`, taskRest).subscribe(res => {
-      this.serviceResultHelper.handleServiceResult(res, "Task saved successfully", "Errors occured");
+    this.http.postGeneric<TaskEditServiceResult>(`api/organization/1/project/1/task/save`, taskRest).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task saved successfully", "Errors occured");
+      if(res.success) {
+        this._initTaskRest(res.taskRest);
+      }
     });
   }
 
   ngOnInit() {
     this.http.getGeneric<TaskRest>(`api/organization/${this.organizationId}/project/${this.projectId}/task/${this.taskId}`).subscribe(taskRest => {
-      this.title = taskRest.title;
-      const task = new Task(taskRest.title);
-      task.task_id = taskRest.taskId;
-      task.desc = taskRest.descriptionOrNull || "";
-      task.chatId = taskRest.chatId;
-      task.creatorId = taskRest.creatorId;
-      task.creatorName = taskRest.creatorName;
-      task.create_date = new Date(taskRest.createTime);
-      task.start_date = taskRest.startDateOrNull ? new Date(taskRest.startDateOrNull) : null;
-      task.finish_date = taskRest.finishDateOrNull ? new Date(taskRest.finishDateOrNull) : null;
-      task.deadline = taskRest.deadlineDateOrNull? new Date(taskRest.deadlineDateOrNull) : null;
-      if(taskRest.members.length !== 0) {
-        const taskMemberRest: TaskMemberRest = taskRest.members[0];
-        const assignUser = new User(taskMemberRest.email || "");
-        assignUser.userId = taskMemberRest.userId;
-        task.assignUser = assignUser;
-        this.searchAssignUserControl.setValue(assignUser.name);
-      }
-      task.connected_tasks = taskRest.taskRelations.map(taskRelationRest => {
-        const taskRelation = new TaskRelation();
-        taskRelation.taskId = taskRelationRest.taskId;
-        taskRelation.title = taskRelationRest.title;
-        taskRelation.relationType = taskRelationRest.relationType;
-        taskRelation.columnName = taskRelationRest.columnName;
-        return taskRelation;
-      });
-      task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
-        const subTask = new SubTask();
-        subTask.task_id = subTaskRest.subTaskId;
-        subTask.title = subTaskRest.title;
-        subTask.priority = TaskPriority.Medium; 
-        return subTask;
-      });
-      this.task = task;
-      this.title = this.task.name;
-      this.description = this.task.desc;
-      this.selectedPriority = this.task.priority;
-      this.selectedStatus = this.task.status;
-      this.selectedAssignUser = this.task.assignUser;
-      this.start_date = this.task.start_date;
-      this.finish_date = this.task.finish_date;
-      this.deadline = this.task.deadline;
+      this._initTaskRest(taskRest);
     });
 
     this.userOptions$ = this.http.getGeneric<TaskMemberOptionRest[]>(`api/organization/${this.organizationId}/task/member/options`).pipe(
@@ -221,6 +186,53 @@ export class TaskDetailsComponent implements OnInit {
         debounceTime(500),
         switchMap(() => { return this.loadSearchAssignUsers(); })
     );
+  }
+
+  _initTaskRest(taskRest: TaskRest) {
+    this.title = taskRest.title;
+    const task = new Task(taskRest.title);
+    task.task_id = taskRest.taskId;
+    task.desc = taskRest.descriptionOrNull || "";
+    task.chatId = taskRest.chatId;
+    task.creatorId = taskRest.creatorId;
+    task.creatorName = taskRest.creatorName;
+    task.create_date = new Date(taskRest.createTime);
+    task.start_date = taskRest.startDateOrNull ? new Date(taskRest.startDateOrNull) : null;
+    task.finish_date = taskRest.finishDateOrNull ? new Date(taskRest.finishDateOrNull) : null;
+    task.deadline = taskRest.deadlineDateOrNull? new Date(taskRest.deadlineDateOrNull) : null;
+    task.parentTaskIdOrNull = taskRest.parentTaskIdOrNull;
+    task.isSubTask = !!taskRest.parentTaskIdOrNull;
+    if(taskRest.members.length !== 0) {
+      const taskMemberRest: TaskMemberRest = taskRest.members[0];
+      const assignUser = new User(taskMemberRest.email || "");
+      assignUser.userId = taskMemberRest.userId;
+      task.assignUser = assignUser;
+      this.searchAssignUserControl.setValue(assignUser.name);
+    }
+    task.connected_tasks = taskRest.taskRelations.map(taskRelationRest => {
+      const taskRelation = new TaskRelation();
+      taskRelation.taskId = taskRelationRest.taskId;
+      taskRelation.title = taskRelationRest.title;
+      taskRelation.relationType = taskRelationRest.relationType;
+      taskRelation.columnName = taskRelationRest.columnName;
+      return taskRelation;
+    });
+    task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
+      const subTask = new SubTask();
+      subTask.task_id = subTaskRest.subTaskId;
+      subTask.title = subTaskRest.title;
+      subTask.priority = TaskPriority.Medium; 
+      return subTask;
+    });
+    this.task = task;
+    this.title = this.task.name;
+    this.description = this.task.desc;
+    this.selectedPriority = this.task.priority;
+    this.selectedStatus = this.task.status;
+    this.selectedAssignUser = this.task.assignUser;
+    this.start_date = this.task.start_date;
+    this.finish_date = this.task.finish_date;
+    this.deadline = this.task.deadline;
   }
 
   close() {
@@ -464,11 +476,14 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   createNewSubTask() {
-    let sub_task = new SubTask();
-    sub_task.title = this.new_sub_task_name;
-    this.task.sub_tasks.push(sub_task);
-    this.new_sub_task_name = "";
-    this.isAddingSubTask = false;
+    if(this.new_sub_task_name) {
+      let sub_task = new SubTask();
+      sub_task.title = this.new_sub_task_name;
+      this.task.sub_tasks.push(sub_task);
+      this.new_sub_task_name = "";
+      this.isAddingSubTask = false;
+      this._saveTask();
+    }
   }
 
   addSelectedConnectedTask() {
@@ -508,7 +523,7 @@ class Task {
   deadline: Date | null = null;
   status: string | null = "Group1";
   priority: TaskPriority = TaskPriority.Medium;
-  relation_to_parent: ConnectedTaskRelation = ConnectedTaskRelation.IS_RELATIVE_TO;
+  parentTaskIdOrNull: number | null = null;
   isSubTask: boolean = false;
 
   constructor(name: string) {
@@ -521,7 +536,6 @@ class SubTask {
   title: string;
   status: string | null;
   priority: TaskPriority;
-  relation_to_parent: ConnectedTaskRelation;
 }
 
 class TaskRelation {
@@ -569,7 +583,7 @@ interface TaskMemberRest {
 }
 
 interface SubTaskRest {
-  subTaskId: number;
+  subTaskId: number | null;
   title: string;
 }
 
@@ -592,6 +606,12 @@ interface TaskRelationOptionRest {
 
 
 }
+
+export interface TaskEditServiceResult {
+  taskRest: TaskRest,
+  success: boolean,
+  errors: [string]
+};
 
 @Pipe({
   name: 'connectedTaskRelationTranslation'

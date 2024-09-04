@@ -17,6 +17,14 @@
     height: 100vh;
 }
 
+.validated-input {
+    .error {
+        color: red;
+        text-align: center; 
+        font-size: 70%;
+    }
+}
+
 .container{
     background-color: #fff;
     border-radius: 30px;

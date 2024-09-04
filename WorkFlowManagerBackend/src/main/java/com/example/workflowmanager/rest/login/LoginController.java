@@ -48,10 +48,13 @@ public class LoginController
     @PostMapping("api/register")
     @Transactional
     public ResponseEntity<RegisterServiceResult> register(
-        @RequestBody LoginForm loginForm)
+        @RequestBody RegisterForm registerForm)
     {
         RegisterServiceResult registerResult = registerService.register(
-            loginForm.getEmail(), loginForm.getPassword());
+            registerForm.getEmail(),
+            registerForm.getPassword(),
+            registerForm.getFirstName(),
+            registerForm.getSecondName());
         return ResponseEntity.ok(registerResult);
     }
 
@@ -121,6 +124,64 @@ public class LoginController
         public void setPassword(String password)
         {
             this.password = password;
+        }
+
+    }
+
+    public static class RegisterForm
+    {
+        private String email;
+        private String password;
+        private String firstName;
+        private String secondName;
+
+        public RegisterForm(final String email, final String password,
+            final String firstName, final String secondName)
+        {
+            this.email = email;
+            this.password = password;
+            this.firstName = firstName;
+            this.secondName = secondName;
+        }
+
+        public String getEmail()
+        {
+            return email;
+        }
+
+        public void setEmail(String email)
+        {
+            this.email = email;
+        }
+
+        public String getPassword()
+        {
+            return password;
+        }
+
+        public void setPassword(String password)
+        {
+            this.password = password;
+        }
+
+        public String getFirstName()
+        {
+            return firstName;
+        }
+
+        public void setFirstName(final String firstName)
+        {
+            this.firstName = firstName;
+        }
+
+        public String getSecondName()
+        {
+            return secondName;
+        }
+
+        public void setSecondName(final String secondName)
+        {
+            this.secondName = secondName;
         }
 
     }

@@ -25,7 +25,8 @@ public class RegisterService
     }
 
     @Transactional
-    public RegisterServiceResult register(String email, String password)
+    public RegisterServiceResult register(final String email, final String password,
+        final String firstName, final String secondName)
     {
         Set<RegisterError> errors = getErrors(email);
         if(errors.isEmpty())
@@ -33,6 +34,8 @@ public class RegisterService
             User user = new User();
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode(password));
+            user.setFirstName(firstName);
+            user.setSecondName(secondName);
             userRepository.save(user);
         }
         return new RegisterServiceResult(errors);

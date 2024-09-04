@@ -1,15 +1,87 @@
 <div class="container">
     @if(issueFormGroup) {
-        <mat-form-field *ngIf="titleControl" style="margin: 1em; width: 100%;">
+        <ng-container *ngIf="!editMode; else editTemplate">
+            <div class="const-fields" [formGroup]="issueFormGroup">
+
+                <div class="header">
+                    <img src="../../../../../assets/images/issue-icon.png"/>
+                    <h1 *ngIf="idControl?.value">{{idControl?.value}}</h1>
+                    <h1 *ngIf="idControl?.value"> | </h1>
+                    <h1 class="title-header">{{titleControl?.value}}</h1>
+                </div>
+        
+                <div class="description-container">
+                    <span>Description</span>
+                    <div class="description">
+                        <p [innerHTML]="descriptionControl?.value | newline"></p>
+                    </div>
+                </div>
+    
+                <div class="category-container">
+                    <span>Category:</span>
+                    <span class="value-span">{{categoryControl?.value || " "}}</span>
+                </div>
+
+                <div class="status-container">
+                    <span>Status:</span>
+                    <span class="value-span">{{statusControl?.value || " "}}</span>
+                </div>
+    
+            </div>
+        </ng-container>
+        
+        <ng-template #editTemplate>
+
+            <div class="const-fields-editable" [formGroup]="issueFormGroup">
+
+                <div class="header" *ngIf="titleControl">
+                    <img src="../../../../../assets/images/issue-icon.png"/>
+                    <h1 *ngIf="idControl?.value">{{idControl?.value}}</h1>
+                    <h1 *ngIf="idControl?.value"> | </h1>
+                    <input class="title-input" [formControl]="titleControl"/>
+                </div>
+
+                <div class="description-container">
+                    <span>Description</span>
+                    <div class="description" *ngIf="descriptionControl">
+                        <textarea [formControl]="descriptionControl"
+                            placeholder="Enter description..."></textarea>
+                    </div>
+                </div>
+
+                <div class="category-container">
+                    <span>Category:</span>
+                    <select required formControlName="issueCategory">
+                        <option *ngFor="let option of issueCategoryOptions" [value]="option">
+                            {{ option }}
+                        </option>
+                    </select>
+                </div>
+    
+                <div class="status-container">
+                    <span>Status:</span>
+                    <select required formControlName="issueStatus">
+                        <option *ngFor="let option of issueStatusOptions" [value]="option">
+                            {{ option }}
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+        </ng-template>
+
+
+        <!-- <mat-form-field *ngIf="titleControl" style="margin: 1em; width: 100%;">
             <mat-label>Title</mat-label>
             <input matInput [formControl]="titleControl">
             <mat-error *ngIf="titleControl.invalid && titleControl.hasError('required')">title is required</mat-error>
-        </mat-form-field>
+        </mat-form-field> -->
     }
     <div class="columns-container">
         <div *ngFor="let fields_column of [fields_column1, fields_column2]" class="column">
             <div *ngFor="let field of fields_column">
-                <issue-field [field]="field" [issueFormGroup]="issueFormGroup"/>
+                <issue-field [field]="field" [issueFormGroup]="issueFormGroup" [editMode]="editMode"/>
             </div>
         </div>
     </div>

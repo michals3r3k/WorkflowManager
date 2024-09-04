@@ -27,5 +27,6 @@ export interface IssueDetailsRest {
   description: string;
   connectedTasks: string[];
   status: string;
+  category: string;
 }
 

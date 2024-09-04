@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Pipe, PipeTransform } from '@angular/core';
+import { Component, Inject, OnInit, Pipe, PipeTransform, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -7,6 +7,7 @@ import { HttpRequestService } from '../../../services/http/http-request.service'
 import { ServiceResult } from '../../../services/utils/service-result';
 import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
 import { TaskPriority } from '../project-details/project-details.component';
+import { ChatComponent } from '../../../chat/chat.component';
 
 @Component({
   selector: 'app-task-details',
@@ -17,7 +18,6 @@ export class TaskDetailsComponent implements OnInit {
   taskId: number;
   organizationId: number;
   projectId: number;
-  //@Output() statusChanged = new EventEmitter<{previousStatus: string, newStatus: string}>();
 
   isDescritionEditing: boolean = false;
   isTitleEditing: boolean = false;
@@ -25,8 +25,8 @@ export class TaskDetailsComponent implements OnInit {
   isStartDateEditing: boolean = false; 
   isFinishDateEditing: boolean = false;
   isDeadlineEditing: boolean = false;
-  isPriorityEditing:boolean = false;
-  isStatusEditing:boolean = false;
+  isPriorityEditing: boolean = false;
+  isStatusEditing: boolean = false;
 
   isAddingConnectedTask: boolean = false;
   isAddingSubTask: boolean = false;
@@ -36,8 +36,7 @@ export class TaskDetailsComponent implements OnInit {
   start_date: Date | null = null;
   finish_date: Date | null = null;
   deadline: Date | null = null;
-  selectedPriority: TaskPriority = TaskPriority.Medium;
-  selectedStatus: string | null = "";
+  selectedPriority: TaskPriority = TaskPriority.MEDIUM;
   selectedConnectedTaskRelation: ConnectedTaskRelation = ConnectedTaskRelation.IS_RELATIVE_TO;
   selectedConnectedTask: TaskRelation | null = null;
   selectedAssignUser: User | null = null;
@@ -52,15 +51,13 @@ export class TaskDetailsComponent implements OnInit {
   searchConnectedTaskControl = new FormControl();
   searchAssignUserControl = new FormControl();
 
-
-  taskStatusesOptions: string[];
   taskPriorityOptions = Object.values(TaskPriority);
   taskRelations = Object.values(ConnectedTaskRelation);
 
   task: Task;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) private data: {organizationId: number, projectId: number, taskId: number, statuses: string[]},
+    @Inject(MAT_DIALOG_DATA) private data: {organizationId: number, projectId: number, taskId: number},
     private dialogRef: MatDialogRef<TaskDetailsComponent>,
     private dialog: MatDialog,
     private serviceResultHelper: ServiceResultHelper,
@@ -69,8 +66,6 @@ export class TaskDetailsComponent implements OnInit {
     this.organizationId = data.organizationId;
     this.projectId = data.projectId;
     this.taskId = data.taskId;
-    //TODO - pobieranie dostępnych statusów z projektu
-    this.taskStatusesOptions = data.statuses;
   }
 
   private loadSearchConnectedTask(): Observable<any[]> {
@@ -124,7 +119,7 @@ export class TaskDetailsComponent implements OnInit {
     });
   }
 
-  _saveTask() {
+  _saveTask(resetEditableProperties: boolean = false) {
     this.task.task_id;
     const members: TaskMemberRest[] = !this.task.assignUser || !this.task.assignUser.userId ? [] : [{userId: this.task.assignUser.userId, email: this.task.assignUser.name}]
     const taskRelations: TaskRelationRest[] = this.task.connected_tasks.map(taskRelation => {
@@ -145,22 +140,29 @@ export class TaskDetailsComponent implements OnInit {
       finishDateOrNull: this.task.finish_date?.toISOString() || null,
       deadlineDateOrNull: this.task.deadline?.toISOString() || null,
       parentTaskIdOrNull: this.task.parentTaskIdOrNull,
-      parentTaskTitleOrNull: null,
+      parentTaskTitleOrNull: this.task.parentTaskTitleOrNull,
+      parentTaskPriorityOrNull: this.task.parentTaskPriorityOrNull,
+      priority: this.task.priority,
       members: members,
       subTasks: subTasks,
       taskRelations: taskRelations,
+      columnName: this.task.status
     }
-    this.http.postGeneric<TaskEditServiceResult>(`api/organization/1/project/1/task/save`, taskRest).subscribe(res => {
+    this.http.postGeneric<TaskEditServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/save`, taskRest).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task saved successfully", "Errors occured");
       if(res.success) {
-        this._initTaskRest(res.taskRest);
+        this._initTaskRest(res.taskRest, resetEditableProperties);
       }
     });
   }
 
   ngOnInit() {
+    this._init();
+  }
+
+  _init() {
     this.http.getGeneric<TaskRest>(`api/organization/${this.organizationId}/project/${this.projectId}/task/${this.taskId}`).subscribe(taskRest => {
-      this._initTaskRest(taskRest);
+      this._initTaskRest(taskRest, true);
     });
 
     this.userOptions$ = this.http.getGeneric<TaskMemberOptionRest[]>(`api/organization/${this.organizationId}/task/member/options`).pipe(
@@ -188,7 +190,7 @@ export class TaskDetailsComponent implements OnInit {
     );
   }
 
-  _initTaskRest(taskRest: TaskRest) {
+  _initTaskRest(taskRest: TaskRest, resetEditableProperties: boolean = false) {
     this.title = taskRest.title;
     const task = new Task(taskRest.title);
     task.task_id = taskRest.taskId;
@@ -201,7 +203,11 @@ export class TaskDetailsComponent implements OnInit {
     task.finish_date = taskRest.finishDateOrNull ? new Date(taskRest.finishDateOrNull) : null;
     task.deadline = taskRest.deadlineDateOrNull? new Date(taskRest.deadlineDateOrNull) : null;
     task.parentTaskIdOrNull = taskRest.parentTaskIdOrNull;
+    task.parentTaskTitleOrNull = taskRest.parentTaskTitleOrNull;
+    task.parentTaskPriorityOrNull = taskRest.parentTaskPriorityOrNull;
     task.isSubTask = !!taskRest.parentTaskIdOrNull;
+    task.priority = taskRest.priority;
+    task.status = taskRest.columnName || "unassigned";
     if(taskRest.members.length !== 0) {
       const taskMemberRest: TaskMemberRest = taskRest.members[0];
       const assignUser = new User(taskMemberRest.email || "");
@@ -209,30 +215,34 @@ export class TaskDetailsComponent implements OnInit {
       task.assignUser = assignUser;
       this.searchAssignUserControl.setValue(assignUser.name);
     }
+    else {
+      this.searchAssignUserControl.setValue("");
+    }
     task.connected_tasks = taskRest.taskRelations.map(taskRelationRest => {
       const taskRelation = new TaskRelation();
       taskRelation.taskId = taskRelationRest.taskId;
       taskRelation.title = taskRelationRest.title;
       taskRelation.relationType = taskRelationRest.relationType;
-      taskRelation.columnName = taskRelationRest.columnName;
+      taskRelation.columnName = taskRelationRest.columnName || "unassigned";
       return taskRelation;
     });
     task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
       const subTask = new SubTask();
       subTask.task_id = subTaskRest.subTaskId;
       subTask.title = subTaskRest.title;
-      subTask.priority = TaskPriority.Medium; 
+      subTask.priority = TaskPriority.MEDIUM; 
       return subTask;
     });
     this.task = task;
-    this.title = this.task.name;
-    this.description = this.task.desc;
-    this.selectedPriority = this.task.priority;
-    this.selectedStatus = this.task.status;
-    this.selectedAssignUser = this.task.assignUser;
-    this.start_date = this.task.start_date;
-    this.finish_date = this.task.finish_date;
-    this.deadline = this.task.deadline;
+    if(resetEditableProperties) {
+      this.title = this.task.name;
+      this.description = this.task.desc;
+      this.selectedPriority = this.task.priority;
+      this.selectedAssignUser = this.task.assignUser;
+      this.start_date = this.task.start_date;
+      this.finish_date = this.task.finish_date;
+      this.deadline = this.task.deadline;
+    }
   }
 
   close() {
@@ -242,31 +252,19 @@ export class TaskDetailsComponent implements OnInit {
   save() {
     this._saveTitle();
     this._saveDescription();
-    this._saveStatus();
     this._savePriority();
     this._saveAssignTo();
     this._saveStartDate();
     this._saveFinishDate();
     this._saveDeadline();
-    this._saveTask();
+    this._saveTask(true);
   }
 
-  openSubTaskDetails(task: SubTask) {
-    this._openTaskDetails(task.task_id);
-  }
-
-  openTaskDetails(task: TaskRelation) {
-    this._openTaskDetails(task.taskId);
-  }
-
-  _openTaskDetails(taskId: number | null) {
-    const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: taskId, statuses: this.taskStatusesOptions},
-      width: '80vw',
-      height: '80vh',
-      maxWidth: '80vw',
-      maxHeight: '80vh',
-    });
+  openTaskDetails(taskId: number | null) {
+    if(taskId) {
+      this.taskId = taskId;
+      this._init();
+    }
   }
 
   onDescriptionFocus() {
@@ -447,20 +445,6 @@ export class TaskDetailsComponent implements OnInit {
     this.isStatusEditing = false;
   }
 
-  saveStatus() {
-    this._saveStatus();
-    this._saveTask();
-  }
-
-  _saveStatus() {
-    //this.statusChanged.emit({previousStatus: this.task.status!, newStatus: this.selectedStatus!});
-    this.task.status = this.selectedStatus;
-  }
-
-  cancelStatus() {
-    this.selectedStatus = this.task.status;
-  }
-
   onAddConnectedTaskInputChange() {
     const inputValue = this.searchConnectedTaskControl.value;
     if (!this.selectedConnectedTask || this.selectedConnectedTask.title !== inputValue) {
@@ -484,6 +468,13 @@ export class TaskDetailsComponent implements OnInit {
       this.isAddingSubTask = false;
       this._saveTask();
     }
+  }
+
+  deleteTask() {
+    this.http.get(`api/organization/${this.organizationId}/project/${this.projectId}/task/${this.taskId}/delete`).subscribe(() => {
+      this.serviceResultHelper.handleServiceResult({success: true, errors: ['']}, "Task deleted successfully", "Errors occured");
+      this.close();
+    });
   }
 
   addSelectedConnectedTask() {
@@ -521,9 +512,11 @@ class Task {
   start_date: Date | null = null;
   finish_date: Date | null = null;
   deadline: Date | null = null;
-  status: string | null = "Group1";
-  priority: TaskPriority = TaskPriority.Medium;
+  status: string;
+  priority: TaskPriority = TaskPriority.MEDIUM;
   parentTaskIdOrNull: number | null = null;
+  parentTaskTitleOrNull: string | null = null;
+  parentTaskPriorityOrNull: TaskPriority | null = null;
   isSubTask: boolean = false;
 
   constructor(name: string) {
@@ -572,6 +565,9 @@ interface TaskRest {
   deadlineDateOrNull: string | null;
   parentTaskIdOrNull:number | null;
   parentTaskTitleOrNull: string | null;
+  parentTaskPriorityOrNull: TaskPriority | null;
+  columnName: string | null;
+  priority: TaskPriority;
   members: TaskMemberRest[];
   subTasks: SubTaskRest[];
   taskRelations: TaskRelationRest[];

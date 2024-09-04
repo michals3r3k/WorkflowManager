@@ -77,10 +77,9 @@
 
     .name-span {
       transform: rotate(90deg);
-      transform-origin: left bottom;
       display: inline-block;
       white-space: pre;
-      margin-left: 35px;
+      margin-top: 250px;
     }
 
     .delete-btn {
@@ -121,6 +120,11 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
+
+    .parent-task-id {
+      font-size: 70%;
+      opacity: .6;
+    }
 
     .task-id {
       display: flex;

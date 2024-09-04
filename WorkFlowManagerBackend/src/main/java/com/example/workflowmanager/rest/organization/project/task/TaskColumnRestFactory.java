@@ -1,54 +1,69 @@
 package com.example.workflowmanager.rest.organization.project.task;
 
 import com.example.workflowmanager.db.organization.project.task.TaskColumnRepository;
+import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
+import com.example.workflowmanager.entity.organization.project.task.TaskPriority;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskMemberRest;
+import com.example.workflowmanager.service.utils.ObjectUtils;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class TaskColumnRestFactory
 {
     private final TaskColumnRepository taskColumnRepository;
+    private final TaskRepository taskRepository;
 
     public TaskColumnRestFactory(
-        final TaskColumnRepository taskColumnRepository)
+        final TaskColumnRepository taskColumnRepository,
+        final TaskRepository taskRepository)
     {
         this.taskColumnRepository = taskColumnRepository;
+        this.taskRepository = taskRepository;
     }
 
     public List<TaskColumnRest> getList(final Long projectId)
     {
-        return taskColumnRepository.getListByProjectIdsWithTaskMembers(
-            Collections.singleton(projectId)).stream()
-            .sorted(Comparator.comparing(TaskColumn::getColumnOrder))
-            .map(TaskColumnRestFactory::getColumnRest)
+        final Multimap<Optional<Long>, Task> columnTasksMap = Multimaps.index(
+            taskRepository.getListByProjectIds(Collections.singleton(projectId)),
+            task -> Optional.ofNullable(task.getTaskColumnId()));
+        return Stream.concat(
+            Stream.of(new TaskColumnRest(null, "", getTasksRest(columnTasksMap.get(Optional.empty())))),
+            taskColumnRepository.getListByProjectIdsWithTaskMembers(
+                Collections.singleton(projectId)).stream()
+                .sorted(Comparator.comparing(TaskColumn::getColumnOrder))
+                .map(column -> new TaskColumnRest(column.getId(), column.getName(),
+                    getTasksRest(columnTasksMap.get(Optional.of(column.getId())))))
+            )
             .collect(Collectors.toList());
     }
 
-    private static TaskColumnRest getColumnRest(final TaskColumn column)
+    private static List<TaskRest> getTasksRest(final Collection<Task> tasks)
     {
-        final Long id = column.getId();
-        final String name = column.getName();
-        final List<TaskRest> tasks = column.getTasks().stream()
-            .sorted(Comparator.comparing(Task::getId))
+        return tasks.stream()
+            .sorted(Comparator.comparing(Task::getTaskOrder))
             .map(TaskColumnRestFactory::getTaskRest)
             .collect(Collectors.toList());
-        return new TaskColumnRest(id, name, tasks);
     }
 
     private static TaskRest getTaskRest(final Task task)
     {
         final Long taskId = task.getId();
         final String title = task.getTitle();
+        final TaskPriority priority = task.getPriority();
         final List<TaskMemberRest> members = getMembers(task);
-        return new TaskRest(taskId, title, members);
+        final Task parentTaskOrNull = task.getParentTask();
+        final Long parentTaskIdOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getId);
+        final String parentTaskTitleOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getTitle);
+        return new TaskRest(taskId, title, members, priority, parentTaskIdOrNull, parentTaskTitleOrNull);
     }
 
     static List<TaskMemberRest> getMembers(final Task task)
@@ -101,13 +116,20 @@ public class TaskColumnRestFactory
         private final Long taskId;
         private final String title;
         private final List<TaskMemberRest> members;
+        private final TaskPriority priority;
+        private final Long parentTaskIdOrNull;
+        private final String parentTaskTitleOrNull;
 
         private TaskRest(final Long taskId, final String title,
-            final List<TaskMemberRest> members)
+            final List<TaskMemberRest> members, final TaskPriority priority,
+            final Long parentTaskIdOrNull, final String parentTaskTitleOrNull)
         {
             this.taskId = taskId;
             this.title = title;
             this.members = members;
+            this.priority = priority;
+            this.parentTaskIdOrNull = parentTaskIdOrNull;
+            this.parentTaskTitleOrNull = parentTaskTitleOrNull;
         }
 
         public Long getTaskId()
@@ -123,6 +145,21 @@ public class TaskColumnRestFactory
         public List<TaskMemberRest> getMembers()
         {
             return members;
+        }
+
+        public Long getParentTaskIdOrNull()
+        {
+            return parentTaskIdOrNull;
+        }
+
+        public TaskPriority getPriority()
+        {
+            return priority;
+        }
+
+        public String getParentTaskTitleOrNull()
+        {
+            return parentTaskTitleOrNull;
         }
 
     }

@@ -1,23 +1,86 @@
 
 <div class="container" [ngClass]="isSignDivVisiable ? 'active' :'' " id="container">
     <div class="form-container sign-up" >
-        <form>
+        <form [formGroup]="registerFormGroup">
             <h1>Create Account</h1>
             <span>or use your email for registeration</span>
-            <input type="text" name="name" [(ngModel)]="signUpObj.name" placeholder="Name">
-            <input type="email" name="email" [(ngModel)]="signUpObj.email" placeholder="Email">
-            <input type="password" name="password"  [(ngModel)]="signUpObj.password" placeholder="Password">
-            <button (click)="onRegister()">Sign Up</button>
+            <div class="validated-input">
+                <input type="text" formControlName="firstName" placeholder="First name">
+                <div *ngIf="registerFormGroup.get('firstName') as firstName">
+                    @if(firstName.invalid && (firstName.dirty || firstName.touched)) {
+                        <div class="error" *ngIf="firstName.hasError('required')">
+                            first name is required
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="validated-input">
+                <input type="text" formControlName="secondName" placeholder="Second name">
+                <div *ngIf="registerFormGroup.get('secondName') as secondName">
+                    @if(secondName.invalid && (secondName.dirty || secondName.touched)) {
+                        <div class="error" *ngIf="secondName.hasError('required')">
+                            second name is required
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="validated-input">
+                <input type="email" formControlName="email" placeholder="Email">
+                <div *ngIf="registerFormGroup.get('email') as email">
+                    @if(email.invalid && (email.dirty || email.touched)) {
+                        <div class="error" *ngIf="email.hasError('required')">
+                            email is required
+                        </div>
+                        <div class="error" *ngIf="email.hasError('email')">
+                            not valid email
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="validated-input">
+                <input type="password" formControlName="password" placeholder="Password">
+                <div *ngIf="registerFormGroup.get('password') as password">
+                    @if(password.invalid && (password.dirty || password.touched)) {
+                        <div class="error" *ngIf="password.hasError('required')">
+                            password is required
+                        </div>
+                    }
+                </div>
+            </div>
+            <button *ngIf="registerFormGroup.valid" (click)="onRegister()">Sign Up</button>
+            <button *ngIf="registerFormGroup.invalid" matTooltip="Form is not valid" matTooltipPosition="above">Sign Up</button>
         </form>
     </div>
-    <div class="form-container sign-in" >
-        <form>
+    <div class="form-container sign-in">
+        <form [formGroup]="loginFormGroup">
             <h1>Sign In</h1>
             <span>or use your email password</span>
-            <input type="email" name="email" [(ngModel)]="loginObj.email" placeholder="Email">
-            <input type="password" name="password"   [(ngModel)]="loginObj.password" placeholder="Password">
+            <div class="validated-input">
+                <input type="email" formControlName="email" placeholder="Email">
+                <div *ngIf="loginFormGroup.get('email') as email">
+                    @if(email.invalid && (email.dirty || email.touched)) {
+                        <div class="error" *ngIf="email.hasError('required')">
+                            email is required
+                        </div>
+                        <div class="error" *ngIf="email.hasError('email')">
+                            not valid email
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="validated-input">
+                <input type="password" formControlName="password" placeholder="Password">
+                <div *ngIf="loginFormGroup.get('password') as password">
+                    @if(password.invalid && (password.dirty || password.touched)) {
+                        <div class="error" *ngIf="password.hasError('required')">
+                            password is required
+                        </div>
+                    }
+                </div>
+            </div>
             <a href="#">→ Forget Your Password? ←</a>
-            <button (click)="onLogin()">Sign In</button>
+            <button *ngIf="loginFormGroup.valid" (click)="onLogin()">Sign In</button>
+            <button *ngIf="loginFormGroup.invalid" matTooltip="Form is not valid" matTooltipPosition="above">Sign In</button>
         </form>
     </div>
     <div class="toggle-container">

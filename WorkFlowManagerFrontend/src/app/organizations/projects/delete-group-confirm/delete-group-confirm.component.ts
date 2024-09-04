@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { TaskGroup } from '../project-details/project-details.component';
+import { TaskColumn } from '../project-details/project-details.component';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -9,10 +9,10 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 })
 export class DeleteGroupConfirmComponent implements OnInit {
 
-  group: TaskGroup;
+  group: TaskColumn;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) private data: {group: TaskGroup},
+    @Inject(MAT_DIALOG_DATA) private data: {group: TaskColumn},
     private dialogRef: MatDialogRef<DeleteGroupConfirmComponent>,
     private dialog: MatDialog) {
     this.group = data.group;

@@ -19,19 +19,24 @@ public class Task
     private String title;
     @Column(nullable = false)
     private LocalDateTime createTime;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskPriority priority;
+    @Column(nullable = false)
+    private Short taskOrder;
     private String description;
     private LocalDateTime startDate;
     private LocalDateTime finishDate;
     private LocalDateTime deadlineDate;
     @Column(name = "parent_task_id")
     private Long parentTaskId;
-    @Column(name = "task_column_id", nullable = false)
+    @Column(name = "task_column_id")
     private Long taskColumnId;
     @Column(name = "project_id", nullable = false)
     private Long projectId;
     @Column(name = "organization_id", nullable = false)
     private Long organizationId;
-    @ManyToOne(optional = false)
+    @ManyToOne()
     @JoinColumns(value = {
         @JoinColumn(name = "task_column_id", referencedColumnName = "id", insertable = false, updatable = false),
         @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false),
@@ -54,17 +59,21 @@ public class Task
     @ManyToOne(optional = false)
     private User creator;
 
-    public Task(final String title, final LocalDateTime createTime,
-        final TaskColumn taskColumn,
-        final Chat chat, User creator)
+    public Task(final String title, final LocalDateTime createTime, final Chat chat,
+        final Long organizationId, final Long projectId, final Long taskColumnId,
+        final User creator, final TaskPriority priority, final Short taskOrder)
     {
         setTitle(title);
         setCreateTime(createTime);
-        setTaskColumn(taskColumn);
         setSubTasks(new HashSet<>());
         setMembers(new HashSet<>());
+        setProjectId(projectId);
+        setOrganizationId(organizationId);
+        setTaskColumnId(taskColumnId);
         setChat(chat);
         setCreator(creator);
+        setPriority(priority);
+        setTaskOrder(taskOrder);
     }
 
     protected Task()
@@ -142,12 +151,12 @@ public class Task
         this.deadlineDate = deadlineDate;
     }
 
-    protected Long getTaskColumnId()
+    public Long getTaskColumnId()
     {
         return taskColumnId;
     }
 
-    protected void setTaskColumnId(final Long taskColumnId)
+    public void setTaskColumnId(final Long taskColumnId)
     {
         this.taskColumnId = taskColumnId;
     }
@@ -264,6 +273,27 @@ public class Task
     public void setParentTaskId(final Long parentTaskId)
     {
         this.parentTaskId = parentTaskId;
+    }
+
+    public TaskPriority getPriority()
+    {
+        return priority;
+    }
+
+    public void setPriority(
+        final TaskPriority priority)
+    {
+        this.priority = priority;
+    }
+
+    public Short getTaskOrder()
+    {
+        return taskOrder;
+    }
+
+    public void setTaskOrder(final Short taskOrder)
+    {
+        this.taskOrder = taskOrder;
     }
 
 }

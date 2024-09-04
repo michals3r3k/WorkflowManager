@@ -1,19 +1,12 @@
 import { Component, OnDestroy, OnInit, Pipe, PipeTransform } from '@angular/core';
-import {
-  CdkDragDrop,
-  CdkDrag,
-  CdkDropList,
-  CdkDropListGroup,
-  moveItemInArray,
-  transferArrayItem,
-} from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
 import { ResultToasterService } from '../../../services/result-toaster/result-toaster.service';
 import { HttpRequestService } from '../../../services/http/http-request.service';
 import { OrganizationAddComponent } from '../organization-add/organization-add.component';
 import { ActivatedRoute } from '@angular/router';
 import { TaskDetailsComponent } from '../task-details/task-details.component';
-import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-group-confirm.component';
+import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-group-confirm.component'; 
 import { AddStatusComponent } from '../add-status/add-status.component';
 import { ServiceResult } from '../../../services/utils/service-result';
 import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
@@ -25,7 +18,8 @@ import { WebsocketService } from '../../../services/websocket/websocket.service'
   styleUrl: './project-details.component.css'
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
-  taskGroups: TaskGroup[];
+  unassignedTasksColumn: TaskColumn;
+  taskColumns: TaskColumn[];
 
   projectId: number | null;
   organizationId: number | null;
@@ -35,7 +29,13 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     private serviceResultHelper: ServiceResultHelper,
     private http: HttpRequestService, private route: ActivatedRoute,
     private webSocketService: WebsocketService) {
-      this.taskGroups = [];
+      this.unassignedTasksColumn = {
+        collapsed: false,
+        name: "Unassigned tasks",
+        id: null,
+        tasks: [],
+      };
+      this.taskColumns = [];
   }
 
   // Prevent inside clicks from triggering the outside click listener
@@ -63,23 +63,40 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     this.http.getGeneric<TaskColumnRest[]>(`api/organization/${this.organizationId}/project/${this.projectId}/task/columns`).subscribe(taskColumnsRest => {
-      this.taskGroups = taskColumnsRest.map(taskColumnRest => this._getTaskGroup(taskColumnRest));
+      this.unassignedTasksColumn.tasks = this._getTasks(taskColumnsRest
+        .filter(taskColumnRest => !taskColumnRest.id)
+        .map(taskColumnRest => taskColumnRest.tasks)[0] || []);
+      this.taskColumns = taskColumnsRest
+        .filter(taskColumnRest => taskColumnRest.id)
+        .map(taskColumnRest => this._getTaskColumn(taskColumnRest));
     });
   }
 
-  _getTaskGroup(taskColumnRest: TaskColumnRest): TaskGroup {
-    const tasks: Task[] = taskColumnRest.tasks.map(taskRest => {
+  _getTaskColumn(taskColumnRest: TaskColumnRest): TaskColumn {
+    const tasks: Task[] = this._getTasks(taskColumnRest.tasks);
+    const column = new TaskColumn();
+    column.id = taskColumnRest.id;
+    column.collapsed = false;
+    column.name = taskColumnRest.name;
+    column.tasks = tasks;
+    return column;
+  }
+
+  _getTasks(tasks: TaskRest[]): Task[] {
+    return tasks.map(taskRest => {
       const task = new Task(taskRest.title);
-      task.status = taskColumnRest.name;
       task.taskId = taskRest.taskId;
+      task.priority = taskRest.priority;
+      task.parentTaskIdOrNull = taskRest.parentTaskIdOrNull;
+      task.parentTaskTitleOrNull = taskRest.parentTaskTitleOrNull;
+      if(taskRest.members.length !== 0) {
+        const taskMember: TaskMemberRest = taskRest.members[0];
+        const user = new User(taskMember.email);
+        user.userId = taskMember.userId;
+        task.assignUser = user;
+      }
       return task;
-    });  
-    const group = new TaskGroup();
-    group.id = taskColumnRest.id;
-    group.collapsed = false;
-    group.groupName = taskColumnRest.name;
-    group.tasks = tasks;
-    return group;
+    });
   }
 
   loadProject() {
@@ -89,6 +106,9 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   dropTask(event: CdkDragDrop<Task[]>) {
+    if(event.previousContainer === event.container && event.previousIndex === event.currentIndex) {
+      return;
+    }
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -98,18 +118,34 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         event.previousIndex,
         event.currentIndex,
       );
-
-      //TODO - podmienić status po stronie serwera
-      event.container.data[event.currentIndex].status = this.taskGroups.find(tg => tg.tasks === event.container.data)?.groupName ?? "";
     }
+    const taskOrderList: {taskId: number, taskColumnId: number | null, order: number}[] = [];
+    const taskColumns = [this.unassignedTasksColumn, ...this.taskColumns];
+    for(let i = 0; i < taskColumns.length; ++i) {
+      const taskColumn = taskColumns[i];
+      for(let j = 0; j < taskColumn.tasks.length; ++j) {
+        const task = taskColumn.tasks[j];
+        taskOrderList.push({
+          taskId: task.taskId,
+          taskColumnId: taskColumn.id,
+          order: j
+        });
+      }
+    }
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/change-task-order`, taskOrderList).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Task moved succesfully", "Errors occured");
+      if(!res.success) {
+        this.loadTasks();
+      }
+    });
   }
 
-  dropGroup(event: CdkDragDrop<TaskGroup[]>) {
+  dropGroup(event: CdkDragDrop<TaskColumn[]>) {
     if(event.previousIndex === event.currentIndex) {
       return;
     }
     moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    const columnOrderList: {taskColumnId: number, order: number}[] = [];
+    const columnOrderList: {taskColumnId: number | null, order: number}[] = [];
     const data = event.container.data;
     for(let i = 0; i < data.length; ++i) {
       columnOrderList.push({
@@ -122,7 +158,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       if(!res.success) {
         this.loadTasks();
       }
-    })
+    });
   }
 
   _loadOrganizations() {
@@ -156,7 +192,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   openTaskDetails(task: Task) {
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: task.taskId, statuses: this.taskGroups.map(g => g.groupName)},
+      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: task.taskId},
       width: '80vw',
       height: '80vh',
       maxWidth: '80vw',
@@ -165,30 +201,24 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       this.loadTasks();
-      // const previousGroup = this.taskGroups.find(g => g.tasks.some(t => t === task))
-      // if (previousGroup) {
-      //   previousGroup.tasks = previousGroup.tasks.filter(t => t !== task);
-      // }
-      // const newGroup = this.taskGroups.find(g => g.groupName.toLowerCase() === task.status?.toLowerCase())
-      // newGroup?.tasks.push(task);
     });
   }
 
-  collapseOpenGroup(group: TaskGroup) {
-    group.collapsed = !group.collapsed;
+  collapseOpenGroup(column: TaskColumn) {
+    column.collapsed = !column.collapsed;
   }
 
-  deleteGroup(group: TaskGroup) {
-    if (this.taskGroups.length === 1) {
+  deleteColumn(column: TaskColumn) {
+    if (this.taskColumns.length === 1) {
       this.resultToaster.info("You can not delete all statuses.");
       return;
     }
-    if (group.tasks.length > 0) {
+    if (column.tasks.length > 0) {
       this.resultToaster.info("You can not delete status with tasks.");
       return;
     }
     const dialogRef = this.dialog.open(DeleteGroupConfirmComponent, {
-      data: {group: group},
+      data: {group: column},
       width: '250px',
       height: '150px',
     });
@@ -197,10 +227,10 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         return;
       }
       if (result) {
-        this.http.getGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/${group.id}/delete`).subscribe(res => {
+        this.http.getGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/${column.id}/delete`).subscribe(res => {
           this.serviceResultHelper.handleServiceResult(res, "Column deleted successfully", "Errors occured");
           if(res.success) {
-            this.taskGroups = this.taskGroups.filter(g => g !== group);
+            this.taskColumns = this.taskColumns.filter(g => g !== column);
           }
         });
       }
@@ -220,13 +250,12 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onAddTaskClicked(taskTitle: string, group: TaskGroup) {
-    this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: group.id}).subscribe(res => {
+  onAddTaskClicked(taskTitle: string, column: TaskColumn) {
+    this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: column.id}).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
       this.loadTasks();
     });
   }
-
 
   edit(project: any) {
     console.log(project);
@@ -242,7 +271,10 @@ interface TaskMemberRest {
 interface TaskRest {
   taskId: number;
   title: string;
-  members: TaskMemberRest[];
+  members: TaskMemberRest[],
+  priority: TaskPriority,
+  parentTaskIdOrNull: number | null,
+  parentTaskTitleOrNull: string | null,
 }
 
 interface TaskColumnRest {
@@ -251,9 +283,9 @@ interface TaskColumnRest {
   tasks: TaskRest[];
 }
 
-export class TaskGroup {
-  id: number;
-  groupName: string = "";
+export class TaskColumn {
+  id: number | null;
+  name: string = "";
   tasks: Task[] = [];
   collapsed: boolean = false;
 }
@@ -262,7 +294,9 @@ class Task {
   taskId: number;
   title: string;
   assignUser: User | null = null;
-  status: string | null = "Group1";
+  priority: TaskPriority;
+  parentTaskIdOrNull: number | null;
+  parentTaskTitleOrNull: string | null;
 
   constructor(name: string) {
     this.title = name;
@@ -270,10 +304,11 @@ class Task {
 }
 
 export enum TaskPriority {
-  Low = "Low",
-  Medium = "Medium",
-  High = "High",
-  Highest = "Highest"
+  VERY_LOW = "VERY_LOW",
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  VERY_HIGH = "VERY_HIGH"
 }
 
 class User {

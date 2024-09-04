@@ -7,12 +7,14 @@ import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.OrganizationMember;
 import com.example.workflowmanager.entity.organization.OrganizationMemberInvitationStatus;
 import com.example.workflowmanager.entity.organization.project.task.Task;
+import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskRest;
 import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.task.TaskDeleteService;
 import com.example.workflowmanager.service.task.TaskEditService;
 import com.example.workflowmanager.service.task.TaskEditService.TaskEditServiceResult;
+import com.example.workflowmanager.service.utils.ObjectUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -99,7 +101,7 @@ public class TaskController
         @PathVariable Long projectId, @RequestBody TaskRest task)
     {
         final User user = currentUserService.getCurrentUser().orElseThrow();
-        return ResponseEntity.ok(taskEditService.save(projectId, task, user));
+        return ResponseEntity.ok(taskEditService.save(organizationId, projectId, task, user));
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/{taskId}")
@@ -112,7 +114,7 @@ public class TaskController
 
     public static class TaskMemberOptionRest
     {
-        private User user;
+        private final User user;
 
         private TaskMemberOptionRest(User user)
         {
@@ -152,7 +154,7 @@ public class TaskController
 
         public String getColumnName()
         {
-            return task.getTaskColumn().getName();
+            return ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getName);
         }
 
     }

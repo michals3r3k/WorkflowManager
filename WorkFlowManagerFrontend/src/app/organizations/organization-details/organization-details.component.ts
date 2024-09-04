@@ -9,6 +9,8 @@ import { RoleCreateComponent } from '../role-create/role-create.component';
 import { PermissionService } from '../../services/permission/permission.service';
 import { ServiceResult } from '../../services/utils/service-result';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
+import { OrderCreateComponent } from '../../orders-list/order-create/order-create.component';
+import { ProjectCreateComponent } from '../projects/project-create/project-create.component';
 
 @Component({
   selector: 'app-organization-details',
@@ -26,8 +28,14 @@ export class OrganizationDetailsComponent implements OnInit {
   searchRole: string = ""; 
 
   projectR: boolean = false;
+  projectC: boolean = false;
   memberR: boolean = false;
+  memberU: boolean = false;
   roleR: boolean = false;
+  roleU: boolean = false;
+  orderR: boolean = false;
+  orderU: boolean = false;
+  orderSettingsU: boolean = false;
 
   constructor(private route: ActivatedRoute, private http: HttpRequestService,
     private serviceResultHelper: ServiceResultHelper,
@@ -39,17 +47,23 @@ export class OrganizationDetailsComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const idParam = params.get("id"); 
       this.organizationId = idParam == null ? null: +idParam;
-      this.permissionService.getPermissions(this.organizationId).subscribe(res => {
-        let permissions = new Set(res);
-        this.projectR = permissions.has("PROJECT_R");
-        this.memberR = permissions.has("ORGANIZATION_MEMBER_R");
-        this.roleR = permissions.has("ROLE_R");
+      this.permissionService.getPermissionChecker().subscribe(permissionChecker => {
+        this.projectR = permissionChecker.hasPermission(this.organizationId, "PROJECT_R");
+        this.projectC = permissionChecker.hasPermission(this.organizationId, "PROJECT_C");
+        this.memberR = permissionChecker.hasPermission(this.organizationId, "ORGANIZATION_MEMBER_R");
+        this.memberU = permissionChecker.hasPermission(this.organizationId, "ORGANIZATION_MEMBER_U");
+        this.roleR = permissionChecker.hasPermission(this.organizationId, "ROLE_R");
+        this.roleU = permissionChecker.hasPermission(this.organizationId, "ROLE_U");
+        this.orderR = permissionChecker.hasPermission(this.organizationId, "ORDER_R");
+        this.orderU = permissionChecker.hasPermission(this.organizationId, "ORDER_U");
+        this.orderSettingsU = permissionChecker.hasPermission(this.organizationId, "ORDER_SETTINGS_U");
+        
+        this.http.get("api/organization/" + this.organizationId).subscribe((res) => {
+          this.organization = res;
+        });
+        this.loadMembers();
+        this.loadRoles();
       });
-      this.http.get("api/organization/" + this.organizationId).subscribe((res) => {
-        this.organization = res;
-      })
-      this.loadMembers();
-      this.loadRoles();
     })
   }
 
@@ -104,6 +118,24 @@ export class OrganizationDetailsComponent implements OnInit {
       this.serviceResultHelper.handleServiceResult(res, "Member deleted succesfully", "Errors occured");
       this.loadMembers();
     })
+  }
+
+  openProjectCreateDialog() {
+    const dialogRef = this.dialog.open(ProjectCreateComponent, {
+      data: {organizationId: this.organizationId}
+    });
+    dialogRef.componentInstance.onSuccess.subscribe(() => {
+      dialogRef.close();
+    })
+  }
+
+  openOrderCreateDialog() {
+    const dialogRef = this.dialog.open(OrderCreateComponent, {
+      data: {organizationId: this.organizationId}
+    });
+    dialogRef.componentInstance.afterSendReport.subscribe(() => {
+      dialogRef.close();
+    });
   }
 
 }

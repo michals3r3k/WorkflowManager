@@ -40,13 +40,4 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     );
   }
 
-  openCreateDialog() {
-    const dialogRef = this.dialog.open(ProjectCreateComponent, {
-      data: {organizationId: this.organizationId}
-    });
-    dialogRef.componentInstance.onSuccess.subscribe(() => {
-      dialogRef.close();
-    })
-  }
-
 }

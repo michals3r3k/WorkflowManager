@@ -37,7 +37,7 @@ public class OrganizationRoleController
 
     @PostMapping("/api/organization/{organizationId}/role/create")
     @Transactional
-    @PreAuthorize("hasAuthority('ROLE_C')")
+    @PreAuthorize("hasAuthority('ROLE_U')")
     public ResponseEntity<RestServiceResult> addRole(
         @PathVariable Long organizationId, @RequestBody String role)
     {
@@ -92,7 +92,7 @@ public class OrganizationRoleController
 
     @GetMapping("/api/organization/{organizationId}/role/{role}/delete")
     @Transactional
-    @PreAuthorize("hasAuthority('ROLE_D')")
+    @PreAuthorize("hasAuthority('ROLE_U')")
     public ResponseEntity<RestServiceResult> deleteRole(@PathVariable Long organizationId,
         @PathVariable String role)
     {

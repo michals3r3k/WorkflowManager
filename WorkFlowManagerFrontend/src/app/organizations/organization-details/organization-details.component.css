@@ -49,3 +49,7 @@
 .roles-item-btn:hover {
     background: #9993;
 }
+
+.buttons button {
+    margin-right: 1em;
+}

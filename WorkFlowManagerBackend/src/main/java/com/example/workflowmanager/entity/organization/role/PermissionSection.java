@@ -5,5 +5,6 @@ public enum PermissionSection
     ORGANIZATION,
     MEMBER,
     ROLE,
-    PROJECT;
+    PROJECT,
+    ORDER
 }

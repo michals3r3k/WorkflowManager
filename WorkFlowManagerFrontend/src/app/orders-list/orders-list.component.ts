@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { OrderCreateComponent } from './order-create/order-create.component';
 import { OrganizationIssueDialogComponent } from './organization-issue-dialog/organization-issue-dialog.component';
 import { IssueRest, IssueService } from '../services/issue/issue.service';
+import { IssueFormService } from '../services/issue/issue-form.service';
 
 @Component({
   selector: 'app-orders',
@@ -15,26 +15,20 @@ export class OrdersListComponent implements OnInit {
   clientsIssues: IssueRest[];
 
   constructor(private dialog: MatDialog,
-    private issueService: IssueService) { }
+    private issueService: IssueService,
+    private issueFormService: IssueFormService) { }
 
   ngOnInit() {
     this._loadIssues();
+    this.issueFormService.getIssueChangeEvent().subscribe(() => {
+      this._loadIssues();
+    });
   }
 
   _loadIssues() {
     this.issueService.getOrganizationIssues(this.organizationId).subscribe(issues => {
       this.myIssues = issues.filter(issue => !issue.fromClient);
       this.clientsIssues = issues.filter(issue => issue.fromClient);
-    });
-  }
-
-  openAddOrderDialog() {
-    const dialogRef = this.dialog.open(OrderCreateComponent, {
-      data: {organizationId: this.organizationId}
-    });
-    dialogRef.componentInstance.afterSendReport.subscribe(() => {
-      this._loadIssues();
-      dialogRef.close();
     });
   }
 

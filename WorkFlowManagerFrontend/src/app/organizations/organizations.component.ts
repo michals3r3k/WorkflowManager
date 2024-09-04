@@ -4,7 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ResultToasterService } from '../services/result-toaster/result-toaster.service';
 import { HttpRequestService } from '../services/http/http-request.service';
-import { Observable } from 'rxjs';
+import { combineLatest, filter, map, Observable } from 'rxjs';
+import { PermissionChecker, PermissionService } from '../services/permission/permission.service';
 
 @Component({
   selector: 'app-organizations',
@@ -12,20 +13,29 @@ import { Observable } from 'rxjs';
   styleUrl: './organizations.component.css'
 })
 export class OrganizationsComponent implements OnInit{
-  constructor(private dialog: MatDialog, private resultToaster: ResultToasterService,
-    private http: HttpRequestService) {
+
+  constructor(private dialog: MatDialog, 
+    private resultToaster: ResultToasterService,
+    private http: HttpRequestService,
+    private permissionService: PermissionService) {
     // itentionally empty
   }
 
-  organizations$: Observable<any[]>;
-
-  _loadOrganizations() {
-    this.http.get("api/organization/list");
-    this.organizations$ = this.http.get("api/organization/list");
-  }
+  organizations$: Observable<OrganizationRest[]>;
 
   ngOnInit(): void {
     this._loadOrganizations();
+  }
+
+  _loadOrganizations() {
+    this.organizations$ = combineLatest([this.permissionService.getPermissionChecker(), this._getOrganizations()])
+      .pipe(map(([permissionChecker, organizations]) => {
+        return organizations.filter(organization => permissionChecker.hasPermission(organization.id, "ORGANIZATION_R"));
+      }));
+  }
+
+  _getOrganizations(): Observable<OrganizationRest[]> {
+    return this.http.getGeneric<OrganizationRest[]>("api/organization/list");
   }
 
   openCreateDialog() {
@@ -38,4 +48,10 @@ export class OrganizationsComponent implements OnInit{
     })
   }
 
+}
+
+interface OrganizationRest {
+  name: string,
+  id: number,
+  description: string,
 }

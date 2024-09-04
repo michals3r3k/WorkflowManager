@@ -209,10 +209,6 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   deleteColumn(column: TaskColumn) {
-    if (this.taskColumns.length === 1) {
-      this.resultToaster.info("You can not delete all statuses.");
-      return;
-    }
     if (column.tasks.length > 0) {
       this.resultToaster.info("You can not delete status with tasks.");
       return;

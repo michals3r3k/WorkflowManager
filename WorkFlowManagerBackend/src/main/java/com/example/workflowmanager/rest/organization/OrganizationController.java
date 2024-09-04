@@ -3,20 +3,21 @@ package com.example.workflowmanager.rest.organization;
 import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
 import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.entity.organization.Organization;
-import com.example.workflowmanager.entity.organization.OrganizationMember;
-import com.example.workflowmanager.entity.organization.OrganizationMemberInvitationStatus;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.organization.OrganizationService;
 import com.example.workflowmanager.service.organization.OrganizationService.OrganizationServiceResult;
+import com.example.workflowmanager.service.organization.UserOrganizationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @CrossOrigin
 @RestController
@@ -26,16 +27,19 @@ public class OrganizationController
     private final OrganizationService organizationService;
     private final OrganizationMemberRepository organizationMemberRepository;
     private final CurrentUserService currentUserService;
+    private final UserOrganizationService userOrganizationService;
 
-    public OrganizationController(OrganizationRepository organizationRepository,
-        OrganizationService organizationService,
-        OrganizationMemberRepository organizationMemberRepository,
-        CurrentUserService currentUserService)
+    public OrganizationController(final OrganizationRepository organizationRepository,
+        final OrganizationService organizationService,
+        final OrganizationMemberRepository organizationMemberRepository,
+        final CurrentUserService currentUserService,
+        final UserOrganizationService userOrganizationService)
     {
         this.organizationRepository = organizationRepository;
         this.organizationService = organizationService;
         this.organizationMemberRepository = organizationMemberRepository;
         this.currentUserService = currentUserService;
+        this.userOrganizationService = userOrganizationService;
     }
 
     @PostMapping("/api/organization/create")
@@ -54,22 +58,11 @@ public class OrganizationController
     {
         final Optional<Long> userId = currentUserService.getCurrentUser()
             .map(User::getId);
-        final Optional<Set<Long>> userIds = userId.map(Collections::singleton);
-        final Stream<Organization> organizationsMember = userIds
-            .map(userIdColl -> organizationMemberRepository.getListByUserIdsWithOrganization(
-                userIdColl, Collections.singleton(OrganizationMemberInvitationStatus.ACCEPTED)))
-            .orElse(Collections.emptyList())
+        final List<OrganizationRest> organizations = userOrganizationService
+            .getSet(userId.map(Collections::singleton).orElse(Collections.emptySet()))
             .stream()
-            .map(OrganizationMember::getOrganization);
-        final Stream<Organization> organizationsOwner = userIds
-            .map(organizationRepository::getListByUserIds).stream()
-            .flatMap(Collection::stream);
-        List<OrganizationRest> organizations = Stream
-            .concat(organizationsOwner, organizationsMember)
-            .distinct()
             .map(organization -> new OrganizationRest(userId.orElse(null), organization))
-            .sorted(Comparator.comparing(OrganizationRest::getName,
-                Comparator.naturalOrder()))
+            .sorted(Comparator.comparing(OrganizationRest::getName, Comparator.naturalOrder()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(organizations);
     }

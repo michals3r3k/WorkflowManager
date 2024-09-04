@@ -1,19 +1,20 @@
 package com.example.workflowmanager.rest.login;
 
+import com.example.workflowmanager.entity.organization.role.Permission;
 import com.example.workflowmanager.service.auth.UserPermissionService;
 import com.example.workflowmanager.service.auth.jwt.JwtService;
 import com.example.workflowmanager.service.login.LoginService;
 import com.example.workflowmanager.service.login.LoginService.LoginServiceResult;
 import com.example.workflowmanager.service.login.RegisterService;
 import com.example.workflowmanager.service.login.RegisterService.RegisterServiceResult;
+import com.google.common.collect.Maps;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CrossOrigin
@@ -58,15 +59,14 @@ public class LoginController
         return ResponseEntity.ok(registerResult);
     }
 
-    @PostMapping("api/permissions")
+    @GetMapping("api/permissions")
     @Transactional
-    public ResponseEntity<List<String>> getPermissions(@RequestBody PermissionsRequest request)
+    public ResponseEntity<Map<Long, List<String>>> getPermissions()
     {
-        final List<String> permissions = permissionService
-            .getCurrentUserPermissions(request.getOrganizationId()).stream()
-            .map(Enum::name)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(permissions);
+        final Map<Long, Collection<Permission>> permissionMap = permissionService.getCurrentUserPermissions();
+        return ResponseEntity.ok(Maps.transformValues(permissionMap, permissions -> permissions.stream()
+            .map(Permission::name)
+            .collect(Collectors.toList())));
     }
 
     public static class PermissionsRequest

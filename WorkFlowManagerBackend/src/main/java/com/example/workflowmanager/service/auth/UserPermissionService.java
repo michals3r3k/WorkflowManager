@@ -1,5 +1,6 @@
 package com.example.workflowmanager.service.auth;
 
+import com.example.workflowmanager.db.organization.OrganizationMemberRepository;
 import com.example.workflowmanager.db.organization.OrganizationRepository;
 import com.example.workflowmanager.db.organization.role.OrganizationMemberRoleRepository;
 import com.example.workflowmanager.db.organization.role.OrganizationPermissionRepository;
@@ -9,16 +10,16 @@ import com.example.workflowmanager.entity.organization.role.OrganizationPermissi
 import com.example.workflowmanager.entity.organization.role.OrganizationRoleId;
 import com.example.workflowmanager.entity.organization.role.Permission;
 import com.example.workflowmanager.entity.user.User;
+import com.example.workflowmanager.service.organization.UserOrganizationService;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,25 +29,41 @@ public class UserPermissionService
     private final OrganizationRepository oRepository;
     private final OrganizationMemberRoleRepository omrRepository;
     private final OrganizationPermissionRepository opRepository;
+    private final UserOrganizationService userOrganizationService;
 
     public UserPermissionService(
-        CurrentUserService cuService,
-        OrganizationRepository oRepository,
-        OrganizationMemberRoleRepository omrRepository,
-        OrganizationPermissionRepository opRepository)
+        final CurrentUserService cuService,
+        final OrganizationRepository oRepository,
+        final OrganizationMemberRepository omRepository,
+        final OrganizationMemberRoleRepository omrRepository,
+        final OrganizationPermissionRepository opRepository,
+        final UserOrganizationService userOrganizationService)
     {
         this.cuService = cuService;
         this.oRepository = oRepository;
         this.omrRepository = omrRepository;
         this.opRepository = opRepository;
+        this.userOrganizationService = userOrganizationService;
     }
 
-    public Set<Permission> getCurrentUserPermissions(Long organizationId)
+    public Map<Long, Collection<Permission>> getCurrentUserPermissions()
     {
-        return cuService.getCurrentUser()
+        final Long userId = cuService.getCurrentUser()
             .map(User::getId)
-            .map(userId -> getPermissions(userId, organizationId))
-            .orElseGet(Collections::emptySet);
+            .orElse(null);
+        if(userId == null)
+        {
+            return Collections.emptyMap();
+        }
+        final ListMultimap<Long, Permission> result = ArrayListMultimap.create();
+        for(final Organization organization : userOrganizationService.getSet(Collections.singleton(userId)))
+        {
+            final Long organizationId = organization.getId();
+            final Set<Permission> permissions = getPermissions(userId,
+                organizationId);
+            result.putAll(organizationId, permissions);
+        }
+        return result.asMap();
     }
 
     Set<GrantedAuthority> getAuthorities(Long userId, Long organizationIdOrNull)

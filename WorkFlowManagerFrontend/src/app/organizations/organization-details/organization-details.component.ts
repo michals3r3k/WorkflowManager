@@ -39,17 +39,17 @@ export class OrganizationDetailsComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const idParam = params.get("id"); 
       this.organizationId = idParam == null ? null: +idParam;
-      this.permissionService.getPermissions(this.organizationId).subscribe(res => {
-        let permissions = new Set(res);
-        this.projectR = permissions.has("PROJECT_R");
-        this.memberR = permissions.has("ORGANIZATION_MEMBER_R");
-        this.roleR = permissions.has("ROLE_R");
+      this.permissionService.getPermissionChecker().subscribe(permissionChecker => {
+        this.projectR = permissionChecker.hasPermission(this.organizationId, "PROJECT_R");
+        this.memberR = permissionChecker.hasPermission(this.organizationId, "ORGANIZATION_MEMBER_R");
+        this.roleR = permissionChecker.hasPermission(this.organizationId, "ROLE_R");
+        
+        this.http.get("api/organization/" + this.organizationId).subscribe((res) => {
+          this.organization = res;
+        });
+        this.loadMembers();
+        this.loadRoles();
       });
-      this.http.get("api/organization/" + this.organizationId).subscribe((res) => {
-        this.organization = res;
-      })
-      this.loadMembers();
-      this.loadRoles();
     })
   }
 

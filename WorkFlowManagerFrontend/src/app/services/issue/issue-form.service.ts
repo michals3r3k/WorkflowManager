@@ -31,7 +31,12 @@ export class IssueFormService {
 
 }
 
+// TODO - do obsłużenia id, description, category i status
 export interface IssueFormRest {
   title: string | null,
+  id: string | null,
+  description: string | null,
+  category: string | null,
+  status: string | null,
   fields: IssueFieldEditRest[]
 }

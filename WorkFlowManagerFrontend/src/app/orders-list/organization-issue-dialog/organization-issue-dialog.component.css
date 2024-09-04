@@ -4,11 +4,14 @@
     display: flex;
     flex-direction: row;
     gap: 10px;
+    max-height: 80vh;
 }
 
 .fields-container {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 600px;
 
     .header {
         display: flex;
@@ -99,6 +102,40 @@
          }
     }
 
+    .category-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 5px;
+        gap: 5px;
+
+        span {
+            margin-left: 5px;
+        }
+
+        select {
+            flex: 1;
+            padding: 9px;
+            border-radius: 10px;
+            font-size: 14px;
+            border: 2px solid rgb(177, 177, 177);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: transparent;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position-x: 100%;
+            background-position-y: 5px;
+            padding-right: 30px; 
+
+            &:focus {
+                border: 2px solid rgb(35, 115, 236);
+                outline: none;
+            }
+        }
+    }
+
     .status-container {
         display: flex;
         flex-direction: row;
@@ -111,6 +148,7 @@
         }
 
         select {
+            flex: 1;
             padding: 9px;
             border-radius: 10px;
             font-size: 14px;

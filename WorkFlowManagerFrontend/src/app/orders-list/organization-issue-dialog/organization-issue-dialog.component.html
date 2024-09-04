@@ -1,35 +1,18 @@
 <div class="container">
     <div class="fields-container">
         <div *ngIf="issue$ | async as issue">
-            <div class="header">
-                <img src="../../../../../assets/images/issue-icon.png"/>
-                <h1 class>#{{issue.id}} | {{issue.title}}</h1>
-                <button class="save-btn" (click)="save()">
-                    <mat-icon>save</mat-icon>
-                </button>
-            </div>
-    
+            <button class="save-btn" (click)="switchToEditMode()" *ngIf="!editMode && !readOnly">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button class="save-btn" (click)="saveChanges()" *ngIf="editMode && !readOnly">
+                <mat-icon>save</mat-icon>
+            </button>
+           
             <div class="organization">
                 <span>Organization: {{readOnly ? issue.destinationOrganizationName: issue.sourceOrganizationName}}</span>
             </div>
     
-            <div class="description-container">
-                <span>Description</span>
-                <div class="description">
-                    <p [innerHTML]="issue.title | newline"></p>
-                </div>
-            </div>
-
-            <div class="status-container">
-                <span>Status:</span>
-                <select required [(ngModel)]="issue.status">
-                    <option *ngFor="let option of issueStatusOptions" [value]="option">
-                        {{ option }}
-                    </option>
-                </select>
-            </div>
-    
-            <issue-form [issueForm]="issue.form"/>
+            <issue-form [issueForm]="issue.form" [issueFormGroup]="formGroup" [editMode]="editMode"/>
     
             <div class="project-container" *ngIf="!readOnly">
                 <span>Connected project</span>

@@ -1,5 +1,5 @@
 <div class="container">
-    @if(issueFormGroup) {
+    @if(issueFormGroup && editMode) {
         <mat-form-field *ngIf="field.type == 'TEXT'">
             <mat-label>{{field.name}}</mat-label>
             <input matInput [formControl]="valueControl">

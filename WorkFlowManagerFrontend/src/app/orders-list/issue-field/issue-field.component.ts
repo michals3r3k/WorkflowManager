@@ -10,6 +10,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class IssueFieldComponent implements OnInit {
   @Input() field: IssueFieldEditRest;
   @Input() issueFormGroup?: FormGroup;
+  @Input() editMode: boolean;
 
   valueControl: FormControl;
 

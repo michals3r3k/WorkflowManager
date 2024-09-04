@@ -2,7 +2,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ServiceResult } from '../../services/utils/service-result';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 import { ProjectCreateModel, ProjectService } from '../../services/project/project.service';
@@ -16,6 +16,9 @@ import { Router } from '@angular/router';
   styleUrl: './organization-issue-dialog.component.css'
 })
 export class OrganizationIssueDialogComponent implements OnInit{
+  formGroup :FormGroup | undefined = undefined;
+  editMode: boolean = false;
+
   organizationId: number;
   issueId: number;
   readOnly?: boolean;
@@ -31,6 +34,7 @@ export class OrganizationIssueDialogComponent implements OnInit{
   @Output() closeDialog = new EventEmitter<null>();
 
   issueStatusOptions: string[] = ["New", "In progress", "Completed"]
+  issueCategoryOptions :string[] = ["App", "Error", "Service"]
   
   constructor(private http: HttpRequestService, 
     private serviceResultHelper: ServiceResultHelper,
@@ -47,6 +51,7 @@ export class OrganizationIssueDialogComponent implements OnInit{
     this.organizationId = data.organizationId;
     this.issueId = data.issueId;
     this.readOnly = data.readOnly;
+    this.formGroup = new FormGroup({});
 
     if(!this.readOnly) { // if organizationId is passed, then show project form
       projectService.getOwned(this.organizationId).subscribe(projects => {
@@ -108,8 +113,13 @@ export class OrganizationIssueDialogComponent implements OnInit{
     // });
   }
 
-  save() {
+  switchToEditMode() {
+    this.editMode = true;
+  }
+
+  saveChanges() {
     // SAVE TASK LOGIC
+    this.editMode = false;
   }
 
   close() {

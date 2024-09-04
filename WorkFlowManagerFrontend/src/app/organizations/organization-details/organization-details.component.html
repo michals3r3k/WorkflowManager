@@ -13,7 +13,7 @@
         </mat-form-field>
       </div>
 
-      <button class="add-btn" mat-flat-button color="primary" (click)="openAddUserDialg()">
+      <button class="add-btn" mat-flat-button color="primary" (click)="openAddUserDialg()" *ngIf="memberU">
         <span>Add user</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
@@ -22,7 +22,10 @@
         <mat-list-item *ngFor="let member of members | filter: searchUser">
           <div style="display: flex; justify-content: space-between;">
             <div>{{member.name}}</div> 
-            <member-delete-button [status]="member.invitationStatus" (click)="deleteMember(member)"/>
+            <member-delete-button [status]="member.invitationStatus" (click)="deleteMember(member)" *ngIf="memberU"/>
+            <div *ngIf="!memberU">
+              {{member.invitationStatus}}
+            </div>
           </div>
         </mat-list-item>
 
@@ -38,7 +41,7 @@
         </mat-form-field>
       </div>
 
-      <button class="add-btn" (click)="openAddRoleDialog()" mat-flat-button color="primary">
+      <button class="add-btn" (click)="openAddRoleDialog()" mat-flat-button color="primary" *ngIf="roleU">
         <span>Create role</span>
         <mat-icon matSuffix>add</mat-icon>
       </button>
@@ -46,8 +49,8 @@
       <mat-list class="roles-list" *ngIf="roles$ | async as roles">
         <mat-list-item *ngFor="let role of roles | filter: searchRole">
           <div class="roles-item">
-            <span matListItemTitle>{{role.name}}</span>
-            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role.name)">
+            <div>{{role.name}}</div>
+            <button class="roles-item-btn" (click)="openRoleSettingsDialog(role.name)" *ngIf="roleU">
               <div style="display: flex; justify-content: center; align-items: center;">
               <mat-icon>menu</mat-icon>
               </div>
@@ -57,10 +60,20 @@
       </mat-list>
     </div>
   </div>
-  <button mat-flat-button color="primary" [routerLink]="['/order', organizationId]">
-    <mat-icon>settings</mat-icon>
-    Settings
-  </button>
+  <div class="buttons">
+    <button mat-flat-button color="primary" *ngIf="orderSettingsU" [routerLink]="['/order', organizationId]">
+      <mat-icon>settings</mat-icon>
+      Settings
+    </button>
+    <button mat-flat-button color="primary" *ngIf="projectC" (click)="openProjectCreateDialog()">
+        <mat-icon>rocket_launch</mat-icon>
+        Add new project
+    </button>
+    <button mat-flat-button color="primary" *ngIf="orderU" (click)="openOrderCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Create order
+    </button>
+  </div>
   <app-projects *ngIf="organizationId && projectR" [organizationId]="organizationId"/>
-  <app-orders *ngIf="organizationId" [organizationId]="organizationId"/>
+  <app-orders *ngIf="organizationId && orderR" [organizationId]="organizationId"/>
 </div>

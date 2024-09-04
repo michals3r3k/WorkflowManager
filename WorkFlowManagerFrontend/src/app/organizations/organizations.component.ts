@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ResultToasterService } from '../services/result-toaster/result-toaster.service';
 import { HttpRequestService } from '../services/http/http-request.service';
-import { filter, map, Observable } from 'rxjs';
+import { combineLatest, filter, map, Observable } from 'rxjs';
 import { PermissionChecker, PermissionService } from '../services/permission/permission.service';
 
 @Component({
@@ -24,18 +24,18 @@ export class OrganizationsComponent implements OnInit{
   organizations$: Observable<OrganizationRest[]>;
 
   ngOnInit(): void {
-    this.permissionService.getPermissionChecker().subscribe(permissionChecker => {
-      this.permissionChecker = permissionChecker;
-      this._loadOrganizations();
-    });
+    this._loadOrganizations();
   }
 
-  permissionChecker?: PermissionChecker;
-
   _loadOrganizations() {
-    this.http.get("api/organization/list");
-    this.organizations$ = this.http.getGeneric<OrganizationRest[]>("api/organization/list")
-      .pipe(map(organizations => organizations.filter(organization => this.permissionChecker?.hasPermission(organization.id, "ORGANIZATION_R"))));
+    this.organizations$ = combineLatest([this.permissionService.getPermissionChecker(), this._getOrganizations()])
+      .pipe(map(([permissionChecker, organizations]) => {
+        return organizations.filter(organization => permissionChecker.hasPermission(organization.id, "ORGANIZATION_R"));
+      }));
+  }
+
+  _getOrganizations(): Observable<OrganizationRest[]> {
+    return this.http.getGeneric<OrganizationRest[]>("api/organization/list");
   }
 
   openCreateDialog() {

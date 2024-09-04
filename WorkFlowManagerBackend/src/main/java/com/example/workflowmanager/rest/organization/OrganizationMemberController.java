@@ -62,7 +62,7 @@ public class OrganizationMemberController
 
     @PostMapping("/api/organization/{organizationId}/member/add")
     @Transactional
-    @PreAuthorize("hasAuthority('ORGANIZATION_MEMBER_C')")
+    @PreAuthorize("hasAuthority('ORGANIZATION_MEMBER_U')")
     public ResponseEntity<ServiceResult<OrganizationMemberInvitationError>> addMember(
         @PathVariable Long organizationId, @RequestBody Long userId)
     {

@@ -1,37 +1,38 @@
 <div class="projects-container">
-    <button class="add-btn" (click)="openCreateDialog()" mat-raised-button color="primary">
-        <mat-icon>add</mat-icon>
-        Add new project
-    </button>
-    <div class="project-list" *ngIf="projectsOwning$ | async as projects">
-        <p *ngIf="projects.length > 0">Owning</p>
-        <mat-card class="upper-nav-item" *ngFor="let project of projects">
-            <mat-icon>rocket_launch</mat-icon>
-            <mat-card-header>
-                <mat-card-title>{{project.name}}</mat-card-title>
-                <mat-card-subtitle>{{project.description}}</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-footer>
-                <mat-chip-set>
-                    <mat-chip [routerLink]="['/project-issues', project.organizationId, project.projectId]">issues</mat-chip>
-                    <mat-chip [routerLink]="['/project-details', project.organizationId, project.projectId]">tasks</mat-chip>
-                </mat-chip-set>
-            </mat-card-footer>
-        </mat-card>
+    <h1 style="font-weight: 900; font-style: italic;">Projects</h1>
+    <div *ngIf="projectsOwning$ | async as projects">
+        <h2 *ngIf="projects.length > 0">Your projects</h2>
+        <div class="project-list">
+            <mat-card class="upper-nav-item" *ngFor="let project of projects">
+                <mat-icon>rocket_launch</mat-icon>
+                <mat-card-header>
+                    <mat-card-title>{{project.name}}</mat-card-title>
+                    <mat-card-subtitle>{{project.description}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-footer>
+                    <mat-chip-set>
+                        <mat-chip [routerLink]="['/project-issues', project.organizationId, project.projectId]">issues</mat-chip>
+                        <mat-chip [routerLink]="['/project-details', project.organizationId, project.projectId]">tasks</mat-chip>
+                    </mat-chip-set>
+                </mat-card-footer>
+            </mat-card>
+        </div>
     </div>
-    <div class="project-list" *ngIf="projectsReporting$ | async as projects">
-        <p *ngIf="projects.length > 0">Reporting</p>
-        <mat-card class="upper-nav-item" *ngFor="let project of projects">
-            <mat-icon>rocket_launch</mat-icon>
-            <mat-card-header>
-                <mat-card-title>{{project.name}}</mat-card-title>
-                <mat-card-subtitle>{{project.description}}</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-footer>
-                <mat-chip-set>
-                    <mat-chip>issues</mat-chip>
-                </mat-chip-set>
-            </mat-card-footer>
-        </mat-card>
+    <div *ngIf="projectsReporting$ | async as projects">
+        <h2 *ngIf="projects.length > 0">Reporting</h2>
+        <div class="project-list">
+            <mat-card class="upper-nav-item" *ngFor="let project of projects">
+                <mat-icon>rocket_launch</mat-icon>
+                <mat-card-header>
+                    <mat-card-title>{{project.name}}</mat-card-title>
+                    <mat-card-subtitle>{{project.description}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-footer>
+                    <mat-chip-set>
+                        <mat-chip>issues</mat-chip>
+                    </mat-chip-set>
+                </mat-card-footer>
+            </mat-card>
+        </div>
     </div>
 </div>

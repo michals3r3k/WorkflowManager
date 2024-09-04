@@ -1,11 +1,11 @@
 .projects-container {
-    margin: 1em;
+    margin: 2em 1em 1em 0;
     width: fit-content;
 }
 
 .projects-container mat-card {
-    margin-top: 2em;
     margin-right: 2em;
+    margin-bottom: 2em;
     padding: 2em;
     width: 300px;
 }

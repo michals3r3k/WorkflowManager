@@ -78,8 +78,7 @@ public class TaskRestFactory
             .getListByTaskIds(Collections.singleton(taskId)).stream()
             .map(taskRelation -> getTaskRelation(taskRelation, taskId))
             .sorted(Comparator.comparing(TaskRelationRest::getRelationType)
-                .thenComparing(TaskRelationRest::getTitle,
-                    Comparator.naturalOrder()))
+                .thenComparing(TaskRelationRest::getTitle, Comparator.naturalOrder()))
             .collect(Collectors.toList());
     }
 
@@ -90,7 +89,7 @@ public class TaskRestFactory
         final TaskRelationTypeRest relationTypeRest = TaskRelationTypeRest.valueOf(
             taskRelation.getId().getRelationType(), !relationOwner);
         return new TaskRelationRest(displayedTask.getId(), displayedTask.getTitle(), relationTypeRest,
-            displayedTask.getTaskColumn().getName());
+            ObjectUtils.accessNullable(displayedTask.getTaskColumn(), TaskColumn::getName));
     }
 
     public static class TaskRest

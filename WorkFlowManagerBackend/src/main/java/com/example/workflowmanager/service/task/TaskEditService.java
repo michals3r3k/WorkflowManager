@@ -96,7 +96,7 @@ public class TaskEditService
             if(subTaskRest.getSubTaskId() == null)
             {
                 final TaskCreateRequestRest subTaskDto = new TaskCreateRequestRest();
-                subTaskDto.setTaskColumnId(task.getTaskColumn().getId());
+                subTaskDto.setTaskColumnId(ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getId));
                 subTaskDto.setTitle(subTaskRest.getTitle());
                 final TaskCreateServiceResult taskCreateServiceResult = taskCreateService.create(
                     organizationId, projectId, subTaskDto, subTaskCreator);

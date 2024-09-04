@@ -48,14 +48,14 @@ public class TaskChangeOrderService
         final Set<Task> tasksToSave = new HashSet<>();
         taskOrders.stream()
             .sorted(Comparator.comparing(TaskOrderRest::getOrder))
-            .collect(Collectors.groupingBy(TaskOrderRest::getTaskColumnId))
+            .collect(Collectors.groupingBy(taskOrder -> Optional.ofNullable(taskOrder.getTaskColumnId())))
             .values()
             .forEach(tasks -> {
                 for(int i = 0; i < tasks.size(); ++i)
                 {
                     final TaskOrderRest taskOrderRest = tasks.get(i);
                     final Task task = taskMap.get(taskOrderRest.getTaskId());
-                    task.setTaskColumn(taskColumnMap.get(taskOrderRest.getTaskColumnId()));
+                    task.setTaskColumnId(taskOrderRest.getTaskColumnId());
                     task.setTaskOrder((short) i);
                     tasksToSave.add(task);
                 }
@@ -90,6 +90,7 @@ public class TaskChangeOrderService
     {
         return taskOrders.stream()
             .map(TaskOrderRest::getTaskColumnId)
+            .filter(Objects::nonNull)
             .collect(Collectors.toSet());
     }
 

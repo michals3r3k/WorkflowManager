@@ -53,7 +53,7 @@ public class TaskColumnController
     {
         final User user = currentUserService.getCurrentUser()
             .orElseThrow(NoSuchElementException::new);
-        return ResponseEntity.ok(taskCreateService.create(projectId, task, user));
+        return ResponseEntity.ok(taskCreateService.create(organizationId, projectId, task, user));
     }
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/add")

@@ -99,7 +99,7 @@ public class TaskController
         @PathVariable Long projectId, @RequestBody TaskRest task)
     {
         final User user = currentUserService.getCurrentUser().orElseThrow();
-        return ResponseEntity.ok(taskEditService.save(projectId, task, user));
+        return ResponseEntity.ok(taskEditService.save(organizationId, projectId, task, user));
     }
 
     @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/{taskId}")
@@ -112,7 +112,7 @@ public class TaskController
 
     public static class TaskMemberOptionRest
     {
-        private User user;
+        private final User user;
 
         private TaskMemberOptionRest(User user)
         {

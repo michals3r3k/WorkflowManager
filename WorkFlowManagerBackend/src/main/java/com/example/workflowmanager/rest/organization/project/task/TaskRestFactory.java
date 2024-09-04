@@ -2,10 +2,7 @@ package com.example.workflowmanager.rest.organization.project.task;
 
 import com.example.workflowmanager.db.organization.project.task.TaskRelationRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
-import com.example.workflowmanager.entity.organization.project.task.Task;
-import com.example.workflowmanager.entity.organization.project.task.TaskPriority;
-import com.example.workflowmanager.entity.organization.project.task.TaskRelation;
-import com.example.workflowmanager.entity.organization.project.task.TaskRelationType;
+import com.example.workflowmanager.entity.organization.project.task.*;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.google.common.collect.Iterables;
@@ -53,7 +50,7 @@ public class TaskRestFactory
         final Long creatorId = creator.getId();
         final String creatorName = creator.getEmail();
         final TaskPriority priorityOrNull = task.getPriority();
-        final String columnName = task.getTaskColumn().getName();
+        final String columnName = ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getName);
         final TaskPriority parentTaskPriorityOrNull = ObjectUtils.accessNullable(
             parentTaskOrNull, Task::getPriority);
         return new TaskRest(taskId, chatId, title, descriptionOrNull,

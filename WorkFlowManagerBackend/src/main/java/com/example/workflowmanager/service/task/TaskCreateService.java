@@ -12,6 +12,8 @@ import com.example.workflowmanager.rest.organization.project.task.TaskColumnCont
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +27,8 @@ public class TaskCreateService
     private final TaskRepository taskRepository;
     private final TaskColumnRepository taskColumnRepository;
 
-    public TaskCreateService(final ChatRepository chatRepository, final TaskRepository taskRepository,
+    public TaskCreateService(final ChatRepository chatRepository,
+        final TaskRepository taskRepository,
         final TaskColumnRepository taskColumnRepository)
     {
         this.chatRepository = chatRepository;
@@ -33,37 +36,45 @@ public class TaskCreateService
         this.taskColumnRepository = taskColumnRepository;
     }
 
-    public TaskCreateServiceResult create(final Long projectId,
-        final TaskCreateRequestRest taskDto, final User creator)
+    public TaskCreateServiceResult create(final Long organizationId,
+        final Long projectId, final TaskCreateRequestRest taskDto,
+        final User creator)
     {
-        final List<Task> tasks = taskRepository.getListByProjectIds(Collections.singleton(projectId));
+        final Multimap<Optional<Long>, Task> columnTasksMap = Multimaps.index(
+            taskRepository.getListByProjectIds(Collections.singleton(projectId)),
+            task -> Optional.ofNullable(task.getTaskColumnId()));
         final Set<TaskCreateError> errors = EnumSet.noneOf(TaskCreateError.class);
-        if(isExists(taskDto, tasks))
+        if(isExists(taskDto, columnTasksMap.values()))
         {
             errors.add(TaskCreateError.EXISTS);
         }
-        final TaskColumn taskColumnOrNull = Iterables.getFirst(taskColumnRepository.getListByIds(
-            Collections.singleton(taskDto.getTaskColumnId())), null);
-        if(taskColumnOrNull == null)
+        if(taskDto.getTaskColumnId() != null)
         {
-            errors.add(TaskCreateError.COLUMN_NOT_EXISTS);
+            final TaskColumn taskColumnOrNull = Iterables.getFirst(taskColumnRepository.getListByIds(
+                Collections.singleton(taskDto.getTaskColumnId())), null);
+            if(taskColumnOrNull == null)
+            {
+                errors.add(TaskCreateError.COLUMN_NOT_EXISTS);
+            }
         }
         if(!errors.isEmpty())
         {
             return new TaskCreateServiceResult(null, errors);
         }
-        final short order = getNewOrder(taskColumnOrNull);
         final Chat chat = new Chat();
         chatRepository.save(chat);
+        final short order = getNewOrder(columnTasksMap.get(
+            Optional.ofNullable(taskDto.getTaskColumnId())));
         final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(),
-            taskColumnOrNull, chat, creator, TaskPriority.MEDIUM, order);
+            chat, organizationId, projectId, taskDto.getTaskColumnId(),
+            creator, TaskPriority.MEDIUM, order);
         taskRepository.save(task);
         return new TaskCreateServiceResult(task, errors);
     }
 
-    private static short getNewOrder(final TaskColumn taskColumnOrNull)
+    private static short getNewOrder(final Collection<Task> tasks)
     {
-        return (short) taskColumnOrNull.getTasks().stream()
+        return (short) tasks.stream()
             .mapToInt(Task::getTaskOrder)
             .max()
             .stream().map(i -> i + 1)
@@ -71,7 +82,7 @@ public class TaskCreateService
             .orElse(0);
     }
 
-    private static boolean isExists(final TaskCreateRequestRest task, final List<Task> tasks)
+    private static boolean isExists(final TaskCreateRequestRest task, final Collection<Task> tasks)
     {
         return tasks.stream()
             .map(Task::getTitle)

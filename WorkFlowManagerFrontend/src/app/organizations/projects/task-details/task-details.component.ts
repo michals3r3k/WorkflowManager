@@ -207,7 +207,7 @@ export class TaskDetailsComponent implements OnInit {
     task.parentTaskPriorityOrNull = taskRest.parentTaskPriorityOrNull;
     task.isSubTask = !!taskRest.parentTaskIdOrNull;
     task.priority = taskRest.priority;
-    task.status = taskRest.columnName;
+    task.status = taskRest.columnName || "unassigned";
     if(taskRest.members.length !== 0) {
       const taskMemberRest: TaskMemberRest = taskRest.members[0];
       const assignUser = new User(taskMemberRest.email || "");
@@ -223,7 +223,7 @@ export class TaskDetailsComponent implements OnInit {
       taskRelation.taskId = taskRelationRest.taskId;
       taskRelation.title = taskRelationRest.title;
       taskRelation.relationType = taskRelationRest.relationType;
-      taskRelation.columnName = taskRelationRest.columnName;
+      taskRelation.columnName = taskRelationRest.columnName || "unassigned";
       return taskRelation;
     });
     task.sub_tasks = taskRest.subTasks.map(subTaskRest => {
@@ -566,7 +566,7 @@ interface TaskRest {
   parentTaskIdOrNull:number | null;
   parentTaskTitleOrNull: string | null;
   parentTaskPriorityOrNull: TaskPriority | null;
-  columnName: string;
+  columnName: string | null;
   priority: TaskPriority;
   members: TaskMemberRest[];
   subTasks: SubTaskRest[];

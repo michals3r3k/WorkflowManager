@@ -18,6 +18,7 @@ import { WebsocketService } from '../../../services/websocket/websocket.service'
   styleUrl: './project-details.component.css'
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
+  unassignedTasksColumn: TaskColumn;
   taskColumns: TaskColumn[];
 
   projectId: number | null;
@@ -28,6 +29,12 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     private serviceResultHelper: ServiceResultHelper,
     private http: HttpRequestService, private route: ActivatedRoute,
     private webSocketService: WebsocketService) {
+      this.unassignedTasksColumn = {
+        collapsed: false,
+        name: "Unassigned tasks",
+        id: null,
+        tasks: [],
+      };
       this.taskColumns = [];
   }
 
@@ -56,12 +63,27 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     this.http.getGeneric<TaskColumnRest[]>(`api/organization/${this.organizationId}/project/${this.projectId}/task/columns`).subscribe(taskColumnsRest => {
-      this.taskColumns = taskColumnsRest.map(taskColumnRest => this._getTaskColumn(taskColumnRest));
+      this.unassignedTasksColumn.tasks = this._getTasks(taskColumnsRest
+        .filter(taskColumnRest => !taskColumnRest.id)
+        .map(taskColumnRest => taskColumnRest.tasks)[0] || []);
+      this.taskColumns = taskColumnsRest
+        .filter(taskColumnRest => taskColumnRest.id)
+        .map(taskColumnRest => this._getTaskColumn(taskColumnRest));
     });
   }
 
   _getTaskColumn(taskColumnRest: TaskColumnRest): TaskColumn {
-    const tasks: Task[] = taskColumnRest.tasks.map(taskRest => {
+    const tasks: Task[] = this._getTasks(taskColumnRest.tasks);
+    const column = new TaskColumn();
+    column.id = taskColumnRest.id;
+    column.collapsed = false;
+    column.name = taskColumnRest.name;
+    column.tasks = tasks;
+    return column;
+  }
+
+  _getTasks(tasks: TaskRest[]): Task[] {
+    return tasks.map(taskRest => {
       const task = new Task(taskRest.title);
       task.taskId = taskRest.taskId;
       task.priority = taskRest.priority;
@@ -74,13 +96,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         task.assignUser = user;
       }
       return task;
-    });  
-    const column = new TaskColumn();
-    column.id = taskColumnRest.id;
-    column.collapsed = false;
-    column.name = taskColumnRest.name;
-    column.tasks = tasks;
-    return column;
+    });
   }
 
   loadProject() {
@@ -103,14 +119,15 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         event.currentIndex,
       );
     }
-    const taskOrderList: {taskId: number, taskColumnId: number, order: number}[] = [];
-    for(let i = 0; i < this.taskColumns.length; ++i) {
-      const taskGroup = this.taskColumns[i];
-      for(let j = 0; j < taskGroup.tasks.length; ++j) {
-        const task = taskGroup.tasks[j];
+    const taskOrderList: {taskId: number, taskColumnId: number | null, order: number}[] = [];
+    const taskColumns = [this.unassignedTasksColumn, ...this.taskColumns];
+    for(let i = 0; i < taskColumns.length; ++i) {
+      const taskColumn = taskColumns[i];
+      for(let j = 0; j < taskColumn.tasks.length; ++j) {
+        const task = taskColumn.tasks[j];
         taskOrderList.push({
           taskId: task.taskId,
-          taskColumnId: taskGroup.id,
+          taskColumnId: taskColumn.id,
           order: j
         });
       }
@@ -128,7 +145,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    const columnOrderList: {taskColumnId: number, order: number}[] = [];
+    const columnOrderList: {taskColumnId: number | null, order: number}[] = [];
     const data = event.container.data;
     for(let i = 0; i < data.length; ++i) {
       columnOrderList.push({
@@ -201,7 +218,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     const dialogRef = this.dialog.open(DeleteGroupConfirmComponent, {
-      data: {column: column},
+      data: {group: column},
       width: '250px',
       height: '150px',
     });
@@ -267,7 +284,7 @@ interface TaskColumnRest {
 }
 
 export class TaskColumn {
-  id: number;
+  id: number | null;
   name: string = "";
   tasks: Task[] = [];
   collapsed: boolean = false;

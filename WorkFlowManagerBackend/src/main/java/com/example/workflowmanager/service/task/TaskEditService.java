@@ -43,8 +43,8 @@ public class TaskEditService
         this.taskCreateService = taskCreateService;
     }
 
-    public TaskEditServiceResult save(final Long projectId, final TaskRest taskRest,
-        final User subTaskCreator)
+    public TaskEditServiceResult save(final Long organizationId,
+        final Long projectId, final TaskRest taskRest, final User subTaskCreator)
     {
         final Map<Long, Task> taskMap = Maps.uniqueIndex(taskRepository
             .getListByProjectIds(Collections.singleton(projectId)), Task::getId);
@@ -74,14 +74,14 @@ public class TaskEditService
         task.setDeadlineDate(getLocalDateOrNull(taskRest.getDeadlineDateOrNull()));
         task.setPriority(taskRest.getPriority());
         taskRepository.save(task);
-        updateSubTasks(taskRest, task, subTaskCreator, projectId);
+        updateSubTasks(taskRest, task, subTaskCreator, organizationId, projectId);
         updateMembers(taskRest, task);
         updateTaskRelations(taskRest, task);
         return new TaskEditServiceResult(taskRest, errors);
     }
 
     private void updateSubTasks(final TaskRest taskRest, final Task task,
-        final User subTaskCreator, final Long projectId)
+        final User subTaskCreator, Long organizationId, final Long projectId)
     {
         final Set<Long> notDeletedSubTaskIds = taskRest.getSubTasks().stream()
             .map(SubTaskRest::getSubTaskId)
@@ -99,7 +99,7 @@ public class TaskEditService
                 subTaskDto.setTaskColumnId(task.getTaskColumn().getId());
                 subTaskDto.setTitle(subTaskRest.getTitle());
                 final TaskCreateServiceResult taskCreateServiceResult = taskCreateService.create(
-                    projectId, subTaskDto, subTaskCreator);
+                    organizationId, projectId, subTaskDto, subTaskCreator);
                 if(!taskCreateServiceResult.isSuccess())
                 {
                     throw new IllegalStateException("Unknown error: " + taskCreateServiceResult.getErrors());

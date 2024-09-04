@@ -14,25 +14,25 @@
     <div class="task-groups">
         <div cdkDropList
             cdkDropListOrientation="horizontal" 
-            [cdkDropListData]="taskGroups"
+            [cdkDropListData]="taskColumns"
             (cdkDropListDropped)="dropGroup($event)">
             <div cdkDropListGroup class="task-list-groups-container">
-            @for (taskGroup of taskGroups; track taskGroup) {
-                <div cdkDropList cdkDrag [cdkDropListData]="taskGroup.tasks"
-                    class="task-list" [ngClass]="{'task-list-collapsed' : taskGroup.collapsed}"
+            @for (taskColumn of taskColumns; track taskColumn) {
+                <div cdkDropList cdkDrag [cdkDropListData]="taskColumn.tasks"
+                    class="task-list" [ngClass]="{'task-list-collapsed' : taskColumn.collapsed}"
                     (cdkDropListDropped)="dropTask($event)">
-                    <ng-container *ngIf="!taskGroup.collapsed; else collapseMode">
+                    <ng-container *ngIf="!taskColumn.collapsed; else collapseMode">
                         <div class="group-name">
-                            <span class="name-span">{{taskGroup.groupName}}</span>
-                            <div class="task-counter">{{taskGroup.tasks.length}}</div>
-                            <button mat-icon-button class="delete-btn" (click)="deleteGroup(taskGroup)">
+                            <span class="name-span">{{taskColumn.name}}</span>
+                            <div class="task-counter">{{taskColumn.tasks.length}}</div>
+                            <button mat-icon-button class="delete-btn" (click)="deleteColumn(taskColumn)">
                                 <mat-icon>delete</mat-icon>
                             </button>
-                            <button mat-icon-button (click)="collapseOpenGroup(taskGroup)">
+                            <button mat-icon-button (click)="collapseOpenGroup(taskColumn)">
                                 <mat-icon>close_fullscreen</mat-icon>
                             </button>
                         </div>
-                        <div class="task-draggable-item" cdkDrag *ngFor="let task of taskGroup.tasks">
+                        <div class="task-draggable-item" cdkDrag *ngFor="let task of taskColumn.tasks">
                             <div class="task">
                                 <div class="task-id">
                                     <img src="../../../../assets/images/task.png"/>
@@ -60,19 +60,19 @@
                             </button>
                         </div>
                     
-                        <app-add-task [group]="taskGroup"
-                            (addTaskClicked)="onAddTaskClicked($event, taskGroup)" />
+                        <app-add-task [group]="taskColumn"
+                            (addTaskClicked)="onAddTaskClicked($event, taskColumn)" />
                     </ng-container>
                     <ng-template #collapseMode>
                         <div class="group-name">
-                            <button mat-icon-button (click)="collapseOpenGroup(taskGroup)">
+                            <button mat-icon-button (click)="collapseOpenGroup(taskColumn)">
                                 <mat-icon>open_in_full</mat-icon>
                             </button>
-                            <button mat-icon-button class="delete-btn" (click)="deleteGroup(taskGroup)">
+                            <button mat-icon-button class="delete-btn" (click)="deleteColumn(taskColumn)">
                                 <mat-icon>delete</mat-icon>
                             </button>
-                            <div class="task-counter">{{taskGroup.tasks.length}}</div>
-                            <span class="name-span">{{taskGroup.groupName}}</span>
+                            <div class="task-counter">{{taskColumn.tasks.length}}</div>
+                            <span class="name-span">{{taskColumn.name}}</span>
                         </div>
                     </ng-template>
                 </div>

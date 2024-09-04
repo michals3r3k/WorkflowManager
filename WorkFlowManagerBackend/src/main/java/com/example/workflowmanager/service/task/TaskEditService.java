@@ -49,16 +49,20 @@ public class TaskEditService
         final Map<Long, Task> taskMap = Maps.uniqueIndex(taskRepository
             .getListByProjectIds(Collections.singleton(projectId)), Task::getId);
         final Task task = taskMap.get(taskRest.getTaskId());
+        final Set<TaskEditError> errors = EnumSet.noneOf(TaskEditError.class);
         if(task == null)
         {
-            return new TaskEditServiceResult(taskRest, Collections.singleton(TaskEditError.TASK_DOESNT_EXISTS));
+            errors.add(TaskEditError.TASK_DOESNT_EXISTS);
+            return new TaskEditServiceResult(taskRest, errors);
         }
         final boolean duplicatedName = isDuplicatedName(taskRest, taskMap.values());
         if(duplicatedName)
         {
-            return new TaskEditServiceResult(taskRest, Collections.singleton(TaskEditError.DUPLICATED_TITLE));
+            errors.add(TaskEditError.DUPLICATED_TITLE);
+            return new TaskEditServiceResult(taskRest, errors);
         }
-        final Set<TaskEditError> errors = getTaskRelationErrors(taskRest, taskMap);
+        errors.addAll(getSubTaskErrors(taskRest, task));
+        errors.addAll(getTaskRelationErrors(taskRest, taskMap));
         if(!errors.isEmpty())
         {
             return new TaskEditServiceResult(taskRest, errors);
@@ -79,12 +83,12 @@ public class TaskEditService
     private void updateSubTasks(final TaskRest taskRest, final Task task,
         final User subTaskCreator, final Long projectId)
     {
-        final Set<Long> subTaskIdsToStay = taskRest.getSubTasks().stream()
+        final Set<Long> notDeletedSubTaskIds = taskRest.getSubTasks().stream()
             .map(SubTaskRest::getSubTaskId)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
         final Set<Task> subTasksToDelete = task.getSubTasks().stream()
-            .filter(subTask -> !subTaskIdsToStay.contains(subTask.getId()))
+            .filter(subTask -> !notDeletedSubTaskIds.contains(subTask.getId()))
             .collect(Collectors.toSet());
         taskRepository.deleteAll(subTasksToDelete);
         for(final SubTaskRest subTaskRest : taskRest.getSubTasks())
@@ -113,6 +117,23 @@ public class TaskEditService
     {
         return tasks.stream().anyMatch(t -> !t.getId().equals(taskRest.getTaskId())
             && StringUtils.equalsIgnoreCase(t.getTitle(), taskRest.getTitle()));
+    }
+
+    private static Set<TaskEditError> getSubTaskErrors(final TaskRest taskRest, final Task task)
+    {
+        final Set<TaskEditError> errors = EnumSet.noneOf(TaskEditError.class);
+        if(task.getParentTaskId() != null)
+        {
+            if(!taskRest.getSubTasks().isEmpty())
+            {
+                errors.add(TaskEditError.SUBTASK_WITH_SUBTASKS);
+            }
+            if(!taskRest.getTaskRelations().isEmpty())
+            {
+                errors.add(TaskEditError.SUBTASK_WITH_RELATION);
+            }
+        }
+        return errors;
     }
 
     private Set<TaskEditError> getTaskRelationErrors(final TaskRest taskRest, final Map<Long, Task> taskMap)
@@ -212,8 +233,9 @@ public class TaskEditService
         TASK_DOESNT_EXISTS,
         DUPLICATED_TITLE,
         DUPLICATED_RELATION,
-        CONNECTED_TASK_DOESNT_EXISTS;
-
+        CONNECTED_TASK_DOESNT_EXISTS,
+        SUBTASK_WITH_SUBTASKS,
+        SUBTASK_WITH_RELATION
     }
 
 }

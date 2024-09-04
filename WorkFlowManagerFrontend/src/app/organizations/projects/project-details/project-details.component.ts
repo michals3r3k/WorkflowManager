@@ -1,19 +1,12 @@
 import { Component, OnDestroy, OnInit, Pipe, PipeTransform } from '@angular/core';
-import {
-  CdkDragDrop,
-  CdkDrag,
-  CdkDropList,
-  CdkDropListGroup,
-  moveItemInArray,
-  transferArrayItem,
-} from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
 import { ResultToasterService } from '../../../services/result-toaster/result-toaster.service';
 import { HttpRequestService } from '../../../services/http/http-request.service';
 import { OrganizationAddComponent } from '../organization-add/organization-add.component';
 import { ActivatedRoute } from '@angular/router';
 import { TaskDetailsComponent } from '../task-details/task-details.component';
-import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-group-confirm.component';
+import { DeleteGroupConfirmComponent } from '../delete-group-confirm/delete-group-confirm.component'; 
 import { AddStatusComponent } from '../add-status/add-status.component';
 import { ServiceResult } from '../../../services/utils/service-result';
 import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
@@ -25,7 +18,7 @@ import { WebsocketService } from '../../../services/websocket/websocket.service'
   styleUrl: './project-details.component.css'
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
-  taskGroups: TaskGroup[];
+  taskColumns: TaskColumn[];
 
   projectId: number | null;
   organizationId: number | null;
@@ -35,7 +28,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     private serviceResultHelper: ServiceResultHelper,
     private http: HttpRequestService, private route: ActivatedRoute,
     private webSocketService: WebsocketService) {
-      this.taskGroups = [];
+      this.taskColumns = [];
   }
 
   // Prevent inside clicks from triggering the outside click listener
@@ -63,14 +56,13 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     this.http.getGeneric<TaskColumnRest[]>(`api/organization/${this.organizationId}/project/${this.projectId}/task/columns`).subscribe(taskColumnsRest => {
-      this.taskGroups = taskColumnsRest.map(taskColumnRest => this._getTaskGroup(taskColumnRest));
+      this.taskColumns = taskColumnsRest.map(taskColumnRest => this._getTaskColumn(taskColumnRest));
     });
   }
 
-  _getTaskGroup(taskColumnRest: TaskColumnRest): TaskGroup {
+  _getTaskColumn(taskColumnRest: TaskColumnRest): TaskColumn {
     const tasks: Task[] = taskColumnRest.tasks.map(taskRest => {
       const task = new Task(taskRest.title);
-      task.status = taskColumnRest.name;
       task.taskId = taskRest.taskId;
       task.priority = taskRest.priority;
       if(taskRest.members.length !== 0) {
@@ -81,12 +73,12 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       }
       return task;
     });  
-    const group = new TaskGroup();
-    group.id = taskColumnRest.id;
-    group.collapsed = false;
-    group.groupName = taskColumnRest.name;
-    group.tasks = tasks;
-    return group;
+    const column = new TaskColumn();
+    column.id = taskColumnRest.id;
+    column.collapsed = false;
+    column.name = taskColumnRest.name;
+    column.tasks = tasks;
+    return column;
   }
 
   loadProject() {
@@ -108,12 +100,10 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         event.previousIndex,
         event.currentIndex,
       );
-      //TODO - podmienić status po stronie serwera
-      event.container.data[event.currentIndex].status = this.taskGroups.find(tg => tg.tasks === event.container.data)?.groupName ?? "";
     }
     const taskOrderList: {taskId: number, taskColumnId: number, order: number}[] = [];
-    for(let i = 0; i < this.taskGroups.length; ++i) {
-      const taskGroup = this.taskGroups[i];
+    for(let i = 0; i < this.taskColumns.length; ++i) {
+      const taskGroup = this.taskColumns[i];
       for(let j = 0; j < taskGroup.tasks.length; ++j) {
         const task = taskGroup.tasks[j];
         taskOrderList.push({
@@ -131,7 +121,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  dropGroup(event: CdkDragDrop<TaskGroup[]>) {
+  dropGroup(event: CdkDragDrop<TaskColumn[]>) {
     if(event.previousIndex === event.currentIndex) {
       return;
     }
@@ -195,21 +185,21 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  collapseOpenGroup(group: TaskGroup) {
-    group.collapsed = !group.collapsed;
+  collapseOpenGroup(column: TaskColumn) {
+    column.collapsed = !column.collapsed;
   }
 
-  deleteGroup(group: TaskGroup) {
-    if (this.taskGroups.length === 1) {
+  deleteColumn(column: TaskColumn) {
+    if (this.taskColumns.length === 1) {
       this.resultToaster.info("You can not delete all statuses.");
       return;
     }
-    if (group.tasks.length > 0) {
+    if (column.tasks.length > 0) {
       this.resultToaster.info("You can not delete status with tasks.");
       return;
     }
     const dialogRef = this.dialog.open(DeleteGroupConfirmComponent, {
-      data: {group: group},
+      data: {column: column},
       width: '250px',
       height: '150px',
     });
@@ -218,10 +208,10 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         return;
       }
       if (result) {
-        this.http.getGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/${group.id}/delete`).subscribe(res => {
+        this.http.getGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/${column.id}/delete`).subscribe(res => {
           this.serviceResultHelper.handleServiceResult(res, "Column deleted successfully", "Errors occured");
           if(res.success) {
-            this.taskGroups = this.taskGroups.filter(g => g !== group);
+            this.taskColumns = this.taskColumns.filter(g => g !== column);
           }
         });
       }
@@ -241,8 +231,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onAddTaskClicked(taskTitle: string, group: TaskGroup) {
-    this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: group.id}).subscribe(res => {
+  onAddTaskClicked(taskTitle: string, column: TaskColumn) {
+    this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: column.id}).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
       this.loadTasks();
     });
@@ -272,9 +262,9 @@ interface TaskColumnRest {
   tasks: TaskRest[];
 }
 
-export class TaskGroup {
+export class TaskColumn {
   id: number;
-  groupName: string = "";
+  name: string = "";
   tasks: Task[] = [];
   collapsed: boolean = false;
 }
@@ -283,7 +273,6 @@ class Task {
   taskId: number;
   title: string;
   assignUser: User | null = null;
-  status: string | null;
   priority: TaskPriority;
 
   constructor(name: string) {

@@ -52,12 +52,23 @@ public class TaskCreateService
         {
             return new TaskCreateServiceResult(null, errors);
         }
+        final short order = getNewOrder(taskColumnOrNull);
         final Chat chat = new Chat();
         chatRepository.save(chat);
         final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(),
-            taskColumnOrNull, chat, creator, TaskPriority.MEDIUM);
+            taskColumnOrNull, chat, creator, TaskPriority.MEDIUM, order);
         taskRepository.save(task);
         return new TaskCreateServiceResult(task, errors);
+    }
+
+    private static short getNewOrder(final TaskColumn taskColumnOrNull)
+    {
+        return (short) taskColumnOrNull.getTasks().stream()
+            .mapToInt(Task::getTaskOrder)
+            .max()
+            .stream().map(i -> i + 1)
+            .findFirst()
+            .orElse(0);
     }
 
     private static boolean isExists(final TaskCreateRequestRest task, final List<Task> tasks)

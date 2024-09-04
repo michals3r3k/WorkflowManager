@@ -96,6 +96,9 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   dropTask(event: CdkDragDrop<Task[]>) {
+    if(event.previousContainer === event.container && event.previousIndex === event.currentIndex) {
+      return;
+    }
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -105,10 +108,27 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         event.previousIndex,
         event.currentIndex,
       );
-
       //TODO - podmienić status po stronie serwera
       event.container.data[event.currentIndex].status = this.taskGroups.find(tg => tg.tasks === event.container.data)?.groupName ?? "";
     }
+    const taskOrderList: {taskId: number, taskColumnId: number, order: number}[] = [];
+    for(let i = 0; i < this.taskGroups.length; ++i) {
+      const taskGroup = this.taskGroups[i];
+      for(let j = 0; j < taskGroup.tasks.length; ++j) {
+        const task = taskGroup.tasks[j];
+        taskOrderList.push({
+          taskId: task.taskId,
+          taskColumnId: taskGroup.id,
+          order: j
+        });
+      }
+    }
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/change-task-order`, taskOrderList).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Task moved succesfully", "Errors occured");
+      if(!res.success) {
+        this.loadTasks();
+      }
+    });
   }
 
   dropGroup(event: CdkDragDrop<TaskGroup[]>) {
@@ -129,7 +149,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       if(!res.success) {
         this.loadTasks();
       }
-    })
+    });
   }
 
   _loadOrganizations() {

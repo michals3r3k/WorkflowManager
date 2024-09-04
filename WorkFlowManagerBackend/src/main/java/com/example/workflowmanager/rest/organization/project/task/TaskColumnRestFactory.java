@@ -38,7 +38,7 @@ public class TaskColumnRestFactory
         final Long id = column.getId();
         final String name = column.getName();
         final List<TaskRest> tasks = column.getTasks().stream()
-            .sorted(Comparator.comparing(Task::getId))
+            .sorted(Comparator.comparing(Task::getTaskOrder))
             .map(TaskColumnRestFactory::getTaskRest)
             .collect(Collectors.toList());
         return new TaskColumnRest(id, name, tasks);

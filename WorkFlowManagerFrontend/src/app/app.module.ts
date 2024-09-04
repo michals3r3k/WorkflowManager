@@ -67,6 +67,7 @@ import { OrganizationIssueDialogComponent } from './orders-list/organization-iss
 import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
 import { IssueFormComponent } from './orders-list/issue-form/issue-form.component';
 import { MemberDeleteButton } from './organizations/organization-details/member-delete-button-component';
+import { DeleteButton } from './organizations/organization-details/delete-button-component';
 import { AddTaskComponent } from './organizations/projects/add-task/add-task.component';
 import { DeleteGroupConfirmComponent } from './organizations/projects/delete-group-confirm/delete-group-confirm.component';
 import { AddStatusComponent } from './organizations/projects/add-status/add-status.component';
@@ -85,6 +86,7 @@ import { ConnectedTaskRelationTranslationPipe } from './organizations/projects/t
     OrganizationCreateComponent,
     OrganizationDetailsComponent,
     MemberDeleteButton,
+    DeleteButton,
     ResultToasterComponent,
     AboutUsComponent,
     ProfileComponent,

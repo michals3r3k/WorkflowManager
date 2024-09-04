@@ -1,6 +1,6 @@
-<div class="issue-details-container">
-    <div *ngIf="issue$ | async as issue">
-        <h1>#{{issue.id}} {{issue.title}}</h1>
+<div class="container">
+    <div *ngIf="issue$ | async as issue; else loading">
+        <h1>#{{issue.id}} {{issue.title}} </h1>
         Organization: {{issue.sourceOrganizationName}}
         <issue-form [issueForm]="issue.form"/>
         <div class="task-list">
@@ -18,4 +18,7 @@
             </button>  
         </div>
     </div>
+    <ng-template #loading>
+
+    </ng-template>
 </div>

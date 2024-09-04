@@ -1,7 +1,8 @@
-.issue-details-container {
+.container {
     padding: 2em;
 }
 
+/* Old ones */
 .custom-fields {
     display: flex;
 }

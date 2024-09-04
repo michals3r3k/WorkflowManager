@@ -4,14 +4,7 @@
       <mat-icon>close</mat-icon>
     </div>
   </button>
-  <button class="delete-btn" (click)="delete()" [disabled]="disableBtnEnable" (mouseenter)="startDeleteBtnTimer()" (mouseleave)="resetDeleteBtnTimer()">
-    <div class="delete">
-      <div class="delete-timer" [ngClass]="{'delete-timer-hover': deleteBtnHover}">
-        <span class="timer-text" [ngClass]="{'timer-text-hover': deleteBtnHover}"></span>
-      </div>
-      <mat-icon>delete</mat-icon>
-    </div>
-  </button>
+  <delete-button (click)="delete()"/>
   <div class="role-data-container" *ngIf="roleDetails$ | async as roleDetails">
     
     <div class="users">

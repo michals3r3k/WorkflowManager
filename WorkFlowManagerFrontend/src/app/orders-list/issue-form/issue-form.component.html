@@ -1,4 +1,4 @@
-<div style="width: 100%;">
+<div class="container">
     @if(issueFormGroup) {
         <mat-form-field *ngIf="titleControl" style="margin: 1em; width: 100%;">
             <mat-label>Title</mat-label>
@@ -6,8 +6,8 @@
             <mat-error *ngIf="titleControl.invalid && titleControl.hasError('required')">title is required</mat-error>
         </mat-form-field>
     }
-    <div style="display: flex;">
-        <div *ngFor="let fields_column of [fields_column1, fields_column2]" style="margin: 1em;">
+    <div class="columns-container">
+        <div *ngFor="let fields_column of [fields_column1, fields_column2]" class="column">
             <div *ngFor="let field of fields_column">
                 <issue-field [field]="field" [issueFormGroup]="issueFormGroup"/>
             </div>

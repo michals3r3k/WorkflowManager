@@ -9,7 +9,7 @@ import { TaskColumn } from '../project-details/project-details.component';
 })
 export class AddTaskComponent implements OnInit {
   @ViewChild('taskNameInput') inputField: ElementRef | undefined;
-  @Input() group: TaskColumn;
+  @Input() group: TaskColumn | null;
 
   @Output() addTaskClicked = new EventEmitter<string>();
 

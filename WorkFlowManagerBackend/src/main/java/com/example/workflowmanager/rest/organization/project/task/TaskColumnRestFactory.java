@@ -6,6 +6,7 @@ import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
 import com.example.workflowmanager.entity.organization.project.task.TaskPriority;
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskMemberRest;
+import com.example.workflowmanager.service.utils.ObjectUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -50,7 +51,10 @@ public class TaskColumnRestFactory
         final String title = task.getTitle();
         final TaskPriority priority = task.getPriority();
         final List<TaskMemberRest> members = getMembers(task);
-        return new TaskRest(taskId, title, members, priority);
+        final Task parentTaskOrNull = task.getParentTask();
+        final Long parentTaskIdOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getId);
+        final String parentTaskTitleOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getTitle);
+        return new TaskRest(taskId, title, members, priority, parentTaskIdOrNull, parentTaskTitleOrNull);
     }
 
     static List<TaskMemberRest> getMembers(final Task task)
@@ -104,15 +108,19 @@ public class TaskColumnRestFactory
         private final String title;
         private final List<TaskMemberRest> members;
         private final TaskPriority priority;
+        private final Long parentTaskIdOrNull;
+        private final String parentTaskTitleOrNull;
 
         private TaskRest(final Long taskId, final String title,
-            final List<TaskMemberRest> members,
-            final TaskPriority priority)
+            final List<TaskMemberRest> members, final TaskPriority priority,
+            final Long parentTaskIdOrNull, final String parentTaskTitleOrNull)
         {
             this.taskId = taskId;
             this.title = title;
             this.members = members;
             this.priority = priority;
+            this.parentTaskIdOrNull = parentTaskIdOrNull;
+            this.parentTaskTitleOrNull = parentTaskTitleOrNull;
         }
 
         public Long getTaskId()
@@ -130,9 +138,19 @@ public class TaskColumnRestFactory
             return members;
         }
 
+        public Long getParentTaskIdOrNull()
+        {
+            return parentTaskIdOrNull;
+        }
+
         public TaskPriority getPriority()
         {
             return priority;
+        }
+
+        public String getParentTaskTitleOrNull()
+        {
+            return parentTaskTitleOrNull;
         }
 
     }

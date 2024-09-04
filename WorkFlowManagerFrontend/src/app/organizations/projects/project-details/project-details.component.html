@@ -34,8 +34,11 @@
                         </div>
                         <div class="task-draggable-item" cdkDrag *ngFor="let task of taskColumn.tasks">
                             <div class="task">
+                                <div class="parent-task-id" *ngIf="task.parentTaskIdOrNull">
+                                    #{{task.parentTaskIdOrNull}}
+                                </div>
                                 <div class="task-id">
-                                    <img src="../../../../assets/images/task.png"/>
+                                    <img *ngIf="!task.parentTaskIdOrNull; else subTaskImg" src="../../../../assets/images/task.png"/>
                                     <span class="task-id-span">#{{task.taskId}}</span>
                                     <span class="task-priority">{{task.priority}}</span>
                                 </div>
@@ -86,6 +89,6 @@
             </button>
         </div>
     </div>
-    
+    <ng-template #subTaskImg><img src="../../../../assets/images/subTask.png"/></ng-template>
     
 </div>

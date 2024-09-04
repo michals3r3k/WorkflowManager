@@ -121,6 +121,11 @@
     flex-direction: column;
     gap: 3px;
 
+    .parent-task-id {
+      font-size: 70%;
+      opacity: .6;
+    }
+
     .task-id {
       display: flex;
       flex-direction: row;

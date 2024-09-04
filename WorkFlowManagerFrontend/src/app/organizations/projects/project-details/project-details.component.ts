@@ -65,6 +65,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       const task = new Task(taskRest.title);
       task.taskId = taskRest.taskId;
       task.priority = taskRest.priority;
+      task.parentTaskIdOrNull = taskRest.parentTaskIdOrNull;
+      task.parentTaskTitleOrNull = taskRest.parentTaskTitleOrNull;
       if(taskRest.members.length !== 0) {
         const taskMember: TaskMemberRest = taskRest.members[0];
         const user = new User(taskMember.email);
@@ -252,8 +254,10 @@ interface TaskMemberRest {
 interface TaskRest {
   taskId: number;
   title: string;
-  members: TaskMemberRest[]
-  priority: TaskPriority;
+  members: TaskMemberRest[],
+  priority: TaskPriority,
+  parentTaskIdOrNull: number | null,
+  parentTaskTitleOrNull: string | null,
 }
 
 interface TaskColumnRest {
@@ -274,6 +278,8 @@ class Task {
   title: string;
   assignUser: User | null = null;
   priority: TaskPriority;
+  parentTaskIdOrNull: number | null;
+  parentTaskTitleOrNull: string | null;
 
   constructor(name: string) {
     this.title = name;

@@ -16,7 +16,7 @@
     
             <div class="project-container" *ngIf="!readOnly">
                 <span>Connected project</span>
-                <ng-container *ngIf="false && issue.projectName; else addProject">
+                <ng-container *ngIf="issue.projectName || true; else addProject">
                    <div class="project">
                         <img src="../../../assets/images/project.png"/>
                         <span>{{issue.projectName}}</span>

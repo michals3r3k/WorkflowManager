@@ -31,7 +31,6 @@ public interface TaskRepository extends JpaRepository<Task, Long>
     @Query("select t from Task t where t.id in (?1)")
     List<Task> getList(Collection<Long> ids);
 
-
     @Query(
         "select distinct " +
             "t " +

@@ -2,7 +2,6 @@ package com.example.workflowmanager.entity.organization;
 
 import com.example.workflowmanager.entity.user.User;
 import jakarta.persistence.*;
-import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Objects;
 
@@ -12,20 +11,32 @@ public class Organization
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+    @Column(nullable = false)
     private String name;
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="userId", nullable=false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name="userId")
     private User user;
+
+    public Organization(final String name, final String description, final User user)
+    {
+        this.name = name;
+        this.description = description;
+        this.user = user;
+    }
+
+    protected Organization()
+    {
+        // for hibernate
+    }
 
     public Long getId()
     {
         return id;
     }
 
-    public void setId(Long id)
+    protected void setId(final Long id)
     {
         this.id = id;
     }
@@ -35,7 +46,7 @@ public class Organization
         return name;
     }
 
-    public void setName(String name)
+    protected void setName(final String name)
     {
         this.name = name;
     }
@@ -45,7 +56,7 @@ public class Organization
         return description;
     }
 
-    public void setDescription(String description)
+    protected void setDescription(final String description)
     {
         this.description = description;
     }
@@ -55,7 +66,7 @@ public class Organization
         return user;
     }
 
-    public void setUser(User user)
+    protected void setUser(User user)
     {
         this.user = user;
     }

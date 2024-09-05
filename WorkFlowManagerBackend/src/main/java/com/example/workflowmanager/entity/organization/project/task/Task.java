@@ -1,6 +1,7 @@
 package com.example.workflowmanager.entity.organization.project.task;
 
 import com.example.workflowmanager.entity.chat.Chat;
+import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.entity.user.User;
 import jakarta.persistence.*;
 
@@ -58,6 +59,12 @@ public class Task
     private Chat chat;
     @ManyToOne(optional = false)
     private User creator;
+    @ManyToOne(optional = false)
+    @JoinColumns(value = {
+        @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false),
+        @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false)
+    })
+    private Project project;
 
     public Task(final String title, final LocalDateTime createTime, final Chat chat,
         final Long organizationId, final Long projectId, final Long taskColumnId,
@@ -294,6 +301,16 @@ public class Task
     public void setTaskOrder(final Short taskOrder)
     {
         this.taskOrder = taskOrder;
+    }
+
+    public Project getProject()
+    {
+        return project;
+    }
+
+    protected void setProject(final Project project)
+    {
+        this.project = project;
     }
 
 }

@@ -35,16 +35,13 @@
 
       <span class="section-title">Organizations</span>
       <div class="info-panel">
-        <div class="organization" *ngFor="let ogranization of organizations">
-          <a class="no-dec-a" href="http://localhost:4200">
+        <div class="organization" *ngFor="let organization of connectedObjects.organizations">
+          <a class="no-dec-a" [routerLink]="['/organization-details', organization.id]">
             <div class="project">
               <mat-icon>lightbulb_circle</mat-icon>
-             {{ogranization.name}}
+             {{organization.name}}
             </div>
           </a>
-        </div>
-        <div class="show-all-link">
-          <a href="http://localhost:4200">Show all organizations</a>
         </div>
       </div>
 
@@ -54,31 +51,25 @@
 
       <span class="section-title">Projects</span>
       <div class="info-panel">
-        <div *ngFor="let project of projects">
-          <a class="no-dec-a" href="http://localhost:4200">
+        <div *ngFor="let project of connectedObjects.projects">
+          <a class="no-dec-a" [routerLink]="['/project-details', project.organizationId, project.projectId]">
             <div class="project">
               <mat-icon>lightbulb_circle</mat-icon>
-             {{project.name}}
+              {{project.projectName}} ({{project.organizationName}})
             </div>
           </a>
-        </div>
-        <div class="show-all-link">
-          <a href="http://localhost:4200">Show all projects</a>
         </div>
       </div>
 
       <span class="section-title">Tasks</span>
       <div class="info-panel">
-        <div *ngFor="let task of tasks">
-          <a class="no-dec-a" href="http://localhost:4200">
+        <div *ngFor="let task of connectedObjects.tasks">
+          <a class="no-dec-a" [routerLink]="['/project-details', task.organizationId, task.projectId, task.taskId]">
             <div class="project">
               <mat-icon>lightbulb_circle</mat-icon>
-              {{task.name}}
+              {{task.title}} ({{task.organizationName}} - {{task.projectName}})
             </div>
           </a>
-        </div>
-        <div class="show-all-link">
-          <a href="http://localhost:4200">Show all tasks</a>
         </div>
       </div>
     </div>

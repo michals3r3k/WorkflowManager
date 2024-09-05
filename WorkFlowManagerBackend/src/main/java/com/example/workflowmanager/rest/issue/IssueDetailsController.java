@@ -25,16 +25,29 @@ public class IssueDetailsController
         this.issueFormFactory = issueFormFactory;
     }
 
-    @GetMapping("/api/organization/{organizationId}/issue-details/{issueId}")
+    @GetMapping("/api/organization/{organizationId}/issue-details-for-organization/{issueId}")
     @Transactional
-    public IssueDetailsRest getOrganizationIssueDetails(@PathVariable Long organizationId, @PathVariable Long issueId)
+    public IssueDetailsRest getOrganizationIssueDetailsForOrganization(@PathVariable Long organizationId, @PathVariable Long issueId)
+    {
+        return getDetailsRest(issueId, false);
+    }
+
+    @GetMapping("/api/organization/{organizationId}/issue-details-for-client/{issueId}")
+    @Transactional
+    public IssueDetailsRest getOrganizationIssueDetailsForClient(@PathVariable Long organizationId, @PathVariable Long issueId)
+    {
+        return getDetailsRest(issueId, true);
+    }
+
+    private IssueDetailsRest getDetailsRest(final Long issueId, final boolean forClient)
     {
         final Issue issue = issueRepository.getReferenceById(issueId);
         final Organization source = issue.getSourceOrganization();
         final Organization destination = issue.getOrganization();
         final String projectName = ObjectUtils.accessNullable(issue.getProject(), Project::getName);
-        final IssueFormRest form = issueFormFactory.getForm(destination.getId(), issue);
-        return new IssueDetailsRest(issueId, issue.getTitle(), source.getName(), destination.getName(),
+        final IssueFormRest form = issueFormFactory.getForm(destination.getId(), issue, forClient);
+        return new IssueDetailsRest(issueId, issue.getTitle(), source.getName(),
+            destination.getName(),
             projectName, source.getId(), destination.getId(), form);
     }
 

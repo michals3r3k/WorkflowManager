@@ -2,6 +2,7 @@ package com.example.workflowmanager.rest.issue;
 
 import com.example.workflowmanager.db.issue.IssueFieldDefinitionRepository;
 import com.example.workflowmanager.entity.issue.*;
+import com.example.workflowmanager.rest.issue.IssueFormRest.IssueFieldEditRest;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.google.common.collect.Maps;
 import org.springframework.stereotype.Component;
@@ -22,26 +23,26 @@ public class IssueFormFactory
         this.ifdRepository = ifdRepository;
     }
 
-    IssueFormRest getEmpty(final Long organizationId)
+    IssueFormRest getEmptyForClient(final Long organizationId)
     {
-        return getForm(organizationId, null);
+        return getForm(organizationId, null, true);
     }
 
-    IssueFormRest getForm(final Long organizationId, final Issue issueOrNull)
+    IssueFormRest getForm(final Long organizationId, final Issue issueOrNull, final boolean forClient)
     {
         final List<IssueFieldDefinition> definitions = ifdRepository.getListByOrganizationId(
             Collections.singleton(organizationId));
-        final List<IssueFormRest.IssueFieldEditRest> fields = getFields(
-            definitions, issueOrNull);
+        final List<IssueFieldEditRest> fields = getFields(definitions, issueOrNull, forClient);
         return new IssueFormRest(ObjectUtils.accessNullable(issueOrNull, Issue::getTitle), fields);
     }
 
-    private List<IssueFormRest.IssueFieldEditRest> getFields(
-        final List<IssueFieldDefinition> definitions, final Issue issueOrNull)
+    private List<IssueFieldEditRest> getFields(final List<IssueFieldDefinition> definitions,
+        final Issue issueOrNull, final boolean forClient)
     {
         final Map<IssueFieldDefinitionId, IssueField> issueFieldMap = Maps.uniqueIndex(
             getFields(issueOrNull), field -> field.getDefinition().getId());
         return definitions.stream()
+            .filter(field -> !forClient || field.isClientVisible())
             .sorted(Comparator.comparing(field -> field.getId().getCol()))
             .map(definition ->
             {
@@ -50,7 +51,7 @@ public class IssueFormFactory
                 final Long organizationId = definition.getId().getOrganizationId();
                 final Short row = definition.getId().getRow();
                 final Byte col = definition.getId().getCol();
-                return new IssueFormRest.IssueFieldEditRest(
+                return new IssueFieldEditRest(
                     definition.getId().getOrganizationId(),
                     getValue(definition, fieldOrNull),
                     row,
@@ -64,7 +65,7 @@ public class IssueFormFactory
             .collect(Collectors.toList());
     }
 
-    private Set<IssueField> getFields(Issue issueOrNull)
+    private Set<IssueField> getFields(final Issue issueOrNull)
     {
         if(issueOrNull == null)
         {

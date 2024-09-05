@@ -27,7 +27,7 @@ public class IssueFormController
     @Transactional
     public IssueFormRest getForm(@PathVariable Long organizationId, @PathVariable Long destinationOrganizationId)
     {
-        return issueFormFactory.getEmpty(destinationOrganizationId);
+        return issueFormFactory.getEmptyForClient(destinationOrganizationId);
     }
 
     @PostMapping("/api/organization/{organizationId}/issue-form/send")

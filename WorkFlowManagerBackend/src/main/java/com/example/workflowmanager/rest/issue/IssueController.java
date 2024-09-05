@@ -87,14 +87,14 @@ public class IssueController
             getProjectIssues(organizationId, projectId));
     }
 
-    private void addToProject(final Long issueId, Long projectId)
+    private void addToProject(final Long issueId, final Long projectId)
     {
         final Issue issue = issueRepository.getReferenceById(issueId);
         final Long organizationId = issue.getSourceOrganization().getId();
         final OrganizationInProjectId oipId =
             new OrganizationInProjectId(organizationId, projectId);
         oipService.create(oipId, OrganizationInvitationStatus.ACCEPTED);
-        issue.setProject(projectRepository.getReferenceById(projectId));
+        issue.setProjectId(projectId);
         issueRepository.save(issue);
     }
 

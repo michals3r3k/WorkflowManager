@@ -49,6 +49,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       const organizationId = params.get("organizationId");
       this.projectId = projectId == null ? null : +projectId;
       this.organizationId = organizationId == null ? null : +organizationId;
+      const taskId = params.get("taskId");
+      this._openTaskDetails(taskId ? +taskId : null);
       this.loadTasks();
       this.webSocketService.connect();
     });
@@ -191,8 +193,15 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   openTaskDetails(task: Task) {
+    this._openTaskDetails(task.taskId);
+  }
+
+  _openTaskDetails(taskId: number | null) {
+    if(!taskId) {
+      return;
+    }
     const dialogRef = this.dialog.open(TaskDetailsComponent, {
-      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: task.taskId},
+      data: {organizationId: this.organizationId, projectId: this.projectId, taskId: taskId},
       width: '80vw',
       height: '80vh',
       maxWidth: '80vw',

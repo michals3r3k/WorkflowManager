@@ -76,7 +76,7 @@ export class OrganizationIssueDialogComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.issue$ = this.issueDetailsService.getDetails(this.organizationId, this.issueId);
+    this.issue$ = this.issueDetailsService.getDetails(this.organizationId, this.issueId, !this.readOnly);
   }
 
   toExistingProject(issue: IssueDetailsRest) {

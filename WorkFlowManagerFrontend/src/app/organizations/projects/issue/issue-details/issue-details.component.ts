@@ -27,7 +27,7 @@ export class IssueDetailsComponent implements OnInit {
     this.issueId = data.issueId;
   }
   ngOnInit(): void {
-    this.issue$ = this.issueDetailsService.getDetails(this.organizationId, this.issueId);
+    this.issue$ = this.issueDetailsService.getDetails(this.organizationId, this.issueId, false);
   }
   
   tasks: any[] = [

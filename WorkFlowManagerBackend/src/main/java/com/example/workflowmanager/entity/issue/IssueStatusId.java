@@ -11,6 +11,7 @@ public class IssueStatusId implements Serializable
 {
     @Column(name = "organization_id")
     private Long organizationId;
+    @Column(name = "status")
     private String status;
 
     public IssueStatusId(final Long organizationId, final String status)

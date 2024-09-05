@@ -18,7 +18,12 @@
       <div class="scroll-container">
         <mat-list>
           <mat-list-item *ngFor="let status of statuses">
-            <span matListItemTitle>{{status}}</span>
+            <div class="list-element">
+              <div>{{status}}</div>
+              <button *ngIf="isStatusToDelete(status)" mat-icon-button color="warn" (click)="deleteFromList(statuses, status)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </mat-list-item>
         </mat-list>
       </div>
@@ -40,7 +45,12 @@
       <div class="scroll-container">
         <mat-list>
           <mat-list-item *ngFor="let category of categories">
-            <span matListItemTitle>{{category}}</span>
+            <div class="list-element">
+              <div>{{category}}</div>
+              <button mat-icon-button color="warn" (click)="deleteFromList(categories, category)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </mat-list-item>
         </mat-list>
       </div>
@@ -71,7 +81,7 @@
         </div>
         <div class="drag-drop-item" *ngFor="let field of fields_column1" cdkDrag >
           <div class="drop-placeholder" *cdkDragPlaceholder></div>
-          <app-field-definition-edit class="order-field" [field]="field" [statuses]="statuses"></app-field-definition-edit>
+          <app-field-definition-edit (delete)="deleteFromList(fields_column1, field)" class="order-field" [field]="field" [statuses]="statuses"></app-field-definition-edit>
         </div>
       </div>
   
@@ -81,7 +91,7 @@
         </div>
         <div class="drag-drop-item" *ngFor="let field of fields_column2" cdkDrag>
           <div class="drop-placeholder" *cdkDragPlaceholder></div>
-          <app-field-definition-edit class="order-field" [field]="field" [statuses]="statuses"></app-field-definition-edit>
+          <app-field-definition-edit (delete)="deleteFromList(fields_column2, field)" class="order-field" [field]="field" [statuses]="statuses"></app-field-definition-edit>
         </div>
       </div>
     </div>

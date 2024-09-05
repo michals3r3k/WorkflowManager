@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpRequestService } from '../services/http/http-request.service';
 import { ServiceResultHelper } from '../services/utils/service-result-helper';
 import { ServiceResult } from '../services/utils/service-result';
+import { ResultToasterService } from '../services/result-toaster/result-toaster.service';
 
 @Component({
   selector: 'app-order',
@@ -19,32 +20,42 @@ import { ServiceResult } from '../services/utils/service-result';
 })
 export class OrderComponent implements OnInit {
 
-  organizationId: string | null;
-  statuses = ["NEW", "PROCESSING", "FINISHED"];
-  categories = ["ERROR", "APP", "SERVICE"];
+  organizationId: number | null;
+  statuses: string[];
+  constStatuses: string[];
+  categories: string[];
   newStatusName: string = "";
   newCategoryName: string = "";
 
-  fields_column1: OrderFieldModel[];
-  fields_column2: OrderFieldModel[];
+  fields_column1: IssueFieldDefinitionRest[];
+  fields_column2: IssueFieldDefinitionRest[];
 
-  constructor(private route: ActivatedRoute, private http: HttpRequestService,
+  constructor(private route: ActivatedRoute, 
+    private http: HttpRequestService,
+    private resultToasterService: ResultToasterService,
     private serviceResultHelper: ServiceResultHelper) {
-    this.fields_column1 = [];
-    this.fields_column2 = [];
+      this.statuses = [];
+      this.constStatuses = [];
+      this.categories = [];
+      this.fields_column1 = [];
+      this.fields_column2 = [];
   }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.organizationId = params.get("organizationId");
+      const organizationId = params.get("organizationId");
+      this.organizationId = organizationId ? +organizationId : null;
       this._loadConfig();
     });
   }
 
   _loadConfig() {
-    this.http.getGeneric<OrderFieldModel[]>(`api/organization/${this.organizationId}/issue-definition`).subscribe(fields => {
-      this.fields_column1 = fields.filter(field => field.column == 1);
-      this.fields_column2 = fields.filter(field => field.column == 2);
+    this.http.getGeneric<IssueDefinitionRest>(`api/organization/${this.organizationId}/issue-definition`).subscribe(issueDefinition => {
+      this.statuses = issueDefinition.statuses;
+      this.constStatuses = issueDefinition.constStatuses;
+      this.categories = issueDefinition.categories;
+      this.fields_column1 = issueDefinition.fields.filter(field => field.column == 1);
+      this.fields_column2 = issueDefinition.fields.filter(field => field.column == 2);
     })
   }
 
@@ -53,8 +64,13 @@ export class OrderComponent implements OnInit {
   }
 
   saveConfig() {
-    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/issue-definition/create`,
-      [...this.fields_column1, ...this.fields_column2]).subscribe(result => {
+    const body: IssueDefinitionRest = {
+      statuses: this.statuses,
+      categories: this.categories,
+      fields: [...this.fields_column1, ...this.fields_column2],
+      constStatuses: []
+    };
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/issue-definition/create`, body).subscribe(result => {
         this.serviceResultHelper.handleServiceResult(result, "Config saved successfully", "Errors occured");
         if (result.success) {
           this._loadConfig();
@@ -64,25 +80,24 @@ export class OrderComponent implements OnInit {
 
   addCategory() {
     if (!this.newCategoryName) {
-      // Snackbar with error
+      this.resultToasterService.info("New category not given")
       return;
     }
     if (this.categories.includes(this.newCategoryName)) {
-      // Snackbar with error
+      this.resultToasterService.info("Duplicated category name");
       return;
     }
-
     this.categories.push(this.newCategoryName)
     this.newCategoryName = ""
   }
 
   addStatus() {
     if (!this.newStatusName) {
-      // Snackbar with error
+      this.resultToasterService.info("New status not given")
       return;
     }
-    if (this.categories.includes(this.newStatusName)) {
-      // Snackbar with error
+    if (this.statuses.includes(this.newStatusName)) {
+      this.resultToasterService.info("Duplicated status name");
       return;
     }
 
@@ -108,7 +123,7 @@ export class OrderComponent implements OnInit {
     });
   }
 
-  dropField(event: CdkDragDrop<OrderFieldModel[]>) {
+  dropField(event: CdkDragDrop<IssueFieldDefinitionRest[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -126,9 +141,28 @@ export class OrderComponent implements OnInit {
       }
     }
   }
+  
+  isStatusToDelete(status: string) {
+    return this.constStatuses.indexOf(status) === -1;
+  }
+
+  deleteFromList<T>(list: T[], element: T) {
+    const index = list.indexOf(element);
+    if(index > -1) {
+      list.splice(index, 1);
+    }
+  }
+
 }
 
-export class OrderFieldModel {
+interface IssueDefinitionRest {
+  statuses: string[],
+  categories: string[],
+  fields: IssueFieldDefinitionRest[],
+  constStatuses: string[],
+}
+
+export class IssueFieldDefinitionRest {
   name: string;
   column: number;
   required: boolean;

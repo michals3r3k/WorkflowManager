@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { OrderFieldModel } from '../order.component';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { IssueFieldDefinitionRest } from '../order.component';
 
 @Component({
   selector: 'app-field-definition-edit',
@@ -7,10 +7,11 @@ import { OrderFieldModel } from '../order.component';
   styleUrl: './field-definition-edit.component.css'
 })
 export class FieldDefinitionEditComponent {
-  @Input() field: OrderFieldModel;
+  @Input() field: IssueFieldDefinitionRest;
   @Input() statuses: any[];
+  @Output() delete = new EventEmitter<void>();
 
-  delete() {
-    
+  deleteField() {
+    this.delete.emit();
   }
 }

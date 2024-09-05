@@ -23,6 +23,7 @@ export class IssueListComponent implements OnInit {
       this.route.paramMap.subscribe(params => {
         const projectId = params.get("projectId");
         const organizationId = params.get("organizationId");
+        const taskId = params.get("taskId");
         this.projectId = projectId == null ? null : +projectId;
         this.organizationId = organizationId == null ? null : +organizationId;
         this._loadIssues();

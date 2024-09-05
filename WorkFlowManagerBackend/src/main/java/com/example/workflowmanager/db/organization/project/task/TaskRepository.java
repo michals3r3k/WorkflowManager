@@ -31,4 +31,18 @@ public interface TaskRepository extends JpaRepository<Task, Long>
     @Query("select t from Task t where t.id in (?1)")
     List<Task> getList(Collection<Long> ids);
 
+
+    @Query(
+        "select distinct " +
+            "t " +
+        "from " +
+            "Task t " +
+            "join fetch t.members tm " +
+            "left join fetch t.taskColumn c " +
+            "join fetch t.project p " +
+            "join fetch p.organization o " +
+        "where " +
+            "tm.id.userId in (?1)")
+    List<Task> getListByMemberUserIdsWithMemberAndOrganization(final Collection<Long> userIds);
+
 }

@@ -3,6 +3,7 @@ import { SafeUrl } from '@angular/platform-browser';
 import { ProfileEdit, ProfileService } from '../services/profile/profile.service';
 import { Observable } from 'rxjs';
 import { ServiceResultHelper } from '../services/utils/service-result-helper';
+import { HttpRequestService } from '../services/http/http-request.service';
 
 @Component({
   selector: 'app-profile',
@@ -15,6 +16,8 @@ export class ProfileComponent implements OnInit {
   imageUrl$: Observable<SafeUrl | null>;
   editData$: Observable<ProfileEdit>;
   newFile: FormData | null = null;
+
+  connectedObjects: ProfileConnectedObjects;
 
   organizations = [
     {
@@ -67,12 +70,20 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private service: ProfileService,
-    private serviceResultHelper: ServiceResultHelper
-  ) { }
+    private serviceResultHelper: ServiceResultHelper,
+    private http: HttpRequestService
+  ) { 
+    this.connectedObjects = {
+      projects: [],
+      organizations: [],
+      tasks: [],
+    }
+  }
 
   ngOnInit() {
     this._loadImg();
     this._loadUserData();
+    this._loadConnectedObjects();
   }
 
   _loadUserData() {
@@ -81,6 +92,12 @@ export class ProfileComponent implements OnInit {
 
   _loadImg() {
     this.imageUrl$ = this.service.getImg();
+  }
+
+  _loadConnectedObjects() {
+    this.http.getGeneric<ProfileConnectedObjects>(`api/profile/connected-objects`).subscribe(connectedObjects => {
+      this.connectedObjects = connectedObjects;
+    });
   }
 
   toggleEditMode() {
@@ -135,4 +152,32 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+}
+
+interface ProfileConnectedObjects {
+  projects: ProjectRest[];
+  organizations: OrganizationRest[];
+  tasks: TaskRest[];
+}
+
+interface ProjectRest {
+  organizationId: number;
+  projectId: number;
+  projectName: string;
+  organizationName: string;
+}
+
+interface OrganizationRest {
+  id: number;
+  name: string;
+}
+
+interface TaskRest {
+  taskId: number;
+  organizationId: number;
+  projectId: number;
+  title: string;
+  columnNameOrNull: string | null;
+  organizationName: string;
+  projectName: string;
 }

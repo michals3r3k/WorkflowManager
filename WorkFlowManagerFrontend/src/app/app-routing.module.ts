@@ -44,6 +44,10 @@ const routes: Routes = [
     component: ProjectDetailsComponent
   },
   {
+    path: 'project-details/:organizationId/:projectId/:taskId',
+    component: ProjectDetailsComponent
+  },
+  {
     path: 'profile',
     component: ProfileComponent
   },
@@ -61,6 +65,10 @@ const routes: Routes = [
   },
   {
     path: 'project-issues/:organizationId/:projectId',
+    component: IssueListComponent
+  },
+  {
+    path: 'project-issues/:organizationId/:projectId/:taskId',
     component: IssueListComponent
   },
   {

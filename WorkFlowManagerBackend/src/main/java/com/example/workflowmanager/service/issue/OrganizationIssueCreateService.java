@@ -64,11 +64,7 @@ public class OrganizationIssueCreateService
         }
         final Long destinationOrganizationId =
             Iterables.getOnlyElement(destinationOrganizationIds);
-        final Issue issue = new Issue();
-        issue.setTitle(form.getTitle());
-        issue.setCreated(created);
-        issue.setSourceOrganization(organizationRepository.getReferenceById(sourceOrganizationId));
-        issue.setOrganization(organizationRepository.getReferenceById(destinationOrganizationId));
+        final Issue issue = new Issue(form.getTitle(), "", created, destinationOrganizationId, null, IssueStatus.NEW, "App", organizationRepository.getReferenceById(sourceOrganizationId));
         issueRepository.save(issue);
         saveFields(fields, destinationOrganizationId, issue);
         return ServiceResult.ok();

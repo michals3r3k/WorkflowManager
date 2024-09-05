@@ -9,8 +9,11 @@ export class IssueDetailsService {
 
   constructor(private http: HttpRequestService) { }
 
-  getDetails(organizationId: number, issueId: number) {
-    return this.http.getGeneric<IssueDetailsRest>(`api/organization/${organizationId}/issue-details/${issueId}`);
+  getDetails(organizationId: number, issueId: number, forClient: boolean) {
+    if(forClient) {
+      return this.http.getGeneric<IssueDetailsRest>(`api/organization/${organizationId}/issue-details-for-client/${issueId}`);
+    }
+    return this.http.getGeneric<IssueDetailsRest>(`api/organization/${organizationId}/issue-details-for-organization/${issueId}`);
   }
 
 }

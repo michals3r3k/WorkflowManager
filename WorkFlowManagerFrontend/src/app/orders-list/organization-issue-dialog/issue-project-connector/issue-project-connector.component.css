@@ -1,0 +1,111 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 600px;
+    height: 300px;
+    padding: 20px;
+}
+
+.find-project { 
+    flex: 1;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 10px;
+
+    h2 {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .wrapper {
+        flex: 1;
+
+        span {
+            margin: 5px 0px 0px 10px;
+        }
+    }
+
+    .input-container {
+        flex: 1;
+        flex-direction: row;
+        display: flex;
+        padding: 5px;
+        align-items: center;
+        border-radius: 10px;
+        font-size: 14px;
+        border: 2px solid rgb(177, 177, 177);
+        transition: all 0.2s ease-out;
+        height: 50px;
+
+        input {
+            font-size: 14px;
+            margin-right: 10px;
+            padding: 0;
+            border: none;
+            outline: none;
+        }
+
+        &:focus-within {
+            border: 2px solid rgb(35, 115, 236);
+            outline: none;
+        } 
+    }
+}
+
+.separator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+
+    hr {
+        flex: 1;
+        border: 3px solid #bbb7;
+        border-radius: 1.5px;
+
+    }
+}
+
+.create-project { 
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 10px;
+    padding-left: 10px;
+
+    span {
+        margin-bottom: -10px;
+    }
+
+    .wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    h2 {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    input {
+        flex-direction: row;
+        display: flex;
+        padding: 10px 5px;
+        align-items: center;
+        border-radius: 10px;
+        font-size: 14px;
+        border: 2px solid rgb(177, 177, 177);
+        transition: all 0.2s ease-out;
+        outline: none;
+
+        &:focus-within {
+            border: 2px solid rgb(35, 115, 236);
+            outline: none;
+        } 
+    }
+}

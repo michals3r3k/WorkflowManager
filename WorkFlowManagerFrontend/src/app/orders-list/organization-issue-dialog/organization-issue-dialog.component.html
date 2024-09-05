@@ -16,7 +16,7 @@
     
             <div class="project-container" *ngIf="!readOnly">
                 <span>Connected project</span>
-                <ng-container *ngIf="issue.projectName || true; else addProject">
+                <ng-container *ngIf="issue.projectName || false; else addProject">
                    <div class="project">
                         <img src="../../../assets/images/project.png"/>
                         <span>{{issue.projectName}}</span>
@@ -27,7 +27,7 @@
                 <ng-template #addProject>
                     <div class="no-project">
                         <span>No connected project</span>
-                        <button>
+                        <button (click)="openProjectConnector(issue)">
                             <mat-icon>add</mat-icon>
                             Connect project    
                         </button>

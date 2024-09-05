@@ -73,6 +73,7 @@ import { DeleteGroupConfirmComponent } from './organizations/projects/delete-gro
 import { AddStatusComponent } from './organizations/projects/add-status/add-status.component';
 import { UserImgPipe } from './Pipes/user-img.pipe';
 import { ConnectedTaskRelationTranslationPipe } from './organizations/projects/task-details/task-details.component';
+import { IssueProjectConnectorComponent } from './orders-list/organization-issue-dialog/issue-project-connector/issue-project-connector.component';
 
 @NgModule({
   declarations: [
@@ -118,7 +119,8 @@ import { ConnectedTaskRelationTranslationPipe } from './organizations/projects/t
     DeleteGroupConfirmComponent,
     AddStatusComponent,
     UserImgPipe,
-    ConnectedTaskRelationTranslationPipe
+    ConnectedTaskRelationTranslationPipe,
+    IssueProjectConnectorComponent
    ],
   imports: [
     BrowserModule,

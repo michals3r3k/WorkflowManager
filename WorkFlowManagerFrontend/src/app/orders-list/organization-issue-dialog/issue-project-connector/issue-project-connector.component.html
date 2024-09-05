@@ -1,0 +1,59 @@
+<div class="container">
+
+  <div class="find-project">
+    <h2>Find project</h2>
+
+    <div class="wrapper">
+      <div class="input-container">
+        <input type="text"
+        (input)="onProjectInputChange()"
+        [formControl]="projectNameControl" [matAutocomplete]="projectAutocomplete"
+        placeholder="Search project" />
+        <mat-autocomplete #projectAutocomplete="matAutocomplete" (optionSelected)="onProjectOptionSelected($event)"  >
+          <mat-option *ngFor="let option of projectOptions$ | async" [value]="option.name">
+              {{option.name}}
+          </mat-option>
+      </mat-autocomplete>
+      </div>
+
+      <span *ngIf="selectedProj">Selected project: {{selectedProj.name}}</span>
+    </div>
+   
+
+    <button [disabled]="!selectedProj" (click)="connectExistingProject()" mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Connect project
+  </button>
+
+  </div>
+
+  <div class="separator">
+    <hr>
+    <h2>or</h2>
+    <hr/>
+  </div>
+
+  <div class="create-project">
+    <h2>Create project</h2>
+
+    <div class="wrapper">
+      <span>Name:</span>
+      <input type="text"
+      [(ngModel)]="createProjectName"
+      placeholder="Enter project name" />
+  
+      <span>Description:</span>
+      <input type="text"
+      [(ngModel)]="createProjectDescription"
+      placeholder="Enter project description" />
+    </div>
+
+    <button [disabled]="!createProjectName" (click)="connectNewProject()" mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Create project
+    </button>
+  
+
+  </div>
+ 
+</div>

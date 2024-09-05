@@ -11,11 +11,11 @@ export class ProjectService {
 
   constructor(private http: HttpRequestService) { }
 
-  create(organizationId: number, model: ProjectCreateModel): Observable<ServiceResult> {
+  create(organizationId: number, model: ProjectCreateModel): Observable<ProjectCreateResult> {
     return this._create(`api/organization/${organizationId}/project/create`, model);
   }
 
-  createWithIssue(organizationId: number, issueId: number, model: ProjectCreateModel): Observable<ServiceResult> {
+  createWithIssue(organizationId: number, issueId: number, model: ProjectCreateModel): Observable<ProjectCreateResult> {
     return this._create(`api/organization/${organizationId}/issue/${issueId}/to-new-project`, model);
   }
 
@@ -31,8 +31,12 @@ export class ProjectService {
     return this.projectChangeSubject.asObservable();
   }
 
-  private _create(url: string, model: ProjectCreateModel): Observable<ServiceResult> {
-    return this.http.postGeneric<ServiceResult>(url, model).pipe(
+  getProjectById(organizationId: number, projectId: number): Observable<ProjectRest> {
+    return this.http.getGeneric<ProjectRest>(`/api/organization/${organizationId}/project/${projectId}`);
+  }
+
+  private _create(url: string, model: ProjectCreateModel): Observable<ProjectCreateResult> {
+    return this.http.postGeneric<ProjectCreateResult>(url, model).pipe(
       tap(res => {
         if(res.success) {
           this.projectChangeSubject.next(null);
@@ -61,3 +65,9 @@ export class ProjectCreateModel  {
   }
   
 }
+
+export interface ProjectCreateResult {
+  success: boolean,
+  errors: [string],
+  projectId: number | null;
+};

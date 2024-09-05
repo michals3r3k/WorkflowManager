@@ -59,6 +59,14 @@ public class ProjectController
         return ResponseEntity.ok(getProjects(organizationId, Collections.singleton(OrganizationInProjectRole.OWNER)));
     }
 
+//    @GetMapping("/api/organization/{organizationId}/project/{projectId}")
+//    @Transactional
+//    @PreAuthorize("hasAuthority('PROJECT_R')")
+//    public ResponseEntity<ProjectRest> getProject(@PathVariable Long organizationId, @PathVariable Long projectId)
+//    {
+//        return ResponseEntity.ok(getProject(organizationId, projectId, Collections.singleton(OrganizationInProjectRole.OWNER)));
+//    }
+
     public List<ProjectRest> getProjects(Long organizationId, Collection<OrganizationInProjectRole> roles)
     {
         return getProjectStream(organizationId, roles)
@@ -66,6 +74,14 @@ public class ProjectController
                 .thenComparing(ProjectRest::getProjectId))
             .collect(Collectors.toList());
     }
+
+//    public ProjectRest getProject(Long organizationId, Long projectId, Collection<OrganizationInProjectRole> roles)
+//    {
+//        return getProjectStream(organizationId, roles)
+//                .filter(p -> p.getProjectId().equals(projectId))
+//                .findFirst()
+//                .orElseThrow();
+//    }
 
     private Stream<ProjectRest> getProjectStream(final Long organizationId,
         final Collection<OrganizationInProjectRole> roles)

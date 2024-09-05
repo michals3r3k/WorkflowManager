@@ -60,16 +60,15 @@ public class IssueController
 
     @PostMapping("/api/organization/{organizationId}/issue/{issueId}/to-new-project")
     @Transactional
-    public ResponseEntity<ServiceResult<?>> addToProject(@PathVariable Long organizationId,
+    public ResponseEntity<ProjectCreateResult> addToProject(@PathVariable Long organizationId,
         @PathVariable Long issueId, @RequestBody ProjectCreateRest projectRest)
     {
         final ProjectCreateResult result = projectService.create(organizationId, projectRest);
-        if(!result.isSuccess())
+        if(result.isSuccess())
         {
-            return ResponseEntity.ok(result);
+            addToProject(issueId, result.getProjectId());
         }
-        addToProject(issueId, result.getProjectId());
-        return ResponseEntity.ok(ServiceResult.ok());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/api/organization/{organizationId}/issues")

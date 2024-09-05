@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { debounceTime, Observable, of, startWith, switchMap } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -9,6 +9,7 @@ import { ProjectCreateModel, ProjectService } from '../../services/project/proje
 import { ResultToasterService } from '../../services/result-toaster/result-toaster.service';
 import { IssueDetailsRest, IssueDetailsService } from '../../services/issue/issue-details.service';
 import { Router } from '@angular/router';
+import { IssueProjectConnectorComponent } from './issue-project-connector/issue-project-connector.component';
 
 @Component({
   selector: 'app-organization-issue-dialog',
@@ -47,7 +48,8 @@ export class OrganizationIssueDialogComponent implements OnInit{
       organizationId: number,
       issueId: number
     },
-    public router: Router) {
+    public router: Router,
+    private dialog: MatDialog,) {
     this.organizationId = data.organizationId;
     this.issueId = data.issueId;
     this.readOnly = data.readOnly;
@@ -120,6 +122,20 @@ export class OrganizationIssueDialogComponent implements OnInit{
   saveChanges() {
     // SAVE TASK LOGIC
     this.editMode = false;
+  }
+
+  openProjectConnector(issue: IssueDetailsRest) {
+    const issueId = issue.id;
+    const dialogResult = this.dialog.open(IssueProjectConnectorComponent, {data: {
+      organizationId: this.organizationId,
+      issueId: issueId
+    }});
+
+    dialogResult.afterClosed().subscribe(result => {
+      if (result !== undefined && result !== null) {
+        this.projectService.getProjectById(this.organizationId, result);
+      }
+    });
   }
 
   close() {

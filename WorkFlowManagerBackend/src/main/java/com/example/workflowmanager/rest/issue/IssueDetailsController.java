@@ -47,9 +47,10 @@ public class IssueDetailsController
         final Long projectId = ObjectUtils.accessNullable(issue.getProject(), Project::getId);
         final String projectName = ObjectUtils.accessNullable(issue.getProject(), Project::getName);
         final IssueFormRest form = issueFormFactory.getForm(destination.getId(), issue, forClient);
+        final Long chatId = issue.getChat().getId();
         return new IssueDetailsRest(issueId, issue.getTitle(), source.getName(),
-            destination.getName(), projectId,
-            projectName, source.getId(), destination.getId(), form);
+            destination.getName(), projectId, projectName, source.getId(),
+            destination.getId(), chatId, form);
     }
 
     public static class IssueDetailsRest
@@ -62,13 +63,14 @@ public class IssueDetailsController
         private String projectName;
         private Long sourceOrganizationId;
         private Long destinationOrganizationId;
+        private Long chatId;
         private IssueFormRest form;
 
         private IssueDetailsRest(final Long id,
             final String title, final String sourceOrganizationName,
             final String destinationOrganizationName, final Long projectId,
             final String projectName, final Long sourceOrganizationId,
-            final Long destinationOrganizationId, final IssueFormRest form)
+            final Long destinationOrganizationId, final Long chatId, final IssueFormRest form)
         {
             this.id = id;
             this.title = title;
@@ -78,6 +80,7 @@ public class IssueDetailsController
             this.projectName = projectName;
             this.sourceOrganizationId = sourceOrganizationId;
             this.destinationOrganizationId = destinationOrganizationId;
+            this.chatId = chatId;
             this.form = form;
         }
 
@@ -172,6 +175,16 @@ public class IssueDetailsController
         public void setProjectId(final Long projectId)
         {
             this.projectId = projectId;
+        }
+
+        public Long getChatId()
+        {
+            return chatId;
+        }
+
+        public void setChatId(final Long chatId)
+        {
+            this.chatId = chatId;
         }
 
     }

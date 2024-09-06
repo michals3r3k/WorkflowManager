@@ -1,6 +1,6 @@
-<div class="container">
+<div class="container" *ngIf="issue$ | async as issue">
     <div class="fields-container">
-        <div *ngIf="issue$ | async as issue">
+        <div>
             <button class="save-btn" (click)="switchToEditMode()" *ngIf="!editMode && !forClient">
                 <mat-icon>edit</mat-icon>
             </button>
@@ -66,7 +66,6 @@
         </div>
     </div>
     <div class="chat-container">
-        <!-- DO ODKOMENTOWANIA -->
-        <!-- <app-chat /> -->
+        <app-chat [chatId]="issue.chatId"></app-chat>
     </div>
 </div>

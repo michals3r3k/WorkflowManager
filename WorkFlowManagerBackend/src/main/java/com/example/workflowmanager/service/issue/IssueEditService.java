@@ -1,7 +1,9 @@
 package com.example.workflowmanager.service.issue;
 
+import com.example.workflowmanager.db.chat.ChatRepository;
 import com.example.workflowmanager.db.issue.*;
 import com.example.workflowmanager.db.organization.OrganizationRepository;
+import com.example.workflowmanager.entity.chat.Chat;
 import com.example.workflowmanager.entity.issue.*;
 import com.example.workflowmanager.rest.issue.IssueFormRest;
 import com.example.workflowmanager.rest.issue.IssueFormRest.IssueFieldEditRest;
@@ -30,13 +32,15 @@ public class IssueEditService
     private final IssueFieldRepository fieldRepository;
     private final IssueStatusRepository issueStatusRepository;
     private final IssueCategoryRepository issueCategoryRepository;
+    private final ChatRepository chatRepository;
 
     public IssueEditService(final OrganizationRepository organizationRepository,
         final IssueRepository issueRepository,
         final IssueFieldDefinitionRepository ifdRepository,
         final IssueFieldRepository fieldRepository,
         final IssueStatusRepository issueStatusRepository,
-        final IssueCategoryRepository issueCategoryRepository)
+        final IssueCategoryRepository issueCategoryRepository,
+        final ChatRepository chatRepository)
     {
         this.organizationRepository = organizationRepository;
         this.issueRepository = issueRepository;
@@ -44,6 +48,7 @@ public class IssueEditService
         this.fieldRepository = fieldRepository;
         this.issueStatusRepository = issueStatusRepository;
         this.issueCategoryRepository = issueCategoryRepository;
+        this.chatRepository = chatRepository;
     }
 
     public ServiceResult<IssueEditError> edit(final IssueFormRest form)
@@ -112,6 +117,12 @@ public class IssueEditService
             issue.setDescription(form.getDescription());
             issue.setStatus(form.getStatus());
             issue.setCategory(form.getCategory());
+            if(issue.getChat() == null)
+            {
+                final Chat chat = new Chat();
+                chatRepository.save(chat);
+                issue.setChat(chat);
+            }
             issueRepository.save(issue);
             saveFields(issue, form.getFields());
         }
@@ -203,7 +214,6 @@ public class IssueEditService
         STATUS_EMPTY,
         UNKNOWN_STATUS,
         UNKNOWN_CATEGORY
-
     }
 
 }

@@ -94,7 +94,7 @@ public class TaskEditService
         {
             if(subTaskRest.getSubTaskId() == null)
             {
-                Long columnId = ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getId);
+                final Long columnId = ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getId);
                 final TaskCreateServiceResult taskCreateServiceResult = taskCreateService.create(
                     organizationId, projectId, subTaskRest.getTitle(), null, columnId, subTaskCreator);
                 if(!taskCreateServiceResult.isSuccess())

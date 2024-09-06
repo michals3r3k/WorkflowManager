@@ -1,5 +1,6 @@
 package com.example.workflowmanager.entity.issue;
 
+import com.example.workflowmanager.entity.chat.Chat;
 import com.example.workflowmanager.entity.organization.Organization;
 import com.example.workflowmanager.entity.organization.project.Project;
 import jakarta.persistence.*;
@@ -50,6 +51,8 @@ public class Issue
     private IssueCategory issueCategory;
     @OneToMany(mappedBy = "issue")
     private Set<IssueField> fields;
+    @OneToOne(optional = false)
+    private Chat chat;
 
     public Issue()
     {
@@ -217,6 +220,16 @@ public class Issue
     public int hashCode()
     {
         return Objects.hash(id);
+    }
+
+    public Chat getChat()
+    {
+        return chat;
+    }
+
+    public void setChat(final Chat chat)
+    {
+        this.chat = chat;
     }
 
 }

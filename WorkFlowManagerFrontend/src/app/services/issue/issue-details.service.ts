@@ -27,10 +27,7 @@ export interface IssueDetailsRest {
   projectName: string | null;
   sourceOrganizationId: number;
   destinationOrganizationId: number;
+  chatId: number;
   form: IssueFormRest;
-  description: string;
-  connectedTasks: string[];
-  status: string;
-  category: string;
 }
 

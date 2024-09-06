@@ -1,18 +1,16 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { debounceTime, filter, map, mergeMap, Observable, of, startWith, switchMap, tap } from 'rxjs';
-import { FormControl, FormGroup } from '@angular/forms';
-import { ProjectCreateModel, ProjectRest, ProjectService } from '../../services/project/project.service';
+import { filter, mergeMap, Observable, of, tap } from 'rxjs';
+import { FormGroup } from '@angular/forms';
+import { ProjectRest, ProjectService } from '../../services/project/project.service';
 import { IssueDetailsRest, IssueDetailsService } from '../../services/issue/issue-details.service';
 import { IssueProjectConnectorComponent } from './issue-project-connector/issue-project-connector.component';
-import { IssueService } from '../../services/issue/issue.service';
 import { IssueFormService } from '../../services/issue/issue-form.service';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 import { HttpRequestService } from '../../services/http/http-request.service';
-import { ServiceResult } from '../../services/utils/service-result';
 import { TaskService } from '../../services/task/task.service';
 import { TaskRest } from '../../organizations/projects/project-details/project-details.component';
-import { Route, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-issue-dialog',

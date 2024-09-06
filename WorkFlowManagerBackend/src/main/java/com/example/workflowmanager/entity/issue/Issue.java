@@ -51,23 +51,7 @@ public class Issue
     @OneToMany(mappedBy = "issue")
     private Set<IssueField> fields;
 
-    public Issue(final String title, final String description,
-        final LocalDateTime created,
-        final Long organizationId, final Long projectId, final String status,
-        final String category,
-        final Organization sourceOrganization)
-    {
-        this.title = title;
-        this.description = description;
-        this.created = created;
-        this.organizationId = organizationId;
-        this.projectId = projectId;
-        this.status = status;
-        this.category = category;
-        this.sourceOrganization = sourceOrganization;
-    }
-
-    protected Issue()
+    public Issue()
     {
         // for hibernate
     }
@@ -107,7 +91,7 @@ public class Issue
         return created;
     }
 
-    protected void setCreated(final LocalDateTime created)
+    public void setCreated(final LocalDateTime created)
     {
         this.created = created;
     }
@@ -117,7 +101,7 @@ public class Issue
         return organizationId;
     }
 
-    protected void setOrganizationId(final Long organizationId)
+    public void setOrganizationId(final Long organizationId)
     {
         this.organizationId = organizationId;
     }
@@ -157,7 +141,7 @@ public class Issue
         return sourceOrganization;
     }
 
-    protected void setSourceOrganization(
+    public void setSourceOrganization(
         final Organization sourceOrganization)
     {
         this.sourceOrganization = sourceOrganization;

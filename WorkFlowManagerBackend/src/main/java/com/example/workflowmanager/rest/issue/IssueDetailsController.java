@@ -148,8 +148,7 @@ public class IssueDetailsController
             return destinationOrganizationId;
         }
 
-        public void setDestinationOrganizationId(
-            final Long destinationOrganizationId)
+        public void setDestinationOrganizationId(final Long destinationOrganizationId)
         {
             this.destinationOrganizationId = destinationOrganizationId;
         }

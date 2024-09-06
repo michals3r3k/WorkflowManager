@@ -14,7 +14,6 @@ export class IssueFormComponent implements OnInit {
   @Input() editMode: boolean = true;
 
   titleControl?: FormControl;
-  idControl?: FormControl;
   descriptionControl?: FormControl;
   categoryControl?: FormControl;
   statusControl?: FormControl;
@@ -22,13 +21,15 @@ export class IssueFormComponent implements OnInit {
   fields_column1: IssueFieldEditRest[];
   fields_column2: IssueFieldEditRest[];
 
-  // TODO pobieranie możliwych statusów i kategorii
-  issueStatusOptions: string[] = ["New", "In progress", "Completed"]
-  issueCategoryOptions :string[] = ["App", "Error", "Service"]
+  issueStatusOptions: string[];
+  issueCategoryOptions :string[];
 
   ngOnInit(): void {
-    this.fields_column1 = this.issueForm.fields.filter(field => field.clientVisible && field.column == 1);
-    this.fields_column2 = this.issueForm.fields.filter(field => field.clientVisible && field.column == 2);
+    this.issueStatusOptions = this.issueForm.statusOptions;
+    this.issueCategoryOptions = this.issueForm.categoryOptions;
+    this.fields_column1 = this.issueForm.fields.filter(field => field.column == 1);
+    this.fields_column2 = this.issueForm.fields.filter(field => field.column == 2);
+
     if(this.issueFormGroup) {
       [...this.fields_column1, ...this.fields_column2].forEach(field => {
         this.issueFormGroup?.addControl(field.key, new FormControl(field.value === null ? '' : field.value, field.required ? [Validators.required] : []));
@@ -39,9 +40,6 @@ export class IssueFormComponent implements OnInit {
         this.issueForm.title = value;
       });
       this.issueFormGroup.addControl('issuetitle', this.titleControl);
-
-      this.idControl = new FormControl(this.issueForm.id || '');
-      this.issueFormGroup.addControl('issueId', this.idControl);
 
       this.descriptionControl = new FormControl(this.issueForm.description || '');
       this.descriptionControl.valueChanges.subscribe(value => {

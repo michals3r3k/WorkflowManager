@@ -19,6 +19,9 @@ export class IssueFieldComponent implements OnInit {
       return;
     }
     this.valueControl = this.issueFormGroup.get(this.field.key) as FormControl;
+    if(this.field.type === FieldType.DATE && this.field.value) {
+      this.valueControl.setValue(new Date(this.field.value));
+    }
     this.valueControl.valueChanges.subscribe(value => {
       if(this.field.type === FieldType.DATE) {
         this.field.value = this.getDateString(value);
@@ -29,11 +32,25 @@ export class IssueFieldComponent implements OnInit {
     });
   }
 
-  getDateString(date: any): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day} 00:00:00`;
+  getDateString(date: Date): string {
+    if(!date) {
+      return "";
+    }
+    return date.toISOString();
+  }
+
+  get valueString(): string {
+    if(this.field.type == FieldType.FLAG) {
+      return this.field.value ? "true" : "false";
+    }
+    if(!this.field.value) {
+      return "";
+    }
+    if(this.field.type === FieldType.DATE) {
+      const date = new Date(this.field.value);
+      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    }
+    return this.field.value;
   }
   
 }

@@ -22,5 +22,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long>
     
     @Query("select i from Issue i join fetch i.organization d join fetch i.sourceOrganization s join fetch i.project p where p.id in (?2) and s.id in (?1)")
     List<Issue> getProjectIssues(Collection<Long> sourceOrganizationIds, Collection<Long> projectIds);
+    Issue getById(final Long issueId);
 
 }

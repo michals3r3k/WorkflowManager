@@ -4,7 +4,7 @@
             <button class="save-btn" (click)="switchToEditMode()" *ngIf="!editMode && !forClient">
                 <mat-icon>edit</mat-icon>
             </button>
-            <button class="save-btn" (click)="saveChanges()" *ngIf="editMode && !forClient">
+            <button class="save-btn" (click)="saveChanges(issue)" *ngIf="editMode && !forClient">
                 <mat-icon>save</mat-icon>
             </button>
            

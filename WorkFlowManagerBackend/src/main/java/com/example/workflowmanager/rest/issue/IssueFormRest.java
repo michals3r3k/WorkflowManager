@@ -6,13 +6,27 @@ import java.util.List;
 
 public class IssueFormRest
 {
+    private Long issueId;
     private String title;
+    private String description;
+    private String status;
+    private String category;
     private List<IssueFieldEditRest> fields;
+    private List<String> statusOptions;
+    private List<String> categoryOptions;
 
-    IssueFormRest(String title, List<IssueFieldEditRest> fields)
+    IssueFormRest(final Long issueId, final String title, final String description,
+        final String status, final String category, final List<IssueFieldEditRest> fields,
+        final List<String> statusOptions, final List<String> categoryOptions)
     {
+        this.issueId = issueId;
         this.title = title;
+        this.description = description;
+        this.status = status;
+        this.category = category;
         this.fields = fields;
+        this.statusOptions = statusOptions;
+        this.categoryOptions = categoryOptions;
     }
 
     public IssueFormRest()
@@ -30,6 +44,36 @@ public class IssueFormRest
         this.title = title;
     }
 
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(final String description)
+    {
+        this.description = description;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(final String status)
+    {
+        this.status = status;
+    }
+
+    public String getCategory()
+    {
+        return category;
+    }
+
+    public void setCategory(final String category)
+    {
+        this.category = category;
+    }
+
     public List<IssueFieldEditRest> getFields()
     {
         return fields;
@@ -38,6 +82,36 @@ public class IssueFormRest
     public void setFields(final List<IssueFieldEditRest> fields)
     {
         this.fields = fields;
+    }
+
+    public List<String> getStatusOptions()
+    {
+        return statusOptions;
+    }
+
+    public void setStatusOptions(final List<String> statusOptions)
+    {
+        this.statusOptions = statusOptions;
+    }
+
+    public List<String> getCategoryOptions()
+    {
+        return categoryOptions;
+    }
+
+    public void setCategoryOptions(final List<String> categoryOptions)
+    {
+        this.categoryOptions = categoryOptions;
+    }
+
+    public Long getIssueId()
+    {
+        return issueId;
+    }
+
+    public void setIssueId(final Long issueId)
+    {
+        this.issueId = issueId;
     }
 
     public static class IssueFieldEditRest extends IssueFieldDefinitionRest

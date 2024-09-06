@@ -5,6 +5,9 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ProjectCreateModel, ProjectRest, ProjectService } from '../../services/project/project.service';
 import { IssueDetailsRest, IssueDetailsService } from '../../services/issue/issue-details.service';
 import { IssueProjectConnectorComponent } from './issue-project-connector/issue-project-connector.component';
+import { IssueService } from '../../services/issue/issue.service';
+import { IssueFormService } from '../../services/issue/issue-form.service';
+import { ServiceResultHelper } from '../../services/utils/service-result-helper';
 
 @Component({
   selector: 'app-issue-dialog',
@@ -29,6 +32,8 @@ export class IssueDialogComponent implements OnInit {
     private projectService: ProjectService,
     private issueDetailsService: IssueDetailsService,
     private dialog: MatDialog,
+    private issueFormService: IssueFormService,
+    private serviceResultHelper: ServiceResultHelper,
     @Inject(MAT_DIALOG_DATA) private data: {
       forClient: boolean,
       organizationId: number,
@@ -60,9 +65,13 @@ export class IssueDialogComponent implements OnInit {
     this.editMode = true;
   }
 
-  saveChanges() {
-    // SAVE TASK LOGIC
-    this.editMode = false;
+  saveChanges(issue: IssueDetailsRest) {
+    this.issueFormService.editAsOrganization(this.organizationId, issue.form).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Issue saved successfully", "Errors occured");
+      if(res.success) {
+        this.editMode = false;
+      }
+    });
   }
 
   openProjectConnector(issue: IssueDetailsRest) {

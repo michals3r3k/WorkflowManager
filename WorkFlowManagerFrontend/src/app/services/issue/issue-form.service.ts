@@ -12,17 +12,21 @@ export class IssueFormService {
 
   constructor(private http: HttpRequestService) { }
 
-  getForm(sourceOrganizationId: number, destinationOrganizationId: number): Observable<IssueFormRest> {
-    return this.http.getGeneric<IssueFormRest>(`api/organization/${sourceOrganizationId}/issue-form/${destinationOrganizationId}`);
+  getForm(organizationId: number): Observable<IssueFormRest> {
+    return this.http.getGeneric<IssueFormRest>(`api/issue-form/${organizationId}`);
   }
 
-  sendForm(sourceOrganizationId: number, form: IssueFormRest): Observable<ServiceResult> {
-    return this.http.postGeneric<ServiceResult>(`api/organization/${sourceOrganizationId}/issue-form/send`, form).pipe(
+  createAsClient(sourceOrganizationId: number, form: IssueFormRest): Observable<ServiceResult> {
+    return this.http.postGeneric<ServiceResult>(`api/issue-form/${sourceOrganizationId}/create`, form).pipe(
       tap(res => {
         if(res.success) {
           this.issueChangeSubject.next();
         }
       }));
+  }
+
+  editAsOrganization(organizationId: number, form: IssueFormRest): Observable<ServiceResult> {
+    return this.http.postGeneric<ServiceResult>(`api/organization/${organizationId}/issue-form/edit`, form);
   }
 
   getIssueChangeEvent(): Observable<void>{
@@ -33,10 +37,12 @@ export class IssueFormService {
 
 // TODO - do obsłużenia id, description, category i status
 export interface IssueFormRest {
+  issueId: number | null,
   title: string | null,
-  id: string | null,
   description: string | null,
   category: string | null,
   status: string | null,
-  fields: IssueFieldEditRest[]
+  fields: IssueFieldEditRest[],
+  statusOptions: string[],
+  categoryOptions: string[]
 }

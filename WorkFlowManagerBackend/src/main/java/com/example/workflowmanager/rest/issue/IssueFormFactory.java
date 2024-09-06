@@ -1,26 +1,36 @@
 package com.example.workflowmanager.rest.issue;
 
+import com.example.workflowmanager.db.issue.IssueCategoryRepository;
 import com.example.workflowmanager.db.issue.IssueFieldDefinitionRepository;
+import com.example.workflowmanager.db.issue.IssueStatusRepository;
 import com.example.workflowmanager.entity.issue.*;
 import com.example.workflowmanager.rest.issue.IssueFormRest.IssueFieldEditRest;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.google.common.collect.Maps;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
 public class IssueFormFactory
 {
-    private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static final DateTimeFormatter DTF_VAL = DateTimeFormatter.ISO_DATE_TIME;
 
     private final IssueFieldDefinitionRepository ifdRepository;
+    private final IssueStatusRepository isRepository;
+    private final IssueCategoryRepository icRepository;
 
-    public IssueFormFactory(final IssueFieldDefinitionRepository ifdRepository)
+    public IssueFormFactory(final IssueFieldDefinitionRepository ifdRepository,
+        final IssueStatusRepository isRepository,
+        final IssueCategoryRepository icRepository)
     {
         this.ifdRepository = ifdRepository;
+        this.isRepository = isRepository;
+        this.icRepository = icRepository;
     }
 
     IssueFormRest getEmptyForClient(final Long organizationId)
@@ -32,8 +42,33 @@ public class IssueFormFactory
     {
         final List<IssueFieldDefinition> definitions = ifdRepository.getListByOrganizationId(
             Collections.singleton(organizationId));
+        final List<String> statusOptions = getStatusOptions(organizationId);
+        final List<String> categoryOptions = getCategoryOptions(organizationId);
         final List<IssueFieldEditRest> fields = getFields(definitions, issueOrNull, forClient);
-        return new IssueFormRest(ObjectUtils.accessNullable(issueOrNull, Issue::getTitle), fields);
+        final Long issueId = ObjectUtils.accessNullable(issueOrNull, Issue::getId);
+        final String title = getStringOrEmpty(issueOrNull, Issue::getTitle);
+        final String description = getStringOrEmpty(issueOrNull, Issue::getDescription);
+        final String status = getStringOrEmpty(issueOrNull, Issue::getStatus);
+        final String category = getStringOrEmpty(issueOrNull, Issue::getCategory);
+        return new IssueFormRest(issueId, title, description, status, category, fields, statusOptions, categoryOptions);
+    }
+
+    private List<String> getStatusOptions(final Long organizationId)
+    {
+        return isRepository.getListByOrganizationIds(
+                Collections.singleton(organizationId)).stream()
+            .map(IssueStatus::getId)
+            .map(IssueStatusId::getStatus)
+            .collect(Collectors.toList());
+    }
+
+    private List<String> getCategoryOptions(final Long organizationId)
+    {
+        return icRepository.getListByOrganizationIds(
+                Collections.singleton(organizationId)).stream()
+            .map(IssueCategory::getId)
+            .map(IssueCategoryId::getCategory)
+            .collect(Collectors.toList());
     }
 
     private List<IssueFieldEditRest> getFields(final List<IssueFieldDefinition> definitions,
@@ -84,14 +119,29 @@ public class IssueFormFactory
         }
         if(fieldOrNull == null)
         {
-            return null;
+            return "";
         }
         return switch(definition.getType())
             {
-                case TEXT -> fieldOrNull.getTextValue();
-                case DATE -> ObjectUtils.accessNullable(fieldOrNull.getDateValue(), date -> date.format(DTF_VAL));
-                case NUMBER -> Objects.toString(fieldOrNull.getNumberValue());
+                case TEXT -> getStringOrEmpty(fieldOrNull.getTextValue(), Function.identity());
+                case DATE -> getStringOrEmpty(fieldOrNull.getDateValue(), date -> date.format(DTF_VAL));
+                case NUMBER -> getStringOrEmpty(fieldOrNull.getNumberValue(), BigDecimal::toString);
                 case FLAG -> fieldOrNull.isFlagValue();
             };
     }
+
+    private static <T> String getStringOrEmpty(T obj, Function<T, String> mapper)
+    {
+        if(obj == null)
+        {
+            return "";
+        }
+        final String value = mapper.apply(obj);
+        if(value == null)
+        {
+            return "";
+        }
+        return value;
+    }
+
 }

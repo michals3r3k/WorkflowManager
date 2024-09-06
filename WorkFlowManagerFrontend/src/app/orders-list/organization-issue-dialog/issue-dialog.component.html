@@ -1,0 +1,71 @@
+<div class="container" *ngIf="issue$ | async as issue">
+    <div class="fields-container">
+        <div>
+            <button class="save-btn" (click)="switchToEditMode()" *ngIf="!editMode && !forClient">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button class="save-btn" (click)="saveChanges(issue)" *ngIf="editMode && !forClient">
+                <mat-icon>save</mat-icon>
+            </button>
+           
+            <div class="organization">
+                <span>Organization: {{forClient ? issue.destinationOrganizationName: issue.sourceOrganizationName}}</span>
+            </div>
+    
+            <issue-form [issueForm]="issue.form" [issueFormGroup]="formGroup" [editMode]="editMode"/>
+    
+            <div class="project-container" *ngIf="!forClient">
+                <span>Connected project</span>
+                <ng-container *ngIf="project$ | async as project; else addProject">
+                   <div class="project">
+                        <img src="../../../assets/images/project.png"/>
+                        <span>{{project.name}}</span>
+                        <button [routerLink]="['project-details', project.organizationId, project.projectId]">Tasks</button>
+                        <button>Issues</button>
+                   </div>
+                </ng-container>
+                <ng-template #addProject>
+                    <div class="no-project">
+                        <span>No connected project</span>
+                        <button (click)="openProjectConnector(issue)">
+                            <mat-icon>add</mat-icon>
+                            Connect project    
+                        </button>
+                    </div>
+                </ng-template>
+            </div>
+
+            <div class="connected-tasks" *ngIf="projectId">
+                <span>Connected tasks</span>
+                <ng-container>
+                    <div class="tasks">
+                        <ng-container *ngIf="tasks.length > 0">
+                            <div class="tasks-list">
+                                <div class="task" *ngFor="let task of tasks">
+                                    <div class="task" (click)="routeToTask(task.taskId)">
+                                        <img src="../../../../assets/images/task.png"/>
+                                        <span>#{{task.taskId}}</span>
+                                        <span class="task-name">{{task.title}}</span>
+                                        <span class="task-progress">{{task.columnNameOrNull || "unassigned"}}</span>
+                                        <button class="icon-btn" (click)="deleteTask($event, task.taskId)">
+                                            <mat-icon>close</mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                           </div>
+                        </ng-container>
+                        <ng-template #noTasks>
+                            <span>No connected tasks</span>
+                        </ng-template>
+                        <app-add-task [group]="null"
+                            (addTaskClicked)="onAddTaskClicked($event, projectId)" />
+                    </div>
+                </ng-container>
+            </div>
+
+        </div>
+    </div>
+    <div class="chat-container">
+        <app-chat [chatId]="issue.chatId"></app-chat>
+    </div>
+</div>

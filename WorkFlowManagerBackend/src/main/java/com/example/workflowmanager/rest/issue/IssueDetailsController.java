@@ -44,11 +44,13 @@ public class IssueDetailsController
         final Issue issue = issueRepository.getReferenceById(issueId);
         final Organization source = issue.getSourceOrganization();
         final Organization destination = issue.getOrganization();
+        final Long projectId = ObjectUtils.accessNullable(issue.getProject(), Project::getId);
         final String projectName = ObjectUtils.accessNullable(issue.getProject(), Project::getName);
         final IssueFormRest form = issueFormFactory.getForm(destination.getId(), issue, forClient);
+        final Long chatId = issue.getChat().getId();
         return new IssueDetailsRest(issueId, issue.getTitle(), source.getName(),
-            destination.getName(),
-            projectName, source.getId(), destination.getId(), form);
+            destination.getName(), projectId, projectName, source.getId(),
+            destination.getId(), chatId, form);
     }
 
     public static class IssueDetailsRest
@@ -57,24 +59,28 @@ public class IssueDetailsController
         private String title;
         private String sourceOrganizationName;
         private String destinationOrganizationName;
+        private Long projectId;
         private String projectName;
         private Long sourceOrganizationId;
         private Long destinationOrganizationId;
+        private Long chatId;
         private IssueFormRest form;
 
         private IssueDetailsRest(final Long id,
             final String title, final String sourceOrganizationName,
-            final String destinationOrganizationName,
+            final String destinationOrganizationName, final Long projectId,
             final String projectName, final Long sourceOrganizationId,
-            final Long destinationOrganizationId, final IssueFormRest form)
+            final Long destinationOrganizationId, final Long chatId, final IssueFormRest form)
         {
             this.id = id;
             this.title = title;
             this.sourceOrganizationName = sourceOrganizationName;
             this.destinationOrganizationName = destinationOrganizationName;
+            this.projectId = projectId;
             this.projectName = projectName;
             this.sourceOrganizationId = sourceOrganizationId;
             this.destinationOrganizationId = destinationOrganizationId;
+            this.chatId = chatId;
             this.form = form;
         }
 
@@ -145,8 +151,7 @@ public class IssueDetailsController
             return destinationOrganizationId;
         }
 
-        public void setDestinationOrganizationId(
-            final Long destinationOrganizationId)
+        public void setDestinationOrganizationId(final Long destinationOrganizationId)
         {
             this.destinationOrganizationId = destinationOrganizationId;
         }
@@ -160,6 +165,26 @@ public class IssueDetailsController
             final IssueFormRest form)
         {
             this.form = form;
+        }
+
+        public Long getProjectId()
+        {
+            return projectId;
+        }
+
+        public void setProjectId(final Long projectId)
+        {
+            this.projectId = projectId;
+        }
+
+        public Long getChatId()
+        {
+            return chatId;
+        }
+
+        public void setChatId(final Long chatId)
+        {
+            this.chatId = chatId;
         }
 
     }

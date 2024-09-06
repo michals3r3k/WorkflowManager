@@ -30,7 +30,12 @@ public class TaskColumnRestFactory
         this.taskRepository = taskRepository;
     }
 
-    public List<TaskColumnRest> getList(final Long projectId)
+    public List<TaskRest> getTaskListByIssueId(final Long issueId)
+    {
+        return getTasksRest(taskRepository.getListByIssueIds(Collections.singleton(issueId)));
+    }
+
+    public List<TaskColumnRest> getTaskColumnListByProjectId(final Long projectId)
     {
         final Multimap<Optional<Long>, Task> columnTasksMap = Multimaps.index(
             taskRepository.getListByProjectIds(Collections.singleton(projectId)),
@@ -63,7 +68,8 @@ public class TaskColumnRestFactory
         final Task parentTaskOrNull = task.getParentTask();
         final Long parentTaskIdOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getId);
         final String parentTaskTitleOrNull = ObjectUtils.accessNullable(parentTaskOrNull, Task::getTitle);
-        return new TaskRest(taskId, title, members, priority, parentTaskIdOrNull, parentTaskTitleOrNull);
+        final String columnNameOrNull = ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getName);
+        return new TaskRest(taskId, title, members, priority, parentTaskIdOrNull, parentTaskTitleOrNull, columnNameOrNull);
     }
 
     static List<TaskMemberRest> getMembers(final Task task)
@@ -119,10 +125,12 @@ public class TaskColumnRestFactory
         private final TaskPriority priority;
         private final Long parentTaskIdOrNull;
         private final String parentTaskTitleOrNull;
+        private final String columnNameOrNull;
 
         private TaskRest(final Long taskId, final String title,
             final List<TaskMemberRest> members, final TaskPriority priority,
-            final Long parentTaskIdOrNull, final String parentTaskTitleOrNull)
+            final Long parentTaskIdOrNull, final String parentTaskTitleOrNull,
+            final String columnNameOrNull)
         {
             this.taskId = taskId;
             this.title = title;
@@ -130,6 +138,7 @@ public class TaskColumnRestFactory
             this.priority = priority;
             this.parentTaskIdOrNull = parentTaskIdOrNull;
             this.parentTaskTitleOrNull = parentTaskTitleOrNull;
+            this.columnNameOrNull = columnNameOrNull;
         }
 
         public Long getTaskId()
@@ -160,6 +169,11 @@ public class TaskColumnRestFactory
         public String getParentTaskTitleOrNull()
         {
             return parentTaskTitleOrNull;
+        }
+
+        public String getColumnNameOrNull()
+        {
+            return columnNameOrNull;
         }
 
     }

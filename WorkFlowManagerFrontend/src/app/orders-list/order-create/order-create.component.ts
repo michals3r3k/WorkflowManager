@@ -30,7 +30,7 @@ export class OrderCreateComponent {
       this.formGroup = null;
       return;
     }
-    this.issueFormService.getForm(this.sourceOrganizationId, this.destinationOrganizationId).subscribe(form => {
+    this.issueFormService.getForm(this.destinationOrganizationId).subscribe(form => {
       this.form = form;
       this.formGroup = new FormGroup({});
     });
@@ -38,7 +38,7 @@ export class OrderCreateComponent {
 
   sendReport() {
     if(this.form) {
-      this.issueFormService.sendForm(this.sourceOrganizationId, this.form).subscribe(result => {
+      this.issueFormService.createAsClient(this.sourceOrganizationId, this.form).subscribe(result => {
         this.serviceResultHelper.handleServiceResult(result, "Raport has been send succefully", "Errors occured");
         if(result.success) {
           this.afterSendReport.emit();

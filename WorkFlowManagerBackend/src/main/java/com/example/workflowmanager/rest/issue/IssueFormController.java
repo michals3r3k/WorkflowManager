@@ -1,42 +1,48 @@
 package com.example.workflowmanager.rest.issue;
 
-import com.example.workflowmanager.service.issue.OrganizationIssueCreateService;
+import com.example.workflowmanager.service.issue.IssueEditService;
+import com.example.workflowmanager.service.issue.IssueEditService.IssueEditError;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-
 @CrossOrigin
 @RestController
 public class IssueFormController
 {
-    private final OrganizationIssueCreateService organizationIssueCreateService;
+    private final IssueEditService organizationIssueCreateService;
     private final IssueFormFactory issueFormFactory;
 
     public IssueFormController(
-        final OrganizationIssueCreateService organizationIssueCreateService,
+        final IssueEditService organizationIssueCreateService,
         final IssueFormFactory issueFormFactory)
     {
         this.organizationIssueCreateService = organizationIssueCreateService;
         this.issueFormFactory = issueFormFactory;
     }
 
-    @GetMapping("/api/organization/{organizationId}/issue-form/{destinationOrganizationId}")
+    @GetMapping("/api/issue-form/{destinationOrganizationId}")
     @Transactional
-    public IssueFormRest getForm(@PathVariable Long organizationId, @PathVariable Long destinationOrganizationId)
+    public IssueFormRest getForm(@PathVariable Long destinationOrganizationId)
     {
         return issueFormFactory.getEmptyForClient(destinationOrganizationId);
     }
 
-    @PostMapping("/api/organization/{organizationId}/issue-form/send")
+    @PostMapping("/api/issue-form/{sourceOrganizationId}/create")
     @Transactional
-    public ResponseEntity<ServiceResult<?>> sendForm(@PathVariable Long organizationId,
+    public ResponseEntity<ServiceResult<IssueEditError>> create(@PathVariable Long sourceOrganizationId,
         @RequestBody IssueFormRest form)
     {
-        final LocalDateTime created = LocalDateTime.now();
-        return ResponseEntity.ok(organizationIssueCreateService.create(organizationId, form, created));
+        return ResponseEntity.ok(organizationIssueCreateService.create(sourceOrganizationId, form));
+    }
+
+    @PostMapping("/api/organization/{organizationId}/issue-form/edit")
+    @Transactional
+    public ResponseEntity<ServiceResult<IssueEditError>> edit(@PathVariable Long organizationId,
+        @RequestBody IssueFormRest form)
+    {
+        return ResponseEntity.ok(organizationIssueCreateService.edit(form));
     }
 
 }

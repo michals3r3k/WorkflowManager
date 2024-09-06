@@ -56,14 +56,13 @@ import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderListCardComponent } from './orders-list/order-list-card.component';
 import { OrderComponent } from './order/order.component';
 import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
-import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
 import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
 import { ChatComponent } from './chat/chat.component';
 import { TaskDetailsComponent } from './organizations/projects/task-details/task-details.component';
 import { OrderCreateComponent } from './orders-list/order-create/order-create.component';
 import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
 import { MatNativeDateModule } from '@angular/material/core';
-import { OrganizationIssueDialogComponent } from './orders-list/organization-issue-dialog/organization-issue-dialog.component';
+import { IssueDialogComponent } from './orders-list/organization-issue-dialog/issue-dialog.component';
 import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
 import { IssueFormComponent } from './orders-list/issue-form/issue-form.component';
 import { MemberDeleteButton } from './organizations/organization-details/member-delete-button-component';
@@ -106,12 +105,11 @@ import { IssueProjectConnectorComponent } from './orders-list/organization-issue
     OrderListCardComponent,
     OrderComponent,
     IssueListComponent,
-    IssueDetailsComponent,
     FieldDefinitionEditComponent,
     ChatComponent,
     OrderCreateComponent,
     OrganizationFilteringSelectComponent,
-    OrganizationIssueDialogComponent,
+    IssueDialogComponent,
     IssueFieldComponent,
     IssueFormComponent,
     TaskDetailsComponent,

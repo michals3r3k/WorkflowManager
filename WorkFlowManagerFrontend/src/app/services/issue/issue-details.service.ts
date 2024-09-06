@@ -23,13 +23,11 @@ export interface IssueDetailsRest {
   title: string;
   sourceOrganizationName: number;
   destinationOrganizationName: number;
+  projectId: number | null;
   projectName: string | null;
   sourceOrganizationId: number;
   destinationOrganizationId: number;
+  chatId: number;
   form: IssueFormRest;
-  description: string;
-  connectedTasks: string[];
-  status: string;
-  category: string;
 }
 

@@ -1,14 +1,15 @@
 package com.example.workflowmanager.service.task;
 
 import com.example.workflowmanager.db.chat.ChatRepository;
+import com.example.workflowmanager.db.issue.IssueRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskColumnRepository;
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.chat.Chat;
+import com.example.workflowmanager.entity.issue.Issue;
 import com.example.workflowmanager.entity.organization.project.task.Task;
 import com.example.workflowmanager.entity.organization.project.task.TaskColumn;
 import com.example.workflowmanager.entity.organization.project.task.TaskPriority;
 import com.example.workflowmanager.entity.user.User;
-import com.example.workflowmanager.rest.organization.project.task.TaskColumnController.TaskCreateRequestRest;
 import com.example.workflowmanager.service.utils.ObjectUtils;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import com.google.common.collect.Iterables;
@@ -26,35 +27,46 @@ public class TaskCreateService
     private final ChatRepository chatRepository;
     private final TaskRepository taskRepository;
     private final TaskColumnRepository taskColumnRepository;
+    private final IssueRepository issueRepository;
 
     public TaskCreateService(final ChatRepository chatRepository,
         final TaskRepository taskRepository,
-        final TaskColumnRepository taskColumnRepository)
+        final TaskColumnRepository taskColumnRepository,
+        final IssueRepository issueRepository)
     {
         this.chatRepository = chatRepository;
         this.taskRepository = taskRepository;
         this.taskColumnRepository = taskColumnRepository;
+        this.issueRepository = issueRepository;
     }
 
     public TaskCreateServiceResult create(final Long organizationId,
-        final Long projectId, final TaskCreateRequestRest taskDto,
-        final User creator)
+        final Long projectId, final String title, final Long issueId,
+        final Long columnId, final User creator)
     {
         final Multimap<Optional<Long>, Task> columnTasksMap = Multimaps.index(
             taskRepository.getListByProjectIds(Collections.singleton(projectId)),
             task -> Optional.ofNullable(task.getTaskColumnId()));
         final Set<TaskCreateError> errors = EnumSet.noneOf(TaskCreateError.class);
-        if(isExists(taskDto, columnTasksMap.values()))
+        if(isExists(title, columnTasksMap.values()))
         {
             errors.add(TaskCreateError.EXISTS);
         }
-        if(taskDto.getTaskColumnId() != null)
+        if(columnId != null)
         {
             final TaskColumn taskColumnOrNull = Iterables.getFirst(taskColumnRepository.getListByIds(
-                Collections.singleton(taskDto.getTaskColumnId())), null);
+                Collections.singleton(columnId)), null);
             if(taskColumnOrNull == null)
             {
                 errors.add(TaskCreateError.COLUMN_NOT_EXISTS);
+            }
+        }
+        if(issueId != null)
+        {
+            final Issue issue = issueRepository.getById(issueId);
+            if(issue == null)
+            {
+                errors.add(TaskCreateError.ISSUE_NOT_EXISTS);
             }
         }
         if(!errors.isEmpty())
@@ -64,9 +76,9 @@ public class TaskCreateService
         final Chat chat = new Chat();
         chatRepository.save(chat);
         final short order = getNewOrder(columnTasksMap.get(
-            Optional.ofNullable(taskDto.getTaskColumnId())));
-        final Task task = new Task(taskDto.getTitle(), LocalDateTime.now(),
-            chat, organizationId, projectId, taskDto.getTaskColumnId(),
+            Optional.ofNullable(columnId)));
+        final Task task = new Task(title, LocalDateTime.now(),
+            chat, organizationId, projectId, issueId, columnId,
             creator, TaskPriority.MEDIUM, order);
         taskRepository.save(task);
         return new TaskCreateServiceResult(task, errors);
@@ -82,11 +94,11 @@ public class TaskCreateService
             .orElse(0);
     }
 
-    private static boolean isExists(final TaskCreateRequestRest task, final Collection<Task> tasks)
+    private static boolean isExists(final String newTitle, final Collection<Task> tasks)
     {
         return tasks.stream()
             .map(Task::getTitle)
-            .anyMatch(title -> StringUtils.equalsIgnoreCase(title, task.getTitle()));
+            .anyMatch(title -> StringUtils.equalsIgnoreCase(title, newTitle));
     }
 
     public static class TaskCreateServiceResult extends ServiceResult<TaskCreateError>
@@ -115,7 +127,8 @@ public class TaskCreateService
     public enum TaskCreateError
     {
         EXISTS,
-        COLUMN_NOT_EXISTS;
+        COLUMN_NOT_EXISTS,
+        ISSUE_NOT_EXISTS
     }
 
 }

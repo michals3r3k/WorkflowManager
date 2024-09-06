@@ -1,26 +1,26 @@
 <div class="container">
     <div class="fields-container">
         <div *ngIf="issue$ | async as issue">
-            <button class="save-btn" (click)="switchToEditMode()" *ngIf="!editMode && !readOnly">
+            <button class="save-btn" (click)="switchToEditMode()" *ngIf="!editMode && !forClient">
                 <mat-icon>edit</mat-icon>
             </button>
-            <button class="save-btn" (click)="saveChanges()" *ngIf="editMode && !readOnly">
+            <button class="save-btn" (click)="saveChanges()" *ngIf="editMode && !forClient">
                 <mat-icon>save</mat-icon>
             </button>
            
             <div class="organization">
-                <span>Organization: {{readOnly ? issue.destinationOrganizationName: issue.sourceOrganizationName}}</span>
+                <span>Organization: {{forClient ? issue.destinationOrganizationName: issue.sourceOrganizationName}}</span>
             </div>
     
             <issue-form [issueForm]="issue.form" [issueFormGroup]="formGroup" [editMode]="editMode"/>
     
-            <div class="project-container" *ngIf="!readOnly">
+            <div class="project-container" *ngIf="!forClient">
                 <span>Connected project</span>
-                <ng-container *ngIf="issue.projectName || false; else addProject">
+                <ng-container *ngIf="project$ | async as project; else addProject">
                    <div class="project">
                         <img src="../../../assets/images/project.png"/>
-                        <span>{{issue.projectName}}</span>
-                        <button (click)="goToProjectTasks()">Tasks</button>
+                        <span>{{project.name}}</span>
+                        <button [routerLink]="['project-details', project.organizationId, project.projectId]">Tasks</button>
                         <button>Issues</button>
                    </div>
                 </ng-container>

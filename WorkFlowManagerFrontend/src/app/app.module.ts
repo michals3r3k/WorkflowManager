@@ -63,7 +63,7 @@ import { TaskDetailsComponent } from './organizations/projects/task-details/task
 import { OrderCreateComponent } from './orders-list/order-create/order-create.component';
 import { OrganizationFilteringSelectComponent } from './components/organization-filtering-select/organization-filtering-select.component';
 import { MatNativeDateModule } from '@angular/material/core';
-import { OrganizationIssueDialogComponent } from './orders-list/organization-issue-dialog/organization-issue-dialog.component';
+import { IssueDialogComponent } from './orders-list/organization-issue-dialog/issue-dialog.component';
 import { IssueFieldComponent } from './orders-list/issue-field/issue-field.component';
 import { IssueFormComponent } from './orders-list/issue-form/issue-form.component';
 import { MemberDeleteButton } from './organizations/organization-details/member-delete-button-component';
@@ -111,7 +111,7 @@ import { IssueProjectConnectorComponent } from './orders-list/organization-issue
     ChatComponent,
     OrderCreateComponent,
     OrganizationFilteringSelectComponent,
-    OrganizationIssueDialogComponent,
+    IssueDialogComponent,
     IssueFieldComponent,
     IssueFormComponent,
     TaskDetailsComponent,

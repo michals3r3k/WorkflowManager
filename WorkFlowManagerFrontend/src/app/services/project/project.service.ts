@@ -31,8 +31,8 @@ export class ProjectService {
     return this.projectChangeSubject.asObservable();
   }
 
-  getProjectById(organizationId: number, projectId: number): Observable<ProjectRest> {
-    return this.http.getGeneric<ProjectRest>(`/api/organization/${organizationId}/project/${projectId}`);
+  getById(organizationId: number, projectId: number): Observable<ProjectRest> {
+    return this.http.getGeneric<ProjectRest>(`api/organization/${organizationId}/project/${projectId}`);
   }
 
   private _create(url: string, model: ProjectCreateModel): Observable<ProjectCreateResult> {

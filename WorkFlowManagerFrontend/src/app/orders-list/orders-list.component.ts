@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganizationIssueDialogComponent } from './organization-issue-dialog/organization-issue-dialog.component';
+import { IssueDialogComponent } from './organization-issue-dialog/issue-dialog.component';
 import { IssueRest, IssueService } from '../services/issue/issue.service';
 import { IssueFormService } from '../services/issue/issue-form.service';
 
@@ -34,23 +34,22 @@ export class OrdersListComponent implements OnInit {
 
   openClientsIssueDetails(issue: IssueRest) {
     const issueId = issue.id;
-    const dialogRef = this.dialog.open(OrganizationIssueDialogComponent, {data: {
+    const dialogRef = this.dialog.open(IssueDialogComponent, {data: {
       organizationId: this.organizationId,
       issueId: issueId,
-      readOnly: false
+      forClient: false
     }});
-    dialogRef.componentInstance.closeDialog.subscribe(() => {
+    dialogRef.componentInstance.projectChange.subscribe(() => {
       this._loadIssues();
-      dialogRef.close();
     });
   }
 
   openMyIssueDetails(issue: IssueRest) {
     const issueId = issue.id;
-    this.dialog.open(OrganizationIssueDialogComponent, {data: {
+    this.dialog.open(IssueDialogComponent, {data: {
       organizationId: this.organizationId,
       issueId: issueId,
-      readOnly: true
+      forClient: true
     }});
   }
 

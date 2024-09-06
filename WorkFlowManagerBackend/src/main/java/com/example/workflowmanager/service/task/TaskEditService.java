@@ -5,7 +5,6 @@ import com.example.workflowmanager.db.organization.project.task.TaskRelationRepo
 import com.example.workflowmanager.db.organization.project.task.TaskRepository;
 import com.example.workflowmanager.entity.organization.project.task.*;
 import com.example.workflowmanager.entity.user.User;
-import com.example.workflowmanager.rest.organization.project.task.TaskColumnController.TaskCreateRequestRest;
 import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.SubTaskRest;
 import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskRelationRest;
 import com.example.workflowmanager.rest.organization.project.task.TaskRestFactory.TaskRelationTypeRest;
@@ -95,11 +94,9 @@ public class TaskEditService
         {
             if(subTaskRest.getSubTaskId() == null)
             {
-                final TaskCreateRequestRest subTaskDto = new TaskCreateRequestRest();
-                subTaskDto.setTaskColumnId(ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getId));
-                subTaskDto.setTitle(subTaskRest.getTitle());
+                Long columnId = ObjectUtils.accessNullable(task.getTaskColumn(), TaskColumn::getId);
                 final TaskCreateServiceResult taskCreateServiceResult = taskCreateService.create(
-                    organizationId, projectId, subTaskDto, subTaskCreator);
+                    organizationId, projectId, subTaskRest.getTitle(), null, columnId, subTaskCreator);
                 if(!taskCreateServiceResult.isSuccess())
                 {
                     throw new IllegalStateException("Unknown error: " + taskCreateServiceResult.getErrors());

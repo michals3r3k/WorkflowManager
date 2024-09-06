@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { debounceTime, filter, mergeMap, Observable, of, startWith, switchMap, tap } from 'rxjs';
+import { debounceTime, filter, map, mergeMap, Observable, of, startWith, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ProjectCreateModel, ProjectRest, ProjectService } from '../../services/project/project.service';
 import { IssueDetailsRest, IssueDetailsService } from '../../services/issue/issue-details.service';
@@ -8,6 +8,9 @@ import { IssueProjectConnectorComponent } from './issue-project-connector/issue-
 import { IssueService } from '../../services/issue/issue.service';
 import { IssueFormService } from '../../services/issue/issue-form.service';
 import { ServiceResultHelper } from '../../services/utils/service-result-helper';
+import { HttpRequestService } from '../../services/http/http-request.service';
+import { ServiceResult } from '../../services/utils/service-result';
+import { TaskService } from '../../services/task/task.service';
 
 @Component({
   selector: 'app-issue-dialog',
@@ -18,6 +21,7 @@ export class IssueDialogComponent implements OnInit {
   @Output() projectChange = new EventEmitter<null>();
   // input params
   organizationId: number;
+  projectId: number | null;
   issueId: number;
   forClient: boolean;
 
@@ -34,12 +38,16 @@ export class IssueDialogComponent implements OnInit {
     private dialog: MatDialog,
     private issueFormService: IssueFormService,
     private serviceResultHelper: ServiceResultHelper,
+    private http: HttpRequestService,
+    private taskService: TaskService,
     @Inject(MAT_DIALOG_DATA) private data: {
       forClient: boolean,
       organizationId: number,
+      projectId?: number,
       issueId: number
     }) {
     this.organizationId = data.organizationId;
+    this.projectId = data.projectId || null;
     this.issueId = data.issueId;
     this.forClient = data.forClient;
     this.project$ = of(null);
@@ -49,16 +57,19 @@ export class IssueDialogComponent implements OnInit {
   ngOnInit(): void {
     this.issue$ = this.issueDetailsService.getDetails(this.organizationId, this.issueId, this.forClient).pipe(
       tap(issue => {
+        this.projectId = issue.projectId;
         this.project$ = this._getProject(issue.projectId);
       })
     );
   }
 
-  onAddTaskClicked(taskTitle: string) {
-    // this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: group.id}).subscribe(res => {
-    //   this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
-    //   this.loadTasks();
-    // });
+  onAddTaskClicked(taskTitle: string, projectId: number) {
+    if(!taskTitle) {
+      return;
+    }
+    this.taskService.createForIssue(this.organizationId, projectId, this.issueId, taskTitle).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Task created succefully", "Errors occured");
+    });
   }
 
   switchToEditMode() {
@@ -80,6 +91,7 @@ export class IssueDialogComponent implements OnInit {
       issueId: issue.id
     }});
     this.project$ = dialogRef.afterClosed().pipe(
+      tap(projectId => this.projectId = projectId),
       filter(projectId => projectId),
       tap(() => this.projectChange.emit()),
       mergeMap(projectId => this._getProject(projectId)));

@@ -28,6 +28,9 @@ public interface TaskRepository extends JpaRepository<Task, Long>
     @Query("select t from Task t where t.projectId in (?1)")
     List<Task> getListByProjectIds(Collection<Long> projectIds);
 
+    @Query("select t from Task t where t.issue.id in (?1)")
+    List<Task> getListByIssueIds(Collection<Long> issueIds);
+
     @Query("select t from Task t where t.id in (?1)")
     List<Task> getList(Collection<Long> ids);
 

@@ -1,6 +1,7 @@
 package com.example.workflowmanager.entity.organization.project.task;
 
 import com.example.workflowmanager.entity.chat.Chat;
+import com.example.workflowmanager.entity.issue.Issue;
 import com.example.workflowmanager.entity.organization.project.Project;
 import com.example.workflowmanager.entity.user.User;
 import jakarta.persistence.*;
@@ -31,6 +32,8 @@ public class Task
     private LocalDateTime deadlineDate;
     @Column(name = "parent_task_id")
     private Long parentTaskId;
+    @Column(name = "issue_id")
+    private Long issueId;
     @Column(name = "task_column_id")
     private Long taskColumnId;
     @Column(name = "project_id", nullable = false)
@@ -65,10 +68,18 @@ public class Task
         @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false)
     })
     private Project project;
+    @ManyToOne()
+    @JoinColumns(value = {
+        @JoinColumn(name = "issue_id", referencedColumnName = "id", insertable = false, updatable = false),
+        @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false),
+        @JoinColumn(name = "project_id", referencedColumnName = "project_id", insertable = false, updatable = false),
+    })
+    private Issue issue;
 
     public Task(final String title, final LocalDateTime createTime, final Chat chat,
-        final Long organizationId, final Long projectId, final Long taskColumnId,
-        final User creator, final TaskPriority priority, final Short taskOrder)
+        final Long organizationId, final Long projectId, final Long issueId,
+        final Long taskColumnId, final User creator, final TaskPriority priority,
+        final Short taskOrder)
     {
         setTitle(title);
         setCreateTime(createTime);
@@ -77,6 +88,7 @@ public class Task
         setProjectId(projectId);
         setOrganizationId(organizationId);
         setTaskColumnId(taskColumnId);
+        setIssueId(issueId);
         setChat(chat);
         setCreator(creator);
         setPriority(priority);
@@ -311,6 +323,26 @@ public class Task
     protected void setProject(final Project project)
     {
         this.project = project;
+    }
+
+    public Issue getIssue()
+    {
+        return issue;
+    }
+
+    public void setIssue(final Issue issue)
+    {
+        this.issue = issue;
+    }
+
+    public Long getIssueId()
+    {
+        return issueId;
+    }
+
+    public void setIssueId(final Long issueId)
+    {
+        this.issueId = issueId;
     }
 
 }

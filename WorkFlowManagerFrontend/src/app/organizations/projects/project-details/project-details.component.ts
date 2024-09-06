@@ -256,8 +256,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   }
 
   onAddTaskClicked(taskTitle: string, column: TaskColumn) {
-    this.http.postGeneric<{taskIdOrNull: number | null, success: boolean, errors: [string]}>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: column.id}).subscribe(res => {
-      this.serviceResultHelper.handleServiceResult(res as ServiceResult, "Task created succefully", "Errors occured");
+    this.http.postGeneric<ServiceResult>(`api/organization/${this.organizationId}/project/${this.projectId}/task/column/add-task`, {title: taskTitle, taskColumnId: column.id}).subscribe(res => {
+      this.serviceResultHelper.handleServiceResult(res, "Task created succefully", "Errors occured");
       this.loadTasks();
     });
   }

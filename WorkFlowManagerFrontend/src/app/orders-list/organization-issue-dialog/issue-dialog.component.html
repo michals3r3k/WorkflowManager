@@ -35,9 +35,9 @@
                 </ng-template>
             </div>
 
-            <div class="connected-tasks">
+            <div class="connected-tasks" *ngIf="projectId">
                 <span>Connected tasks</span>
-                <ng-container *ngIf="issue.projectName || true; else noProject">
+                <ng-container>
                     <div class="tasks">
                         <ng-container *ngIf="(issue.connectedTasks && issue.connectedTasks.length !== 0) || true; else noTasks">
                             <div class="tasks-list">
@@ -60,10 +60,10 @@
                             <span>No connected tasks</span>
                         </ng-template>
                         <app-add-task [group]="null"
-                            (addTaskClicked)="onAddTaskClicked($event)" />
+                            (addTaskClicked)="onAddTaskClicked($event, projectId)" />
                     </div>
                 </ng-container>
-                <ng-template #noProject>
+                <!-- <ng-template #noProject>
                     <div class="no-project">
                         <span>No connected project</span>
                         <button>
@@ -71,7 +71,7 @@
                             Connect project    
                         </button>
                     </div>
-                </ng-template>
+                </ng-template> -->
             </div>
 
         </div>

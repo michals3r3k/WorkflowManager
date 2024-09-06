@@ -8,7 +8,7 @@ import com.example.workflowmanager.service.task.TaskChangeOrderService.TaskChang
 import com.example.workflowmanager.service.task.TaskColumnChangeOrderService.TaskColumnChangeOrderError;
 import com.example.workflowmanager.service.task.TaskColumnCreateService.TaskColumnCreateError;
 import com.example.workflowmanager.service.task.TaskColumnDeleteService.TaskColumnDeleteError;
-import com.example.workflowmanager.service.task.TaskCreateService.TaskCreateServiceResult;
+import com.example.workflowmanager.service.task.TaskCreateService.TaskCreateError;
 import com.example.workflowmanager.service.utils.ServiceResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,13 +47,30 @@ public class TaskColumnController
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/add-task")
     @Transactional
-    public ResponseEntity<TaskCreateServiceResult> createTask(
+    public ResponseEntity<ServiceResult<TaskCreateError>> createColumnTask(
         @PathVariable Long organizationId, @PathVariable Long projectId,
-        @RequestBody TaskCreateRequestRest task)
+        @RequestBody ColumnTaskCreateRequestRest task)
     {
-        final User user = currentUserService.getCurrentUser()
+        final User user = getCurrentUser();
+        return ResponseEntity.ok(taskCreateService.create(organizationId,
+            projectId, task.getTitle(), null, task.getTaskColumnId(), user));
+    }
+
+    @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/issue/add-task")
+    @Transactional
+    public ResponseEntity<ServiceResult<TaskCreateError>> createIssueTask(
+        @PathVariable Long organizationId, @PathVariable Long projectId,
+        @RequestBody IssueTaskCreateRequestRest task)
+    {
+        final User user = getCurrentUser();
+        return ResponseEntity.ok(taskCreateService.create(organizationId,
+            projectId, task.getTitle(), task.getIssueId(), null, user));
+    }
+
+    private User getCurrentUser()
+    {
+        return currentUserService.getCurrentUser()
             .orElseThrow(NoSuchElementException::new);
-        return ResponseEntity.ok(taskCreateService.create(organizationId, projectId, task, user));
     }
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/add")
@@ -187,12 +204,12 @@ public class TaskColumnController
 
     }
 
-    public static class TaskCreateRequestRest
+    public static class ColumnTaskCreateRequestRest
     {
         private String title;
         private Long taskColumnId;
 
-        public TaskCreateRequestRest()
+        public ColumnTaskCreateRequestRest()
         {
             // for Spring
         }
@@ -215,6 +232,38 @@ public class TaskColumnController
         public void setTaskColumnId(final Long taskColumnId)
         {
             this.taskColumnId = taskColumnId;
+        }
+
+    }
+
+    public static class IssueTaskCreateRequestRest
+    {
+        private String title;
+        private Long issueId;
+
+        public IssueTaskCreateRequestRest()
+        {
+            // for Spring
+        }
+
+        public String getTitle()
+        {
+            return title;
+        }
+
+        public void setTitle(final String title)
+        {
+            this.title = title;
+        }
+
+        public Long getIssueId()
+        {
+            return issueId;
+        }
+
+        public void setIssueId(final Long issueId)
+        {
+            this.issueId = issueId;
         }
 
     }

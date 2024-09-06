@@ -39,20 +39,18 @@
                 <span>Connected tasks</span>
                 <ng-container>
                     <div class="tasks">
-                        <ng-container *ngIf="(issue.connectedTasks && issue.connectedTasks.length !== 0) || true; else noTasks">
+                        <ng-container *ngIf="tasks.length > 0">
                             <div class="tasks-list">
-                                <!-- <div class="task" *ngFor="let task of issue.connectedTasks">
-
-                                </div> -->
-                                <!--NA SZTYWNO. TRZEBA DODAĆ NGFOR JAK DO GÓRY-->
-                                <div class="task">
-                                    <img src="../../../../assets/images/task.png"/>
-                                    <span>#1</span> <!--task id-->
-                                    <span class="task-name">connected task</span> <!--task name-->
-                                    <span class="task-progress">new</span> <!--task status-->
-                                    <button class="icon-btn" >
-                                    <mat-icon>close</mat-icon>
-                                    </button>
+                                <div class="task" *ngFor="let task of tasks">
+                                    <div class="task">
+                                        <img src="../../../../assets/images/task.png"/>
+                                        <span>#{{task.taskId}}</span>
+                                        <span class="task-name">{{task.title}}</span>
+                                        <span class="task-progress">{{task.columnNameOrNull || "unassigned"}}</span>
+                                        <button class="icon-btn" >
+                                            <mat-icon>close</mat-icon>
+                                        </button>
+                                    </div>
                                 </div>
                            </div>
                         </ng-container>
@@ -63,15 +61,6 @@
                             (addTaskClicked)="onAddTaskClicked($event, projectId)" />
                     </div>
                 </ng-container>
-                <!-- <ng-template #noProject>
-                    <div class="no-project">
-                        <span>No connected project</span>
-                        <button>
-                            <mat-icon>add</mat-icon>
-                            Connect project    
-                        </button>
-                    </div>
-                </ng-template> -->
             </div>
 
         </div>

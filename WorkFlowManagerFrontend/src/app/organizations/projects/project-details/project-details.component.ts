@@ -273,13 +273,14 @@ interface TaskMemberRest {
   email: string;
 }
 
-interface TaskRest {
+export interface TaskRest {
   taskId: number;
   title: string;
   members: TaskMemberRest[],
   priority: TaskPriority,
   parentTaskIdOrNull: number | null,
   parentTaskTitleOrNull: string | null,
+  columnNameOrNull: string | null,
 }
 
 interface TaskColumnRest {

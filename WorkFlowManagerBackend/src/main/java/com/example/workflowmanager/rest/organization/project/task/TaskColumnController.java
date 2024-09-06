@@ -2,6 +2,7 @@ package com.example.workflowmanager.rest.organization.project.task;
 
 import com.example.workflowmanager.entity.user.User;
 import com.example.workflowmanager.rest.organization.project.task.TaskColumnRestFactory.TaskColumnRest;
+import com.example.workflowmanager.rest.organization.project.task.TaskColumnRestFactory.TaskRest;
 import com.example.workflowmanager.service.auth.CurrentUserService;
 import com.example.workflowmanager.service.task.*;
 import com.example.workflowmanager.service.task.TaskChangeOrderService.TaskChangeOrderError;
@@ -81,11 +82,20 @@ public class TaskColumnController
         return ResponseEntity.ok(taskColumnCreateService.create(projectId, columnName));
     }
 
+    @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/issue/{issueId}")
+    @Transactional
+    public ResponseEntity<List<TaskRest>> getIssueTasks(
+        @PathVariable Long organizationId, @PathVariable Long projectId,
+        @PathVariable Long issueId)
+    {
+        return ResponseEntity.ok(taskColumnRestFactory.getTaskListByIssueId(issueId));
+    }
+
     @GetMapping("/api/organization/{organizationId}/project/{projectId}/task/columns")
     @Transactional
     public ResponseEntity<List<TaskColumnRest>> getList(@PathVariable Long organizationId, @PathVariable Long projectId)
     {
-        return ResponseEntity.ok(taskColumnRestFactory.getList(projectId));
+        return ResponseEntity.ok(taskColumnRestFactory.getTaskColumnListByProjectId(projectId));
     }
 
     @PostMapping("/api/organization/{organizationId}/project/{projectId}/task/column/change-order")

@@ -11,6 +11,7 @@ import { ServiceResultHelper } from '../../services/utils/service-result-helper'
 import { HttpRequestService } from '../../services/http/http-request.service';
 import { ServiceResult } from '../../services/utils/service-result';
 import { TaskService } from '../../services/task/task.service';
+import { TaskRest } from '../../organizations/projects/project-details/project-details.component';
 
 @Component({
   selector: 'app-issue-dialog',
@@ -28,6 +29,7 @@ export class IssueDialogComponent implements OnInit {
   // view variables
   issue$: Observable<IssueDetailsRest>;
   project$: Observable<ProjectRest | null>;
+  tasks: TaskRest[];
 
   formGroup :FormGroup | undefined = undefined;
   editMode: boolean = false;
@@ -51,6 +53,7 @@ export class IssueDialogComponent implements OnInit {
     this.issueId = data.issueId;
     this.forClient = data.forClient;
     this.project$ = of(null);
+    this.tasks = [];
     this.formGroup = new FormGroup({});
   }
 
@@ -59,6 +62,7 @@ export class IssueDialogComponent implements OnInit {
       tap(issue => {
         this.projectId = issue.projectId;
         this.project$ = this._getProject(issue.projectId);
+        this.loadTasks();
       })
     );
   }
@@ -69,6 +73,16 @@ export class IssueDialogComponent implements OnInit {
     }
     this.taskService.createForIssue(this.organizationId, projectId, this.issueId, taskTitle).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res, "Task created succefully", "Errors occured");
+      this.loadTasks();
+    });
+  }
+
+  loadTasks() {
+    if(!this.projectId || !this.organizationId) {
+      return;
+    }
+    this.http.getGeneric<TaskRest[]>(`api/organization/${this.organizationId}/project/${this.projectId}/task/issue/${this.issueId}`).subscribe(tasks => {
+      this.tasks = tasks;
     });
   }
 

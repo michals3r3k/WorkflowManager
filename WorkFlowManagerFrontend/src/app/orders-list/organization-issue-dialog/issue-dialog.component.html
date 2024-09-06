@@ -42,12 +42,12 @@
                         <ng-container *ngIf="tasks.length > 0">
                             <div class="tasks-list">
                                 <div class="task" *ngFor="let task of tasks">
-                                    <div class="task">
+                                    <div class="task" (click)="routeToTask(task.taskId)">
                                         <img src="../../../../assets/images/task.png"/>
                                         <span>#{{task.taskId}}</span>
                                         <span class="task-name">{{task.title}}</span>
                                         <span class="task-progress">{{task.columnNameOrNull || "unassigned"}}</span>
-                                        <button class="icon-btn" >
+                                        <button class="icon-btn" (click)="deleteTask($event, task.taskId)">
                                             <mat-icon>close</mat-icon>
                                         </button>
                                     </div>

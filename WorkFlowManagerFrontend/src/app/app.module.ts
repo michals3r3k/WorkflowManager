@@ -56,7 +56,6 @@ import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderListCardComponent } from './orders-list/order-list-card.component';
 import { OrderComponent } from './order/order.component';
 import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
-import { IssueDetailsComponent } from './organizations/projects/issue/issue-details/issue-details.component';
 import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
 import { ChatComponent } from './chat/chat.component';
 import { TaskDetailsComponent } from './organizations/projects/task-details/task-details.component';
@@ -106,7 +105,6 @@ import { IssueProjectConnectorComponent } from './orders-list/organization-issue
     OrderListCardComponent,
     OrderComponent,
     IssueListComponent,
-    IssueDetailsComponent,
     FieldDefinitionEditComponent,
     ChatComponent,
     OrderCreateComponent,

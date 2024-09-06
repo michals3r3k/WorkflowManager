@@ -12,6 +12,7 @@ import { HttpRequestService } from '../../services/http/http-request.service';
 import { ServiceResult } from '../../services/utils/service-result';
 import { TaskService } from '../../services/task/task.service';
 import { TaskRest } from '../../organizations/projects/project-details/project-details.component';
+import { Route, Router } from '@angular/router';
 
 @Component({
   selector: 'app-issue-dialog',
@@ -38,6 +39,8 @@ export class IssueDialogComponent implements OnInit {
     private projectService: ProjectService,
     private issueDetailsService: IssueDetailsService,
     private dialog: MatDialog,
+    private dialogRef: MatDialogRef<IssueDialogComponent>,
+    public router: Router,
     private issueFormService: IssueFormService,
     private serviceResultHelper: ServiceResultHelper,
     private http: HttpRequestService,
@@ -73,7 +76,9 @@ export class IssueDialogComponent implements OnInit {
     }
     this.taskService.createForIssue(this.organizationId, projectId, this.issueId, taskTitle).subscribe(res => {
       this.serviceResultHelper.handleServiceResult(res, "Task created succefully", "Errors occured");
-      this.loadTasks();
+      if(res.success) {
+        this.loadTasks();
+      }
     });
   }
 
@@ -116,6 +121,19 @@ export class IssueDialogComponent implements OnInit {
       return this.projectService.getById(this.organizationId, projectId);
     }
     return of(null);
+  }
+  
+  routeToTask(taskId: number) {
+    this.dialogRef.close();
+    this.router.navigate(['/project-details', this.organizationId, this.projectId, taskId]);
+  }
+
+  deleteTask(event: Event, taskId: number) {
+    event.stopPropagation();
+    this.http.get(`api/organization/${this.organizationId}/project/${this.projectId}/task/${taskId}/delete`).subscribe(() => {
+      this.serviceResultHelper.handleServiceResult({success: true, errors: ['']}, "Task deleted successfully", "Errors occured");
+      this.loadTasks();
+    });
   }
 
 }

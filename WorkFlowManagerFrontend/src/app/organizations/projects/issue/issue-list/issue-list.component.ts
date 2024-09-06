@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { IssueDetailsComponent } from '../issue-details/issue-details.component';
 import { ActivatedRoute } from '@angular/router';
 import { IssueRest, IssueService } from '../../../../services/issue/issue.service';
+import { IssueDialogComponent } from '../../../../orders-list/organization-issue-dialog/issue-dialog.component';
 
 @Component({
   selector: 'app-issue-list',
@@ -58,8 +58,9 @@ export class IssueListComponent implements OnInit {
   }
 
   openDialog(issue: IssueRest) {
-    const dialogRef = this.dialog.open(IssueDetailsComponent, {
+    const dialogRef = this.dialog.open(IssueDialogComponent, {
       data: {
+        forClient: false,
         organizationId: this.organizationId,
         projectId: this.projectId,
         issueId: issue.id

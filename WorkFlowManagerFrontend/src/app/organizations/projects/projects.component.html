@@ -11,7 +11,7 @@
                 </mat-card-header>
                 <mat-card-footer>
                     <mat-chip-set>
-                        <mat-chip [routerLink]="['/project-issues', project.organizationId, project.projectId]">issues</mat-chip>
+                        <mat-chip [routerLink]="['/incomming-issues', project.organizationId, project.projectId]">issues</mat-chip>
                         <mat-chip [routerLink]="['/project-details', project.organizationId, project.projectId]">tasks</mat-chip>
                     </mat-chip-set>
                 </mat-card-footer>
@@ -29,7 +29,7 @@
                 </mat-card-header>
                 <mat-card-footer>
                     <mat-chip-set>
-                        <mat-chip>issues</mat-chip>
+                        <mat-chip [routerLink]="['/outgoing-issues', this.organizationId, project.projectId]">issues</mat-chip>
                     </mat-chip-set>
                 </mat-card-footer>
             </mat-card>

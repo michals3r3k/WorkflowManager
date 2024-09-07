@@ -1,0 +1,16 @@
+<div class="container" *ngIf="group$ | async as group">
+    <h1>Your issues for organization "{{group.organizationName}}"</h1>
+    <div *ngIf="group.issueRestList.length == 0">
+        You haven't reported any issue yet.
+    </div>
+    <mat-card *ngFor="let issue of group.issueRestList" appearance="outlined" (click)="openDialog(issue)">
+        <mat-card-content class="issue">
+            <span class="id">#{{issue.id}}</span>
+            <span class="title">{{issue.title}}</span>
+            <div class="extra-data">
+                <span>{{issue.status}}</span>
+                <span>{{issue.created}}</span>
+            </div>
+        </mat-card-content>
+    </mat-card>     
+</div>

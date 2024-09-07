@@ -11,6 +11,7 @@ import { HttpRequestService } from '../../services/http/http-request.service';
 import { TaskService } from '../../services/task/task.service';
 import { TaskRest } from '../../organizations/projects/project-details/project-details.component';
 import { Router } from '@angular/router';
+import { ReturnStatement } from '@angular/compiler';
 
 @Component({
   selector: 'app-issue-dialog',
@@ -122,6 +123,9 @@ export class IssueDialogComponent implements OnInit {
   }
   
   routeToTask(taskId: number) {
+    if(this.forClient) {
+      return;
+    }
     this.dialogRef.close();
     this.router.navigate(['/project-details', this.organizationId, this.projectId, taskId]);
   }

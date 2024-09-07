@@ -27,8 +27,8 @@ export class OrdersListComponent implements OnInit {
 
   _loadIssues() {
     this.issueService.getOrganizationIssues(this.organizationId).subscribe(issues => {
-      this.myIssues = issues.filter(issue => !issue.fromClient);
-      this.clientsIssues = issues.filter(issue => issue.fromClient);
+      this.myIssues = issues.filter(issue => issue.forClient);
+      this.clientsIssues = issues.filter(issue => !issue.forClient);
     });
   }
 

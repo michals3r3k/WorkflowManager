@@ -10,8 +10,9 @@ import { ProjectDetailsComponent } from './organizations/projects/project-detail
 import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderComponent } from './order/order.component';
-import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
+import { IncommingIssueListComponent } from './organizations/projects/issue/issue-list/incomming-issue-list.component';
 import { ChatComponent } from './chat/chat.component';
+import { OutgoingIssueListComponent } from './organizations/projects/issue/outgoing-issue-list/outgoing-issue-list.component';
 
 const routes: Routes = [
   {
@@ -64,12 +65,20 @@ const routes: Routes = [
     component: OrderComponent
   },
   {
-    path: 'project-issues/:organizationId/:projectId',
-    component: IssueListComponent
+    path: 'incomming-issues/:organizationId/:projectId',
+    component: IncommingIssueListComponent
   },
   {
-    path: 'project-issues/:organizationId/:projectId/:taskId',
-    component: IssueListComponent
+    path: 'incomming-issues/:organizationId/:projectId/:taskId',
+    component: IncommingIssueListComponent
+  },
+  {
+    path: 'outgoing-issues/:organizationId/:projectId',
+    component: OutgoingIssueListComponent
+  },
+  {
+    path: 'outgoing-issues/:organizationId/:projectId/:taskId',
+    component: OutgoingIssueListComponent
   },
   {
     path: 'chat',

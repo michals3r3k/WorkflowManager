@@ -47,7 +47,7 @@
                                         <span>#{{task.taskId}}</span>
                                         <span class="task-name">{{task.title}}</span>
                                         <span class="task-progress">{{task.columnNameOrNull || "unassigned"}}</span>
-                                        <button class="icon-btn" (click)="deleteTask($event, task.taskId)">
+                                        <button *ngIf="!forClient" class="icon-btn" (click)="deleteTask($event, task.taskId)">
                                             <mat-icon>close</mat-icon>
                                         </button>
                                     </div>
@@ -57,7 +57,7 @@
                         <ng-template #noTasks>
                             <span>No connected tasks</span>
                         </ng-template>
-                        <app-add-task [group]="null"
+                        <app-add-task *ngIf="!forClient" [group]="null"
                             (addTaskClicked)="onAddTaskClicked($event, projectId)" />
                     </div>
                 </ng-container>

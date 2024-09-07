@@ -13,8 +13,12 @@ export class IssueService {
     return this.http.getGeneric<IssueRest[]>(`api/organization/${organizationId}/issues`);
   }
 
-  getProjectIssues(organizationId: number, projectId: number): Observable<IssueRest[]> {
-    return this.http.getGeneric<IssueRest[]>(`api/organization/${organizationId}/issues/project/${projectId}`);
+  getProjectIncomingIssues(organizationId: number, projectId: number): Observable<IssueGroupRest[]> {
+    return this.http.getGeneric<IssueGroupRest[]>(`api/organization/${organizationId}/issues-incoming/project/${projectId}`);
+  }
+
+  getProjectOutgoingIssues(organizationId: number, projectId: number): Observable<IssueGroupRest> {
+    return this.http.getGeneric<IssueGroupRest>(`api/organization/${organizationId}/issues-outgoing/project/${projectId}`);
   }
 
 }
@@ -25,7 +29,13 @@ export interface IssueRest {
   organizationId: number,
   organizationName: string,
   projectName: string | null,
-  fromClient: boolean,
+  forClient: boolean,
   status: string,
+  category: string,
   created: string
+}
+
+export interface IssueGroupRest {
+  organizationName: string,
+  issueRestList: IssueRest[]
 }

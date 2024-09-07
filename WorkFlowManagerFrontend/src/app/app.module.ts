@@ -55,7 +55,7 @@ import { InvitationsComponent } from './invitations/invitations.component';
 import { OrdersListComponent } from './orders-list/orders-list.component';
 import { OrderListCardComponent } from './orders-list/order-list-card.component';
 import { OrderComponent } from './order/order.component';
-import { IssueListComponent } from './organizations/projects/issue/issue-list/issue-list.component';
+import { IncommingIssueListComponent } from './organizations/projects/issue/issue-list/incomming-issue-list.component'; 
 import { FieldDefinitionEditComponent } from './order/field-definition-edit/field-definition-edit.component';
 import { ChatComponent } from './chat/chat.component';
 import { TaskDetailsComponent } from './organizations/projects/task-details/task-details.component';
@@ -73,6 +73,7 @@ import { AddStatusComponent } from './organizations/projects/add-status/add-stat
 import { UserImgPipe } from './Pipes/user-img.pipe';
 import { ConnectedTaskRelationTranslationPipe } from './organizations/projects/task-details/task-details.component';
 import { IssueProjectConnectorComponent } from './orders-list/organization-issue-dialog/issue-project-connector/issue-project-connector.component';
+import { OutgoingIssueListComponent } from './organizations/projects/issue/outgoing-issue-list/outgoing-issue-list.component';
 
 @NgModule({
   declarations: [
@@ -104,7 +105,7 @@ import { IssueProjectConnectorComponent } from './orders-list/organization-issue
     OrdersListComponent,
     OrderListCardComponent,
     OrderComponent,
-    IssueListComponent,
+    IncommingIssueListComponent,
     FieldDefinitionEditComponent,
     ChatComponent,
     OrderCreateComponent,
@@ -118,7 +119,8 @@ import { IssueProjectConnectorComponent } from './orders-list/organization-issue
     AddStatusComponent,
     UserImgPipe,
     ConnectedTaskRelationTranslationPipe,
-    IssueProjectConnectorComponent
+    IssueProjectConnectorComponent,
+    OutgoingIssueListComponent,
    ],
   imports: [
     BrowserModule,

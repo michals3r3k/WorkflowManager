@@ -1,0 +1,20 @@
+<div class="issues-container">
+    <mat-accordion *ngIf="issueGroups$ | async as issueGroups">
+        <mat-expansion-panel *ngFor="let issueGroup of issueGroups">
+            <mat-expansion-panel-header>
+                <mat-panel-title>{{issueGroup.organizationName}}</mat-panel-title>
+                <mat-panel-description>Opis organizacji</mat-panel-description>
+            </mat-expansion-panel-header>
+            <mat-card *ngFor="let issue of issueGroup.issueRestList" appearance="outlined" (click)="openDialog(issue)">
+                <mat-card-content class="issue">
+                    <span class="id">#{{issue.id}}</span>
+                    <span class="title">{{issue.title}}</span>
+                    <div class="extra-data">
+                        <span>{{issue.status}}</span>
+                        <span>{{issue.created}}</span>
+                    </div>
+                </mat-card-content>
+            </mat-card>     
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>

@@ -1,0 +1,45 @@
+.container {
+    margin: 2em;
+}
+
+.issue:hover {
+    opacity: .7;
+    cursor: pointer;
+}
+
+.issue,
+.issue .extra-data {
+    display: flex;
+    overflow: hidden;
+}
+
+.issue .id {
+    min-width: 4em;
+    width: 4em;
+}
+
+.issue .title,
+.issue .organization {
+    overflow: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.issue .title {
+    min-width: 6em;
+    margin-right: 1em;
+}
+
+.issue .organization {
+    min-width: 10em;
+    width: 10em;
+    margin-right: 1em;
+}
+
+.issue .extra-data {
+    align-self: flex-end;
+    justify-content: space-between;
+    min-width: 16em;
+    width: 16em;
+    margin-left: auto;
+}

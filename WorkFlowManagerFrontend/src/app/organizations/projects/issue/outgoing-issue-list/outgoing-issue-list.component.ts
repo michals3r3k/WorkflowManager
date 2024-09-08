@@ -32,6 +32,7 @@ export class OutgoingIssueListComponent {
     }
 
   _loadIssues() {
+    console.log(this.organizationId?.toString() + ' | ' + this.projectId?.toString());
     if(this.organizationId && this.projectId) {
       this.group$ = this.issueService.getProjectOutgoingIssues(this.organizationId, this.projectId);
     }

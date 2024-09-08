@@ -4,16 +4,18 @@ import com.example.workflowmanager.entity.issue.IssueFieldType;
 
 public class IssueFieldDefinitionRest
 {
+    private Long definitionId;
     private String name;
     private Byte column;
     private IssueFieldType type;
     private boolean required;
     private boolean clientVisible;
 
-    protected IssueFieldDefinitionRest(final String name, final Byte column,
-        final IssueFieldType type, final boolean required,
+    protected IssueFieldDefinitionRest(final Long definitionId, final String name,
+        final Byte column, final IssueFieldType type, final boolean required,
         final boolean clientVisible)
     {
+        this.definitionId = definitionId;
         this.name = name;
         this.column = column;
         this.type = type;
@@ -24,6 +26,16 @@ public class IssueFieldDefinitionRest
     public IssueFieldDefinitionRest()
     {
         // for Spring
+    }
+
+    public Long getDefinitionId()
+    {
+        return definitionId;
+    }
+
+    public void setDefinitionId(final Long definitionId)
+    {
+        this.definitionId = definitionId;
     }
 
     public String getName()

@@ -132,10 +132,8 @@ public class IssueDefinitionService
     private static IssueFieldDefinition getIssueFieldDefinition(final Long organizationId,
         final IssueFieldDefinitionRest field, final int row)
     {
-        final IssueFieldDefinitionId id = new IssueFieldDefinitionId(
-            organizationId, (short) row, field.getColumn());
-        return new IssueFieldDefinition(id, field.getName(), field.getType(),
-            field.isRequired(), field.isClientVisible());
+        return new IssueFieldDefinition(organizationId, (short) row, field.getColumn(),
+            field.getName(), field.getType(), field.isRequired(), field.isClientVisible());
     }
 
     public enum IssueDefinitionError

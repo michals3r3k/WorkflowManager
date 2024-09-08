@@ -27,7 +27,7 @@ public class IssueField
     private Issue issue;
     @ManyToOne()
     @JoinColumns({
-        @JoinColumn(name = "organizationId", referencedColumnName = "organizationId", insertable=false, updatable=false),
+        @JoinColumn(name = "organizationId", referencedColumnName = "organization_id", insertable=false, updatable=false),
         @JoinColumn(name = "row", referencedColumnName = "row", insertable=false, updatable=false),
         @JoinColumn(name = "col", referencedColumnName = "col", insertable=false, updatable=false)
     })

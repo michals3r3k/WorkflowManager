@@ -115,6 +115,7 @@ export class OrderComponent implements OnInit {
       count++;
     }
     this.fields_column1.push({
+      definitionId: null,
       name: "new field" + (count === 0 ? "" : count.toString()),
       column: 1,
       type: FieldType.TEXT,
@@ -163,6 +164,7 @@ interface IssueDefinitionRest {
 }
 
 export class IssueFieldDefinitionRest {
+  definitionId: number | null;
   name: string;
   column: number;
   required: boolean;

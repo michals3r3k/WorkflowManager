@@ -9,9 +9,9 @@ import java.util.Objects;
 public class IssueFieldId implements Serializable
 {
     private Long issueId;
-    private IssueFieldDefinitionId definitionId;
+    private Long definitionId;
 
-    public IssueFieldId(Long issueId, IssueFieldDefinitionId definitionId)
+    public IssueFieldId(Long issueId, Long definitionId)
     {
         this.issueId = issueId;
         this.definitionId = definitionId;
@@ -32,12 +32,12 @@ public class IssueFieldId implements Serializable
         this.issueId = issueId;
     }
 
-    public IssueFieldDefinitionId getDefinitionId()
+    public Long getDefinitionId()
     {
         return definitionId;
     }
 
-    public void setDefinitionId(final IssueFieldDefinitionId definitionId)
+    public void setDefinitionId(final Long definitionId)
     {
         this.definitionId = definitionId;
     }

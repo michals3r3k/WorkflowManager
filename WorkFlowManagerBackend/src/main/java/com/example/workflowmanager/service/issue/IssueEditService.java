@@ -151,17 +151,15 @@ public class IssueEditService
 
     private void saveFields(final Issue issue, final List<IssueFieldEditRest> fields)
     {
-        final Map<IssueFieldDefinitionId, IssueFieldDefinition> fieldDefinitionMap =
+        final Map<Long, IssueFieldDefinition> fieldDefinitionMap =
             getFieldDefinitionMap(issue.getOrganizationId());
         final Map<IssueFieldId, IssueField> issueFieldMap =
             getIssueFieldMap(issue.getId(), fieldDefinitionMap.keySet());
         for(final IssueFieldEditRest field : fields)
         {
-            final IssueFieldDefinitionId definitionId = new IssueFieldDefinitionId(
-                field.getOrganizationId(), field.getRow(), field.getColumn());
             final IssueFieldDefinition definition = Preconditions.checkNotNull(
-                fieldDefinitionMap.get(definitionId));
-            final IssueFieldId issueFieldId = new IssueFieldId(issue.getId(), definitionId);
+                fieldDefinitionMap.get(field.getDefinitionId()));
+            final IssueFieldId issueFieldId = new IssueFieldId(issue.getId(), definition.getId());
             final IssueField issueField = Optional
                 .ofNullable(issueFieldMap.get(issueFieldId))
                 .orElseGet(() -> new IssueField(issueFieldId));
@@ -170,7 +168,7 @@ public class IssueEditService
         }
     }
 
-    private Map<IssueFieldDefinitionId, IssueFieldDefinition> getFieldDefinitionMap(
+    private Map<Long, IssueFieldDefinition> getFieldDefinitionMap(
         final Long destinationOrganizationId)
     {
         final List<IssueFieldDefinition> definitions = ifdRepository
@@ -179,7 +177,7 @@ public class IssueEditService
     }
 
     private Map<IssueFieldId, IssueField> getIssueFieldMap(
-        final Long issueId, final Set<IssueFieldDefinitionId> definitionIds)
+        final Long issueId, final Set<Long> definitionIds)
     {
         final Set<IssueFieldId> issueFieldIds = definitionIds.stream()
             .map(definitionId -> new IssueFieldId(issueId, definitionId))

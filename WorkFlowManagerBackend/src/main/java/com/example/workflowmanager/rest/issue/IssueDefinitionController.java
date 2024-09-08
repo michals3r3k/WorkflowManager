@@ -75,9 +75,9 @@ public class IssueDefinitionController
     {
         return ifdRepository.getListByOrganizationId(
             Collections.singleton(organizationId)).stream()
-            .sorted(Comparator.comparing(field -> field.getId().getCol()))
-            .map(field -> new IssueFieldDefinitionRest(field.getName(),
-                field.getId().getCol(), field.getType(), field.isRequired(),
+            .sorted(Comparator.comparing(IssueFieldDefinition::getCol))
+            .map(field -> new IssueFieldDefinitionRest(field.getId(), field.getName(),
+                field.getCol(), field.getType(), field.isRequired(),
                 field.isClientVisible()))
             .collect(Collectors.toList());
     }

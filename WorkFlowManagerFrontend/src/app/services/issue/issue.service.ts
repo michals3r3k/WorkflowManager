@@ -32,7 +32,8 @@ export interface IssueRest {
   forClient: boolean,
   status: string,
   category: string,
-  created: string
+  created: string,
+  hidden: boolean
 }
 
 export interface IssueGroupRest {

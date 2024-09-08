@@ -1,5 +1,5 @@
 .container, .role-data-container{
-    padding: 10px;
+    padding-top: 10px;
     display: flex;
     flex-direction: row;
 }
@@ -33,6 +33,10 @@ delete-button {
     right: 40px;
 }
 
+.role-data-container {
+    margin: 40px;
+}
+
 .users {
     max-width: 500px;
     height: 100%;
@@ -57,7 +61,7 @@ delete-button {
 .permission-classes {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 100%;
+    grid-template-rows: 50% 50%;
 }
 
 .permission-section {

@@ -28,6 +28,8 @@
     
         h1 {
             font-size: 16px;
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
         .title-header {

@@ -1,16 +1,31 @@
-<div class="container" *ngIf="group$ | async as group">
-    <h1>Your issues for organization "{{group.organizationName}}"</h1>
-    <div *ngIf="group.issueRestList.length == 0">
+<div class="container" *ngIf="issueGroup">
+    <h1>Your issues for organization "{{issueGroup.organizationName}}"</h1>
+    <div class="filters-container">
+        <span>Search issue:</span>
+        <input [formControl]="searchTextControl" placeholder="Search issue by title or id"/>
+        <span>Category:</span>
+        <select [(ngModel)]="selectedFilterCategory">
+            <option *ngFor="let option of categoryOptions" [value]="option">{{option || "no category"}}</option>
+        </select>
+        <span>Status:</span>
+        <select [(ngModel)]="selectedFilterStatus">
+            <option *ngFor="let option of statusOptions" [value]="option">{{option || "no status"}}</option>
+        </select>
+    </div>
+    <div *ngIf="issueGroup.issueRestList.length == 0">
         You haven't reported any issue yet.
     </div>
-    <mat-card *ngFor="let issue of group.issueRestList" appearance="outlined" (click)="openDialog(issue)">
-        <mat-card-content class="issue">
-            <span class="id">#{{issue.id}}</span>
-            <span class="title">{{issue.title}}</span>
-            <div class="extra-data">
-                <span>{{issue.status}}</span>
-                <span>{{issue.created}}</span>
-            </div>
-        </mat-card-content>
-    </mat-card>     
+    <div *ngFor="let issue of issueGroup.issueRestList" >
+        <mat-card appearance="outlined" (click)="openDialog(issue)" *ngIf="!issue.hidden">
+            <mat-card-content class="issue">
+                <span class="id">#{{issue.id}}</span>
+                <span class="title">{{issue.title}}</span>
+                <div class="extra-data">
+                    <span>{{issue.status}}</span>
+                    <span>{{issue.created}}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>     
+    </div>
+   
 </div>

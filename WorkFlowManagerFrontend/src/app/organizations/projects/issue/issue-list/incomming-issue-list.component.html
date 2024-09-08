@@ -1,12 +1,26 @@
 <div class="issues-container">
-    <mat-accordion *ngIf="issueGroups$ | async as issueGroups">
+
+    <div class="filters-container">
+        <span>Search issue:</span>
+        <input [formControl]="searchTextControl" placeholder="Search issue by title or id"/>
+        <span>Category:</span>
+        <select [(ngModel)]="selectedFilterCategory">
+            <option *ngFor="let option of categoryOptions" [value]="option">{{option || "no category"}}</option>
+        </select>
+        <span>Status:</span>
+        <select [(ngModel)]="selectedFilterStatus">
+            <option *ngFor="let option of statusOptions" [value]="option">{{option || "no status"}}</option>
+        </select>
+    </div>
+
+    <mat-accordion *ngIf="issueGroups">
         <mat-expansion-panel *ngFor="let issueGroup of issueGroups">
             <mat-expansion-panel-header>
                 <mat-panel-title>{{issueGroup.organizationName}}</mat-panel-title>
                 <mat-panel-description>Opis organizacji</mat-panel-description>
             </mat-expansion-panel-header>
             <mat-card *ngFor="let issue of issueGroup.issueRestList" appearance="outlined" (click)="openDialog(issue)">
-                <mat-card-content class="issue">
+                <mat-card-content class="issue" *ngIf="!issue.hidden">
                     <span class="id">#{{issue.id}}</span>
                     <span class="title">{{issue.title}}</span>
                     <div class="extra-data">

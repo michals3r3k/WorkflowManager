@@ -4,6 +4,7 @@ import { IssueGroupRest, IssueRest, IssueService } from '../../../../services/is
 import { IssueDialogComponent } from '../../../../orders-list/organization-issue-dialog/issue-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-outgoing-issue-list',
@@ -14,11 +15,36 @@ export class OutgoingIssueListComponent {
   organizationId: number | null;
   projectId: number | null;
 
-  group$: Observable<IssueGroupRest>;
+  //group$: Observable<IssueGroupRest>;
+  issueGroup: IssueGroupRest;
+
+   // FILTERING
+   searchTextControl: FormControl = new FormControl();
+   categoryOptions: string[] = [];
+   statusOptions: string[] = [];
+   filterSearchText: string = "";
+   _selectedFilterCategory: string = "All";
+   get selectedFilterCategory(): string { return this._selectedFilterCategory; }
+   set selectedFilterCategory(value: string) {
+     this._selectedFilterCategory = value;
+     this.filterIssues();
+   }
+   _selectedFilterStatus: string = "All";
+   get selectedFilterStatus(): string { return this._selectedFilterStatus; }
+   set selectedFilterStatus(value: string) {
+     this._selectedFilterStatus = value;
+     this.filterIssues();
+   }
 
   constructor(private dialog: MatDialog,
     private route: ActivatedRoute,
-    private issueService: IssueService) { }
+    private issueService: IssueService)
+    {
+      this.searchTextControl.valueChanges.pipe().subscribe(value =>{
+        this.filterSearchText = value;
+        this.filterIssues();
+      })
+    }
 
     ngOnInit() {
       this.route.paramMap.subscribe(params => {
@@ -32,9 +58,14 @@ export class OutgoingIssueListComponent {
     }
 
   _loadIssues() {
-    console.log(this.organizationId?.toString() + ' | ' + this.projectId?.toString());
     if(this.organizationId && this.projectId) {
-      this.group$ = this.issueService.getProjectOutgoingIssues(this.organizationId, this.projectId);
+      //this.group$ = this.issueService.getProjectOutgoingIssues(this.organizationId, this.projectId);
+      this.issueService.getProjectOutgoingIssues(this.organizationId, this.projectId)
+        .subscribe(issue => {
+          this.issueGroup = issue;
+          this.categoryOptions = ["All", ...new Set( issue.issueRestList.map(issue => issue.category))];
+        this.statusOptions = ["All", ...new Set( issue.issueRestList.map(issue => issue.status))];
+        });
     }
   }
 
@@ -49,4 +80,27 @@ export class OutgoingIssueListComponent {
     });
   }
 
+  filterIssues() {
+    this.issueGroup.issueRestList.forEach(issue => {
+      issue.hidden = false;
+
+      if (this.filterSearchText || "".length > 0){
+        if (!issue.title.toLowerCase().includes(this.filterSearchText.toLocaleLowerCase()) && !issue.id.toString().includes(this.filterSearchText)){
+          issue.hidden = true;
+        }
+      }
+      if (this.selectedFilterCategory != null) {
+        console.log(this.selectedFilterCategory);
+        console.log(typeof(this.selectedFilterCategory));
+        if (issue.category != this.selectedFilterCategory){
+          issue.hidden = true;
+        }
+      }
+      if (this.selectedFilterStatus != null) {
+        if (issue.status != this.selectedFilterStatus){
+          issue.hidden = true;
+        }
+      }
+    })
+  }
 }

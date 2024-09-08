@@ -25,9 +25,9 @@ export class OrderCreateComponent {
   }
 
   loadDefinition() {
+    this.form = null;
+    this.formGroup = null;
     if(!this.destinationOrganizationId) {
-      this.form = null;
-      this.formGroup = null;
       return;
     }
     this.issueFormService.getForm(this.destinationOrganizationId).subscribe(form => {

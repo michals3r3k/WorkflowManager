@@ -1,5 +1,6 @@
 package com.example.workflowmanager.entity.issue;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
@@ -9,6 +10,7 @@ import java.util.Objects;
 public class IssueFieldId implements Serializable
 {
     private Long issueId;
+    @Column(name = "definition_id")
     private Long definitionId;
 
     public IssueFieldId(Long issueId, Long definitionId)

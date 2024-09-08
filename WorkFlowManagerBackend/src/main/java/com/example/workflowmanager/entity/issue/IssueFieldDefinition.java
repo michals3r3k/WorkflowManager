@@ -70,7 +70,7 @@ public class IssueFieldDefinition
         return row;
     }
 
-    protected void setRow(final Short row)
+    public void setRow(final Short row)
     {
         this.row = row;
     }
@@ -80,7 +80,7 @@ public class IssueFieldDefinition
         return col;
     }
 
-    protected void setCol(final Byte col)
+    public void setCol(final Byte col)
     {
         this.col = col;
     }

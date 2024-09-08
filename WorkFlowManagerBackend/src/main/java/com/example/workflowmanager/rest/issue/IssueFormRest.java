@@ -121,11 +121,11 @@ public class IssueFormRest
         private Short row;
         private String key;
 
-        IssueFieldEditRest(Long organizationId, Object value, Short row, String key,
+        IssueFieldEditRest(final Long definitionId, final Long organizationId, final Object value, final Short row, String key,
             final String name, final Byte column, final IssueFieldType type,
             final boolean required, final boolean clientVisible)
         {
-            super(name, column, type, required, clientVisible);
+            super(definitionId, name, column, type, required, clientVisible);
             this.organizationId = organizationId;
             this.value = value;
             this.row = row;

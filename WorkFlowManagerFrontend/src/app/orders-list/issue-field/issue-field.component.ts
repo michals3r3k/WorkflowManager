@@ -1,20 +1,30 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FieldType } from '../../order/order.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'issue-field',
   templateUrl: './issue-field.component.html',
   styleUrl: './issue-field.component.css'
 })
-export class IssueFieldComponent implements OnInit {
+export class IssueFieldComponent implements OnChanges {
   @Input() field: IssueFieldEditRest;
   @Input() issueFormGroup?: FormGroup;
   @Input() editMode: boolean;
 
-  valueControl: FormControl;
+  valueControl: FormControl | null;
+  subscription?: Subscription;
 
-  ngOnInit() {
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes["field"] || changes["issueFormGroup"]) {  
+      this.valueControl = null;
+      this.subscription?.unsubscribe();
+      this._init();
+    }
+  }
+
+  _init() {
     if(!this.issueFormGroup) {
       return;
     }
@@ -22,7 +32,7 @@ export class IssueFieldComponent implements OnInit {
     if(this.field.type === FieldType.DATE && this.field.value) {
       this.valueControl.setValue(new Date(this.field.value));
     }
-    this.valueControl.valueChanges.subscribe(value => {
+    this.subscription = this.valueControl.valueChanges.subscribe(value => {
       if(this.field.type === FieldType.DATE) {
         this.field.value = this.getDateString(value);
       }
@@ -56,6 +66,7 @@ export class IssueFieldComponent implements OnInit {
 }
 
 export interface IssueFieldEditRest {
+  definitionId: number,
   organizationId: number,
   row: number,
   column: number,

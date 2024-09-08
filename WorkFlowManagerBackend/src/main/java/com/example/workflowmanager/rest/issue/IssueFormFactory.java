@@ -74,20 +74,20 @@ public class IssueFormFactory
     private List<IssueFieldEditRest> getFields(final List<IssueFieldDefinition> definitions,
         final Issue issueOrNull, final boolean forClient)
     {
-        final Map<IssueFieldDefinitionId, IssueField> issueFieldMap = Maps.uniqueIndex(
+        final Map<Long, IssueField> issueFieldMap = Maps.uniqueIndex(
             getFields(issueOrNull), field -> field.getDefinition().getId());
         return definitions.stream()
             .filter(field -> !forClient || field.isClientVisible())
-            .sorted(Comparator.comparing(field -> field.getId().getCol()))
+            .sorted(Comparator.comparing(IssueFieldDefinition::getCol))
             .map(definition ->
             {
-                final IssueField fieldOrNull = issueFieldMap.get(
-                    definition.getId());
-                final Long organizationId = definition.getId().getOrganizationId();
-                final Short row = definition.getId().getRow();
-                final Byte col = definition.getId().getCol();
+                final IssueField fieldOrNull = issueFieldMap.get(definition.getId());
+                final Long organizationId = definition.getOrganizationId();
+                final Short row = definition.getRow();
+                final Byte col = definition.getCol();
                 return new IssueFieldEditRest(
-                    definition.getId().getOrganizationId(),
+                    definition.getId(),
+                    organizationId,
                     getValue(definition, fieldOrNull),
                     row,
                     organizationId + "-" + row + "-" + col,

@@ -15,4 +15,7 @@ public interface IssueFieldRepository extends JpaRepository<IssueField, IssueFie
     @Query("select if from IssueField if where if.id in (?1)")
     List<IssueField> getList(final Collection<IssueFieldId> ids);
 
+    @Query("select if from IssueField if where if.id.definitionId in (?1)")
+    List<IssueField> getListByDefinitionIds(final Collection<Long> fieldDefinitionIds);
+
 }

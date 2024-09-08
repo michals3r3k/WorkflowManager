@@ -9,8 +9,13 @@ import java.util.Objects;
 @Entity
 public class IssueFieldDefinition
 {
-    @EmbeddedId
-    private IssueFieldDefinitionId id;
+    @Id()
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, name = "organization_id")
+    private Long organizationId;
+    private Short row;
+    private Byte col;
     @NotNull
     private String name;
     @Enumerated(EnumType.STRING)
@@ -19,14 +24,16 @@ public class IssueFieldDefinition
     private boolean required;
     private boolean clientVisible;
     @ManyToOne
-    @JoinColumn(name = "organizationId", insertable = false, updatable = false)
+    @JoinColumn(name = "organization_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Organization organization;
 
-    public IssueFieldDefinition(final IssueFieldDefinitionId id,
-        final String name, final IssueFieldType type,
+    public IssueFieldDefinition(final Long organizationId, final Short row,
+        final Byte col, final String name, final IssueFieldType type,
         final boolean required, final boolean clientVisible)
     {
-        this.id = id;
+        this.organizationId = organizationId;
+        this.row = row;
+        this.col = col;
         this.name = name;
         this.type = type;
         this.required = required;
@@ -38,14 +45,44 @@ public class IssueFieldDefinition
         // for Hibernate
     }
 
-    public IssueFieldDefinitionId getId()
+    public Long getId()
     {
         return id;
     }
 
-    public void setId(final IssueFieldDefinitionId id)
+    public void setId(final Long id)
     {
         this.id = id;
+    }
+
+    public Long getOrganizationId()
+    {
+        return organizationId;
+    }
+
+    protected void setOrganizationId(final Long organizationId)
+    {
+        this.organizationId = organizationId;
+    }
+
+    public Short getRow()
+    {
+        return row;
+    }
+
+    public void setRow(final Short row)
+    {
+        this.row = row;
+    }
+
+    public Byte getCol()
+    {
+        return col;
+    }
+
+    public void setCol(final Byte col)
+    {
+        this.col = col;
     }
 
     public String getName()

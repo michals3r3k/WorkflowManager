@@ -24,12 +24,18 @@
     </div>
 
     <div class="login">
-      <button class="login-button" (click)="goClicked()">
+      <button class="login-button" (click)="goClicked()" *ngIf="!loggedUser; else userLogged">
         <div class="login-button-container">
           <mat-icon class="icon" fontIcon="fingerprint"></mat-icon>
           <span>Zaloguj</span>
         </div>
       </button>
+      <ng-template #userLogged>
+        <div class="logged-user" (click)="goToProfile()">
+          <mat-icon>person</mat-icon>
+          <span>{{loggedUser.name}}</span>
+        </div>
+      </ng-template>
     </div>
 
   </div>
@@ -45,11 +51,8 @@
     </div>
   </div>
 
-  <div class="info-panel">
-    <mat-card>XD</mat-card>
-    <mat-card>XD</mat-card>
-    <mat-card>XD</mat-card>
-    <mat-card>XD</mat-card>
-  </div>
+  <!-- <div class="footer">
+    <img src="../../assets/images/welcome_footer_background.jpg" />
+  </div> -->
 
 </div>

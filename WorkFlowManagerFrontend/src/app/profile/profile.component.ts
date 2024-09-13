@@ -4,6 +4,8 @@ import { ProfileEdit, ProfileService } from '../services/profile/profile.service
 import { Observable } from 'rxjs';
 import { ServiceResultHelper } from '../services/utils/service-result-helper';
 import { HttpRequestService } from '../services/http/http-request.service';
+import { LoggedUserService } from '../services/login/logged-user.service';
+import { LoginService } from '../services/login/login.service';
 
 @Component({
   selector: 'app-profile',
@@ -19,59 +21,11 @@ export class ProfileComponent implements OnInit {
 
   connectedObjects: ProfileConnectedObjects;
 
-  organizations = [
-    {
-      name: "organization 1",
-      role: "Admin",
-      routeLink: "http://localhost:4200/organization-details"
-    },
-    {
-      name: "organization 2",
-      role: "Programist",
-      routeLink: "http://localhost:4200/organization-details"
-    }
-  ];
-
-  projects = [
-    {
-      name: "project 1",
-      role: "Admin",
-      routeLink: "http://localhost:4200"
-    },
-    {
-      name: "project 2",
-      role: "Programist",
-      routeLink: "http://localhost:4200"
-    },
-    {
-      name: "project 3",
-      role: "Programist",
-      routeLink: "http://localhost:4200"
-    }
-  ];
-
-  tasks = [
-    {
-      name: "task 1",
-      role: "Admin",
-      routeLink: "http://localhost:4200"
-    },
-    {
-      name: "task 2",
-      role: "Programist",
-      routeLink: "http://localhost:4200"
-    },
-    {
-      name: "task 3",
-      role: "Programist",
-      routeLink: "http://localhost:4200"
-    }
-  ];
-
   constructor(
     private service: ProfileService,
     private serviceResultHelper: ServiceResultHelper,
-    private http: HttpRequestService
+    private http: HttpRequestService,
+    private loginService: LoginService,
   ) { 
     this.connectedObjects = {
       projects: [],
@@ -150,6 +104,10 @@ export class ProfileComponent implements OnInit {
         }
       });
     }
+  }
+
+  logout() {
+    this.loginService.logout();
   }
 
 }

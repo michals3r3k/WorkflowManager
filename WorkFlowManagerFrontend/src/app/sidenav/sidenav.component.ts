@@ -46,7 +46,7 @@ export class SidenavComponent implements OnInit {
     
     this.loginService.logoutSuccess.subscribe(() => {
       this.resultToaster.success("Logged out");
-      this.router.navigate(["/home"]);
+      this.router.navigate(["/welcome"]);
     });
   }
 

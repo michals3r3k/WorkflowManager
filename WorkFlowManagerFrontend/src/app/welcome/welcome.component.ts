@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LoginDialogOpenerService } from '../services/login/login-dialog-opener.service';
+import { LoggedUser, LoggedUserService } from '../services/login/logged-user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-welcome',
@@ -9,31 +11,29 @@ import { LoginDialogOpenerService } from '../services/login/login-dialog-opener.
 export class WelcomeComponent implements OnInit {
 
   btnClicked = false;
+  loggedUser: LoggedUser | any;
 
   navOptions = [
-    {
-      label: "Overview",
-      routerLink: ""
-    },
     {
       label: "Features",
       routerLink: ""
     },
     {
-      label: "Examples",
-      routerLink: ""
-    },
-    {
       label: "About Us",
-      routerLink: ""
+      routerLink: "/about-us"
     }
   ]
 
-  constructor(private loginDialogOpener: LoginDialogOpenerService) {
+  constructor(private loginDialogOpener: LoginDialogOpenerService,
+    private loggedUserService: LoggedUserService,
+    public router: Router
+  ) { }
 
-  }
 
   ngOnInit() {
+    this.loggedUserService.user$.subscribe(loggedUser => {
+      this.loggedUser = loggedUser;
+    });
   }
 
   goClicked(): void{
@@ -45,6 +45,10 @@ export class WelcomeComponent implements OnInit {
           console.log('The dialog was closed');
       });
     }, 600);
+  }
+
+  goToProfile() {
+    this.router.navigate((['/profile']));
   }
 
 }

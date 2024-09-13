@@ -1,15 +1,18 @@
 <div class="project-details-container">
-    <div *ngIf="project">
-        <h1>Project: {{project.name}} <i class="material-icons" (click)="edit(project)">settings</i></h1>
+    <div *ngIf="project" class="header">
+        <div class="header-title">
+            <img src="../../../../assets/images/project.png"/>
+            <h1>{{project.name}}</h1>
+        </div>
         <p *ngIf="project.description">Description: {{project.description}}</p>
     </div>
 
-    <div class="project-buttons">
+    <!-- <div class="project-buttons">
         <button class="add-btn" (click)="openOrganizationInviteDialog()" mat-raised-button color="primary">
             <mat-icon>add</mat-icon>
             Invite organization
         </button>
-    </div>
+    </div> -->
 
     <div class="task-groups">
         <div cdkDropList

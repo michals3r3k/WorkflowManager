@@ -14,10 +14,10 @@
     </div>
 
     <mat-accordion *ngIf="issueGroups">
-        <mat-expansion-panel *ngFor="let issueGroup of issueGroups">
-            <mat-expansion-panel-header>
+        <mat-expansion-panel *ngFor="let issueGroup of issueGroups" [matBadge]="issueGroup.issueRestList.length" matBadgeOverlap="small">
+            <mat-expansion-panel-header >
                 <mat-panel-title>{{issueGroup.organizationName}}</mat-panel-title>
-                <mat-panel-description>Opis organizacji</mat-panel-description>
+                <!-- <mat-panel-description>Opis organizacji</mat-panel-description> -->
             </mat-expansion-panel-header>
             <mat-card *ngFor="let issue of issueGroup.issueRestList" appearance="outlined" (click)="openDialog(issue)">
                 <mat-card-content class="issue" *ngIf="!issue.hidden">

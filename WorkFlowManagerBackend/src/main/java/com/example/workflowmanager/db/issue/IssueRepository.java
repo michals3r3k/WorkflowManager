@@ -16,9 +16,9 @@ public interface IssueRepository extends JpaRepository<Issue, Long>
 
     @Query("select i from Issue i join fetch i.organization d join fetch i.sourceOrganization s join fetch i.project p where p.id in (?1)")
     List<Issue> getProjectIssues(Collection<Long> projectIds);
-    
-    @Query("select i from Issue i join fetch i.organization d join fetch i.sourceOrganization s join fetch i.project p where p.id in (?2) and s.id in (?1)")
-    List<Issue> getProjectIssues(Collection<Long> sourceOrganizationIds, Collection<Long> projectIds);
+
+    @Query("select i from Issue i join fetch i.organization d where d.id in (?1)")
+    List<Issue> getIncomingIssues(Collection<Long> organizationIds);
 
     Issue getById(Long issueId);
 

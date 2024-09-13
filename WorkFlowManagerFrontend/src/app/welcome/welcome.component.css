@@ -1,9 +1,18 @@
 .wrapper {
     font-family: "Lato", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-image: url(/assets/images/welcome_footer_background.jpg);
+    background-color: #fff;
+    background-size: cover;
+    background-repeat: no-repeat
 }
 
 .upper-nav {
-    background: #fff;
+    width: 100%;
+    background: transparent;
     display: flex;
     justify-content: space-between;
     height: 80px;
@@ -100,15 +109,37 @@
         color: #4169E1;
         border: 1px solid #4169E1;
     }
+
+    .logged-user {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        background: #eee;
+        border-radius: 25px;
+        padding: 10px 20px;
+        height: 50px;
+
+        &:hover {
+            background-color: #ddd;
+        }
+    }
 }
 
 .container {
-    background: transparent;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     .welcome {
+        background: #fffb;
+        padding: 50px;
+        border-radius: 30px;
         display: flex;
         flex-direction: column;
-        margin: 50px;
+        margin: auto 50px auto 50px;
         align-items: center;
         .welcome-text {
             font-size: 50px;
@@ -209,7 +240,16 @@
 
     mat-card {
         margin: 10px;
-        width: 200px;
+        width: 800px;
         height: 450px;
+    }
+}
+
+.footer {
+
+    img {
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
     }
 }

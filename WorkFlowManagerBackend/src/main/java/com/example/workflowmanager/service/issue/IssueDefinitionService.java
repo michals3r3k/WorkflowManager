@@ -37,7 +37,7 @@ public class IssueDefinitionService
     }
 
     public ServiceResult<IssueDefinitionError> save(final Long organizationId,
-        final IssueDefinitionRest issueDefinition)
+                                                    final IssueDefinitionRest issueDefinition)
     {
         final Set<IssueDefinitionError> errors = EnumSet.noneOf(IssueDefinitionError.class);
         if(issueDefinition.getCategories().isEmpty())
@@ -56,33 +56,35 @@ public class IssueDefinitionService
         {
             return new ServiceResult<>(errors);
         }
+        final List<Issue> issues = issueRepository.getIncomingIssues(
+                Collections.singleton(organizationId));
         final Set<IssueStatus> statusesExisting = ImmutableSet.copyOf(isRepository.getListByOrganizationIds(
-            Collections.singleton(organizationId)));
+                Collections.singleton(organizationId)));
         final Set<IssueStatus> statusesEdited = issueDefinition.getStatuses().stream()
-            .map(status -> new IssueStatusId(organizationId, status))
-            .map(IssueStatus::new)
-            .collect(Collectors.toSet());
-        if(isUsedStatusDelete(organizationId, statusesEdited))
+                .map(status -> new IssueStatusId(organizationId, status))
+                .map(IssueStatus::new)
+                .collect(Collectors.toSet());
+        if(isUsedStatusDelete(issues, statusesEdited))
         {
             errors.add(IssueDefinitionError.USED_STATUS_DELETE);
         }
         final Set<IssueCategory> categoriesExisting = ImmutableSet.copyOf(icRepository.getListByOrganizationIds(
-            Collections.singleton(organizationId)));
+                Collections.singleton(organizationId)));
         final Set<IssueCategory> categoriesEdited = issueDefinition.getCategories().stream()
-            .map(status -> new IssueCategoryId(organizationId, status))
-            .map(IssueCategory::new)
-            .collect(Collectors.toSet());
-        if(isUsedCategoryDelete(organizationId, categoriesEdited))
+                .map(status -> new IssueCategoryId(organizationId, status))
+                .map(IssueCategory::new)
+                .collect(Collectors.toSet());
+        if(isUsedCategoryDelete(issues, categoriesEdited))
         {
             errors.add(IssueDefinitionError.USED_CATEGORY_DELETE);
         }
         final Map<Long, IssueFieldDefinition> existingFieldsMap = Maps.uniqueIndex(
-            ifdRepository.getListByOrganizationId(Collections.singleton(organizationId)),
-            IssueFieldDefinition::getId);
+                ifdRepository.getListByOrganizationId(Collections.singleton(organizationId)),
+                IssueFieldDefinition::getId);
         final Set<Long> definitionIdsToEdit = issueDefinition.getFields().stream()
-            .map(IssueFieldDefinitionRest::getDefinitionId)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+                .map(IssueFieldDefinitionRest::getDefinitionId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         if(!existingFieldsMap.keySet().containsAll(definitionIdsToEdit))
         {
             errors.add(IssueDefinitionError.OUT_OF_DATE);
@@ -96,23 +98,21 @@ public class IssueDefinitionService
         return new ServiceResult<>(errors);
     }
 
-    private boolean isUsedStatusDelete(final Long organizationId,
-        final Set<IssueStatus> statusesEdited)
+    private boolean isUsedStatusDelete(final List<Issue> issues,
+                                       final Set<IssueStatus> statusesEdited)
     {
-        final Set<IssueStatus> statusesUsed = issueRepository.getOrganizationIssues(
-                Collections.singleton(organizationId)).stream()
-            .map(Issue::getIssueStatus)
-            .collect(Collectors.toSet());
+        final Set<IssueStatus> statusesUsed = issues.stream()
+                .map(Issue::getIssueStatus)
+                .collect(Collectors.toSet());
         return !statusesEdited.containsAll(statusesUsed);
     }
 
-    private boolean isUsedCategoryDelete(final Long organizationId,
-        final Set<IssueCategory> categoriesEdited)
+    private boolean isUsedCategoryDelete(final List<Issue> issues,
+                                         final Set<IssueCategory> categoriesEdited)
     {
-        final Set<IssueCategory> categoriesUsed = issueRepository.getOrganizationIssues(
-            Collections.singleton(organizationId)).stream()
-            .map(Issue::getIssueCategory)
-            .collect(Collectors.toSet());
+        final Set<IssueCategory> categoriesUsed = issues.stream()
+                .map(Issue::getIssueCategory)
+                .collect(Collectors.toSet());
         return !categoriesEdited.containsAll(categoriesUsed);
     }
 

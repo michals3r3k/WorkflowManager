@@ -3,6 +3,13 @@
     width: fit-content;
 }
 
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
 .organizations-container mat-card {
     margin-top: 2em;
     margin-right: 2em;

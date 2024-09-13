@@ -48,6 +48,7 @@
           <textarea [(ngModel)]="message_text"
           (keydown)="sendMessageArea($event)"
           placeholder="Enter message..."
+          spellcheck="false"
           rows="3"
           cdkTextareaAutosize
           cdkAutosizeMinRows="1"

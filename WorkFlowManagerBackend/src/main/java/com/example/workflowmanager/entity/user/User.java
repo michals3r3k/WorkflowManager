@@ -1,5 +1,6 @@
 package com.example.workflowmanager.entity.user;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -80,6 +81,23 @@ public class User
     public void setImgContent(final byte[] imgContent)
     {
         this.imgContent = imgContent;
+    }
+
+    public String getFullName()
+    {
+        if(StringUtils.isBlank(firstName) && StringUtils.isBlank(secondName))
+        {
+            return email;
+        }
+        if(StringUtils.isBlank(firstName))
+        {
+            return secondName;
+        }
+        if(StringUtils.isBlank(secondName))
+        {
+            return firstName;
+        }
+        return firstName + " " + secondName;
     }
 
     @Override

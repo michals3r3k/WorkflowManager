@@ -52,6 +52,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       const taskId = params.get("taskId");
       this._openTaskDetails(taskId ? +taskId : null);
       this.loadTasks();
+      this.loadProject();
       this.webSocketService.connect();
     });
   }

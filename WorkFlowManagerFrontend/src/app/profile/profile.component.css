@@ -87,6 +87,11 @@
     margin: 20px;
 }
 
+.logout-btn {
+    width: calc(100% - 20px);
+    margin: 10px;;
+}
+
 .info-panel {
     width: 100%;
     background: #fefefe;

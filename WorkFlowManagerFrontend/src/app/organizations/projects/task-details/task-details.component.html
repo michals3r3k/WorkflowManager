@@ -46,7 +46,8 @@
         <textarea placeholder="Edit description"
           (focus)="onDescriptionFocus()"
           (blur)="onDescriptionBlur()"
-          [(ngModel)]="description">
+          [(ngModel)]="description"
+          spellcheck="false">
         </textarea>
         <div class="description-buttons">
           <button mat-flat-button color="primary" *ngIf="isDescritionEditing || description != task.desc" (click)="saveDescription()">

@@ -1,5 +1,13 @@
-.container, .role-data-container{
-    padding-top: 10px;
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.role-name-container {
+    margin: 30px 0px 0px 40px;
+}
+
+.role-data-container{
     display: flex;
     flex-direction: row;
 }
@@ -16,7 +24,8 @@
     border: none;
     border-radius: 10px;
     position: absolute;
-    right: 0;
+    right: 10px;
+    top: 20px;
     width: 30px;
     height: 30px;
     margin: 0 10px;
@@ -30,11 +39,8 @@
 
 delete-button {
     position: absolute;
-    right: 40px;
-}
-
-.role-data-container {
-    margin: 40px;
+    right: 50px;
+    top: 20px;
 }
 
 .users {
@@ -46,6 +52,10 @@ delete-button {
     margin: 20px;
     box-shadow: 0px 5px 5px #aaaa;
     transition: all 0.3s ease;
+
+    .users-list {
+        overflow-y: auto;
+    }
 }
 
 .permissions {

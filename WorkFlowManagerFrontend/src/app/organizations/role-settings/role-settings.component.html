@@ -5,6 +5,11 @@
     </div>
   </button>
   <delete-button (click)="delete()"/>
+
+  <div class="role-name-container">
+    <h1>{{role}}</h1>
+  </div>
+
   <div class="role-data-container" *ngIf="roleDetails$ | async as roleDetails">
     
     <div class="users">

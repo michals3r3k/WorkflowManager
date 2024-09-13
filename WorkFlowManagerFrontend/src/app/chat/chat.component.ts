@@ -112,8 +112,8 @@ export class ChatComponent implements OnChanges {
         user.userId = userRest.id;
         user.name = userRest.name;
         this.users.push(user);
-        this._initMessages();
       });
+      this._initMessages();
     });
   }
 

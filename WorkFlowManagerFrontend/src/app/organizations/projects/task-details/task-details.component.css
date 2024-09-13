@@ -274,6 +274,7 @@
                 height: 30px;
                 border-radius: 15px;
                 margin: 5px;
+                object-fit: cover;
             }
 
             input {

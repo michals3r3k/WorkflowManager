@@ -6,14 +6,14 @@
         <div class="profil-image">
           <div class="image" *ngFor="let imageUrl of [imageUrl$ | async]">
             <img *ngIf="imageUrl" [src]="imageUrl"/>
-            <img *ngIf="!imageUrl" src="/assets/images/creator-dummy-img.jpg"/>
+            <img *ngIf="!imageUrl" src="/assets/images/user.png"/>
           </div>
           <button class="new-image-btn" (click)="openImgUpload($event)" *ngIf="editMode">
             <mat-icon>edit</mat-icon>
             <input type="file" (change)="uploadImg($event)" style="display: none;"/>
           </button>
         </div>
-        <span class="section-title">Hubert Rogowski</span>
+        <button mat-flat-button class="logout-btn" color="primary" (click)="logout()">Log out</button>
         <div class="info-panel">
           <button class="manage-profile-btn" [ngClass]="editMode ? 'manage-profile-btn-editmode' : ''" (click)="toggleEditMode()">
             <div style="position: relative;">
@@ -38,7 +38,7 @@
         <div class="organization" *ngFor="let organization of connectedObjects.organizations">
           <a class="no-dec-a" [routerLink]="['/organization-details', organization.id]">
             <div class="project">
-              <mat-icon>lightbulb_circle</mat-icon>
+              <mat-icon>business</mat-icon>
              {{organization.name}}
             </div>
           </a>
@@ -54,7 +54,7 @@
         <div *ngFor="let project of connectedObjects.projects">
           <a class="no-dec-a" [routerLink]="['/project-details', project.organizationId, project.projectId]">
             <div class="project">
-              <mat-icon>lightbulb_circle</mat-icon>
+              <mat-icon>rocket</mat-icon>
               {{project.projectName}} ({{project.organizationName}})
             </div>
           </a>

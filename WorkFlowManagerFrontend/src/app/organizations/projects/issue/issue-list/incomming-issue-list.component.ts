@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { IssueGroupRest, IssueRest, IssueService } from '../../../../services/issue/issue.service';
 import { IssueDialogComponent } from '../../../../orders-list/organization-issue-dialog/issue-dialog.component';
-import { Observable } from 'rxjs';
+import { debounceTime, Observable } from 'rxjs';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 
 @Component({
@@ -41,7 +41,7 @@ export class IncommingIssueListComponent implements OnInit {
     private route: ActivatedRoute,
     private issueService: IssueService) 
     {
-      this.searchTextControl.valueChanges.pipe().subscribe(value =>{
+      this.searchTextControl.valueChanges.pipe(debounceTime(400)).subscribe(value =>{
         this.filterSearchText = value;
         this.filterIssues();
       })

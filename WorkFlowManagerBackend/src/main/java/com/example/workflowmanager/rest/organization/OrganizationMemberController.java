@@ -86,7 +86,7 @@ public class OrganizationMemberController
 
         public String getName()
         {
-            return member.getUser().getEmail();
+            return member.getUser().getFullName();
         }
 
         public OrganizationMemberInvitationStatus getInvitationStatus()

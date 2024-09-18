@@ -7,141 +7,249 @@
         <p *ngIf="project.description">Description: {{project.description}}</p>
     </div>
 
-    <!-- <div class="project-buttons">
-        <button class="add-btn" (click)="openOrganizationInviteDialog()" mat-raised-button color="primary">
-            <mat-icon>add</mat-icon>
-            Invite organization
-        </button>
-    </div> -->
-
-    <div class="task-groups">
-        <div cdkDropList
-            cdkDropListOrientation="horizontal" 
-            [cdkDropListData]="taskColumns"
-            (cdkDropListDropped)="dropGroup($event)">
-            <div cdkDropListGroup class="task-list-groups-container">
-                <div cdkDropList [cdkDropListData]="unassignedTasksColumn.tasks" style="cursor: auto;"
-                    class="task-list" [ngClass]="{'task-list-collapsed' : unassignedTasksColumn.collapsed}"
-                    (cdkDropListDropped)="dropTask($event)">
-                    <ng-container *ngIf="!unassignedTasksColumn.collapsed; else collapseMode">
-                        <div class="group-name">
-                            <span class="name-span">{{unassignedTasksColumn.name}}</span>
-                            <div class="task-counter">{{unassignedTasksColumn.tasks.length}}</div>
-                            <button mat-icon-button (click)="collapseOpenGroup(unassignedTasksColumn)">
-                                <mat-icon>close_fullscreen</mat-icon>
-                            </button>
-                        </div>
-                        <div class="task-draggable-item" cdkDrag *ngFor="let task of unassignedTasksColumn.tasks">
-                            <div class="task">
-                                <div class="parent-task-id" *ngIf="task.parentTaskIdOrNull">
-                                    #{{task.parentTaskIdOrNull}}
-                                </div>
-                                <div class="task-id">
-                                    <img *ngIf="!task.parentTaskIdOrNull; else subTaskImg" src="../../../../assets/images/task.png"/>
-                                    <span class="task-id-span">#{{task.taskId}}</span>
-                                    <span class="task-priority">{{task.priority}}</span>
-                                </div>
-                                <span class="task-name">{{task.title}}</span>
-                                <div class="assigned-to" *ngIf="task.assignUser as user; else noUser">
-                                    <img *ngIf="user.userId | userImg | async as imgUrl; else defaultImg" [src]="imgUrl" />
-                                    <span>{{ task.assignUser.name }}</span>
-                                </div>
-                                <ng-template #noUser>
-                                    <div class="assigned-to">
-                                        <img src="../../../../assets/images/user.png" />
-                                        <span>User not assigned</span>
-                                    </div>
-                                </ng-template>
-                                <ng-template #defaultImg>
-                                    <img src="../../../../assets/images/user.png" />
-                                </ng-template>
-                            </div>
-                            <button mat-icon-button class="details-btn" (click)="openTaskDetails(task)">
-                                <mat-icon>more_vert</mat-icon>
-                            </button>
-                        </div>
-                    </ng-container>
-                    <ng-template #collapseMode>
-                        <div class="group-name">
-                            <button mat-icon-button (click)="collapseOpenGroup(unassignedTasksColumn)">
-                                <mat-icon>open_in_full</mat-icon>
-                            </button>
-                            <div class="task-counter">{{unassignedTasksColumn.tasks.length}}</div>
-                            <span class="name-span">{{unassignedTasksColumn.name}}</span>
-                        </div>
-                    </ng-template>
-                </div>
-            @for (taskColumn of taskColumns; track taskColumn) {
-                <div cdkDropList cdkDrag [cdkDropListData]="taskColumn.tasks"
-                    class="task-list" [ngClass]="{'task-list-collapsed' : taskColumn.collapsed}"
-                    (cdkDropListDropped)="dropTask($event)">
-                    <ng-container *ngIf="!taskColumn.collapsed; else collapseMode">
-                        <div class="group-name">
-                            <span class="name-span">{{taskColumn.name}}</span>
-                            <div class="task-counter">{{taskColumn.tasks.length}}</div>
-                            <button mat-icon-button class="delete-btn" (click)="deleteColumn(taskColumn)">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                            <button mat-icon-button (click)="collapseOpenGroup(taskColumn)">
-                                <mat-icon>close_fullscreen</mat-icon>
-                            </button>
-                        </div>
-                        <div class="task-draggable-item" cdkDrag *ngFor="let task of taskColumn.tasks">
-                            <div class="task">
-                                <div class="parent-task-id" *ngIf="task.parentTaskIdOrNull">
-                                    #{{task.parentTaskIdOrNull}}
-                                </div>
-                                <div class="task-id">
-                                    <img *ngIf="!task.parentTaskIdOrNull; else subTaskImg" src="../../../../assets/images/task.png"/>
-                                    <span class="task-id-span">#{{task.taskId}}</span>
-                                    <span class="task-priority">{{task.priority}}</span>
-                                </div>
-                                <span class="task-name">{{task.title}}</span>
-                                <div class="assigned-to" *ngIf="task.assignUser as user; else noUser">
-                                    <img *ngIf="user.userId | userImg | async as imgUrl; else defaultImg" [src]="imgUrl" />
-                                    <span>{{ task.assignUser.name }}</span>
-                                </div>
-                                <ng-template #noUser>
-                                    <div class="assigned-to">
-                                        <img src="../../../../assets/images/user.png" />
-                                        <span>User not assigned</span>
-                                    </div>
-                                </ng-template>
-                                <ng-template #defaultImg>
-                                    <img src="../../../../assets/images/user.png" />
-                                </ng-template>
-                            </div>
-                            <button mat-icon-button class="details-btn" (click)="openTaskDetails(task)">
-                                <mat-icon>more_vert</mat-icon>
-                            </button>
-                        </div>
-                    
-                        <app-add-task [group]="taskColumn"
-                            (addTaskClicked)="onAddTaskClicked($event, taskColumn)" />
-                    </ng-container>
-                    <ng-template #collapseMode>
-                        <div class="group-name">
-                            <button mat-icon-button (click)="collapseOpenGroup(taskColumn)">
-                                <mat-icon>open_in_full</mat-icon>
-                            </button>
-                            <button mat-icon-button class="delete-btn" (click)="deleteColumn(taskColumn)">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                            <div class="task-counter">{{taskColumn.tasks.length}}</div>
-                            <span class="name-span">{{taskColumn.name}}</span>
-                        </div>
-                    </ng-template>
-                </div>
-            }
-            </div>
-        </div>
-
-        <div class="add-group">
-            <button (click)="addGroup()">
-                <mat-icon>add</mat-icon>
-            </button>
-        </div>
+    <div class="filters-container">
+        <span>Search task:</span>
+        <input [formControl]="searchTextControl" placeholder="Search task by title or id"/>
+        <span>Priority:</span>
+        <select [(ngModel)]="filterPriority">
+            <option *ngFor="let option of taskPriorityOptions" [value]="option">{{option || "ALL"}}</option>
+        </select>
+        <span>Status:</span>
+        <select [(ngModel)]="filterStatus">
+            <option *ngFor="let option of taskStatusOptions" [value]="option">{{option || "ALL"}}</option>
+        </select>
+        Assigned user:
+        <select [(ngModel)]="filterUser">
+            <option *ngFor="let option of taskAssignUserOptions" [value]="option">{{option || "ALL"}}</option>
+        </select>
     </div>
+
+    <mat-tab-group>
+        <mat-tab label="Table">
+            <div class="task-groups">
+                <div cdkDropList
+                    cdkDropListOrientation="horizontal" 
+                    [cdkDropListData]="taskColumns"
+                    (cdkDropListDropped)="dropGroup($event)">
+                    <div cdkDropListGroup class="task-list-groups-container">
+                        <div cdkDropList [cdkDropListData]="unassignedTasksColumn.tasks" style="cursor: auto;"
+                            class="task-list" [ngClass]="{'task-list-collapsed' : unassignedTasksColumn.collapsed}"
+                            (cdkDropListDropped)="dropTask($event)">
+                            <ng-container *ngIf="!unassignedTasksColumn.collapsed; else collapseMode">
+                                <div class="group-name">
+                                    <span class="name-span">{{unassignedTasksColumn.name}}</span>
+                                    <div class="task-counter">{{unassignedTasksColumn.tasks.length}}</div>
+                                    <button mat-icon-button (click)="collapseOpenGroup(unassignedTasksColumn)">
+                                        <mat-icon>close_fullscreen</mat-icon>
+                                    </button>
+                                </div>
+
+                                @for (task of unassignedTasksColumn.tasks; track task) {
+                                    <div class="task-draggable-item" cdkDrag *ngIf="!task.hidden" >
+                                        <div class="task">
+                                            <div class="parent-task-id" *ngIf="task.parentTaskIdOrNull">
+                                                #{{task.parentTaskIdOrNull}}
+                                            </div>
+                                            <div class="task-id">
+                                                <img *ngIf="!task.parentTaskIdOrNull; else subTaskImg" src="../../../../assets/images/task.png"/>
+                                                <span class="task-id-span">#{{task.taskId}}</span>
+                                                <span class="task-priority">{{task.priority}}</span>
+                                            </div>
+                                            <span class="task-name">{{task.title}}</span>
+                                            <div class="assigned-to" *ngIf="task.assignUser as user; else noUser">
+                                                <img *ngIf="user.userId | userImg | async as imgUrl; else defaultImg" [src]="imgUrl" />
+                                                <span>{{ task.assignUser.name }}</span>
+                                            </div>
+                                            <ng-template #noUser>
+                                                <div class="assigned-to">
+                                                    <img src="../../../../assets/images/user.png" />
+                                                    <span>User not assigned</span>
+                                                </div>
+                                            </ng-template>
+                                            
+                                        </div>
+                                        <button mat-icon-button class="details-btn" (click)="openTaskDetails(task)">
+                                            <mat-icon>more_vert</mat-icon>
+                                        </button>
+                                    </div>
+                                }
+                            </ng-container>
+                            <ng-template #collapseMode>
+                                <div class="group-name">
+                                    <button mat-icon-button (click)="collapseOpenGroup(unassignedTasksColumn)">
+                                        <mat-icon>open_in_full</mat-icon>
+                                    </button>
+                                    <div class="task-counter">{{unassignedTasksColumn.tasks.length}}</div>
+                                    <span class="name-span">{{unassignedTasksColumn.name}}</span>
+                                </div>
+                            </ng-template>
+                        </div>
+                    @for (taskColumn of taskColumns; track taskColumn) {
+                        <div cdkDropList cdkDrag [cdkDropListData]="taskColumn.tasks"
+                            class="task-list" [ngClass]="{'task-list-collapsed' : taskColumn.collapsed}"
+                            (cdkDropListDropped)="dropTask($event)">
+                            <ng-container *ngIf="!taskColumn.collapsed; else collapseMode">
+                                <div class="group-name">
+                                    <span class="name-span">{{taskColumn.name}}</span>
+                                    <div class="task-counter">{{taskColumn.tasks.length}}</div>
+                                    <button mat-icon-button class="delete-btn" (click)="deleteColumn(taskColumn)">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                    <button mat-icon-button (click)="collapseOpenGroup(taskColumn)">
+                                        <mat-icon>close_fullscreen</mat-icon>
+                                    </button>
+                                </div>
+                                @for (task of taskColumn.tasks; track task) {
+                                    <div class="task-draggable-item" cdkDrag *ngIf="!task.hidden">
+                                        <div class="task">
+                                            <div class="parent-task-id" *ngIf="task.parentTaskIdOrNull">
+                                                #{{task.parentTaskIdOrNull}}
+                                            </div>
+                                            <div class="task-id">
+                                                <img *ngIf="!task.parentTaskIdOrNull; else subTaskImg" src="../../../../assets/images/task.png"/>
+                                                <span class="task-id-span">#{{task.taskId}}</span>
+                                                <span class="task-priority">{{task.priority}}</span>
+                                            </div>
+                                            <span class="task-name">{{task.title}}</span>
+                                            <div class="assigned-to" *ngIf="task.assignUser as user; else noUser">
+                                                <img *ngIf="user.userId | userImg | async as imgUrl; else defaultImg" [src]="imgUrl" />
+                                                <span>{{ task.assignUser.name }}</span>
+                                            </div>
+                                            <ng-template #defaultImg>
+                                                <img src="../../../../assets/images/user.png" />
+                                            </ng-template>
+                                        </div>
+                                        <button mat-icon-button class="details-btn" (click)="openTaskDetails(task)">
+                                            <mat-icon>more_vert</mat-icon>
+                                        </button>
+                                    </div>
+                                }
+                            
+                                <app-add-task [group]="taskColumn"
+                                    (addTaskClicked)="onAddTaskClicked($event, taskColumn)" />
+                            </ng-container>
+                            <ng-template #collapseMode>
+                                <div class="group-name">
+                                    <button mat-icon-button (click)="collapseOpenGroup(taskColumn)">
+                                        <mat-icon>open_in_full</mat-icon>
+                                    </button>
+                                    <button mat-icon-button class="delete-btn" (click)="deleteColumn(taskColumn)">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                    <div class="task-counter">{{taskColumn.tasks.length}}</div>
+                                    <span class="name-span">{{taskColumn.name}}</span>
+                                </div>
+                            </ng-template>
+                        </div>
+                    }
+                    </div>
+                </div>
+        
+                <div class="add-group">
+                    <button (click)="addGroup()">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </mat-tab>
+        <!-- <mat-tab label="List">
+            <div class="task-list-view">
+
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th class="icon-th"></th>
+                            <th>Task Id</th>
+                            <th>Status</th>
+                            <th>Title</th>
+                            <th>Assign user</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (task of flatTasksList; track task) {
+                            <tr (click)="openTaskDetails(task)" *ngIf="!task.hidden">
+                                <td>
+                                    <img class="task-img" *ngIf="!task.parentTaskIdOrNull; else subTaskImg" src="../../../../assets/images/task.png"/>
+                                </td>
+                                <td><span class="task-id-span">#{{task.taskId}}</span></td>
+                                <td><span class="task-name">{{task.status}}</span></td>
+                                <td><span class="task-name">{{task.title}}</span></td>
+                                <td>
+                                    <div class="assigned-to" *ngIf="task.assignUser as user; else noUser">
+                                        <img *ngIf="user.userId | userImg | async as imgUrl; else defaultImg" [src]="imgUrl" />
+                                        <span>{{ task.assignUser.name }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="task-priority">{{task.priority}}</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </mat-tab> -->
+
+        <mat-tab label="List">
+            <div class="sorting-list">
+                <table mat-table matSort [dataSource]="filteredDataSource">
+
+                    <ng-container matColumnDef="image">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let task" (click)="openTaskDetails(task)"><img class="task-img" *ngIf="!task.parentTaskIdOrNull; else subTaskImg" src="../../../../assets/images/task.png"/></td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="taskId">
+                        <th mat-header-cell  mat-sort-header *matHeaderCellDef> Task Id </th>
+                        <td mat-cell *matCellDef="let task" (click)="openTaskDetails(task)"><span class="task-id-span">#{{task.taskId}}</span></td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell  mat-sort-header *matHeaderCellDef> Status </th>
+                        <td mat-cell *matCellDef="let task" (click)="openTaskDetails(task)"><span class="task-name">{{task.status}}</span></td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="title">
+                        <th mat-header-cell  mat-sort-header *matHeaderCellDef> Title </th>
+                        <td mat-cell *matCellDef="let task" (click)="openTaskDetails(task)"><span class="task-name">{{task.title}}</span></td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="assigned-to" >
+                        <th mat-header-cell mat-sort-header *matHeaderCellDef> Assign user </th>
+                        <td mat-cell *matCellDef="let task" (click)="openTaskDetails(task)">
+                            <div class="assigned-to" *ngIf="task.assignUser as user; else noUser">
+                                <img *ngIf="user.userId | userImg | async as imgUrl; else defaultImg" [src]="imgUrl" />
+                                <span>{{ task.assignUser.name }}</span>
+                            </div>
+                        </td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="priority">
+                        <th mat-header-cell  mat-sort-header *matHeaderCellDef> Status </th>
+                        <td mat-cell *matCellDef="let task" (click)="openTaskDetails(task)"><span class="task-priority">{{task.priority}}</span></td>
+                    </ng-container>
+    
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+
     <ng-template #subTaskImg><img src="../../../../assets/images/subTask.png"/></ng-template>
+
+    <ng-template #noUser>
+        <div class="assigned-to">
+            <img src="../../../../assets/images/user.png" />
+            <span>User not assigned</span>
+        </div>
+    </ng-template>
+
+    <ng-template #defaultImg>
+        <img src="../../../../assets/images/user.png" />
+    </ng-template>
     
 </div>

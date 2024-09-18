@@ -128,7 +128,7 @@ public class TaskController
 
         public String getName()
         {
-            return user.getEmail();
+            return user.getFullName();
         }
 
     }

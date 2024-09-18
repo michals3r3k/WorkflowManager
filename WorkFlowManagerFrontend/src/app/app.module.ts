@@ -21,6 +21,10 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule} from '@angular/material/menu'
 import { MatTooltipModule } from '@angular/material/tooltip'; 
 import { MatDatepickerModule } from '@angular/material/datepicker'; 
+import { MatTabGroup, MatTab } from '@angular/material/tabs'
+import { MatButtonToggleModule } from '@angular/material/button-toggle'
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule, MatSort } from '@angular/material/sort';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
@@ -148,6 +152,12 @@ import { OutgoingIssueListComponent } from './organizations/projects/issue/outgo
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatTabGroup,
+    MatTab,
+    MatButtonToggleModule,
+    MatTableModule,
+    MatSortModule,
+    MatSort,
     DragDropModule,
     HttpClientModule
   ],

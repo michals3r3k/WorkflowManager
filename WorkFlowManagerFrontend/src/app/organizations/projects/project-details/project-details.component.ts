@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit, Pipe, PipeTransform } from '@angular/core';
+import { Component, OnDestroy, OnInit, Pipe, PipeTransform, ViewChild } from '@angular/core';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSort } from '@angular/material/sort';
 import { ResultToasterService } from '../../../services/result-toaster/result-toaster.service';
 import { HttpRequestService } from '../../../services/http/http-request.service';
 import { OrganizationAddComponent } from '../organization-add/organization-add.component';
@@ -11,6 +12,9 @@ import { AddStatusComponent } from '../add-status/add-status.component';
 import { ServiceResult } from '../../../services/utils/service-result';
 import { ServiceResultHelper } from '../../../services/utils/service-result-helper';
 import { WebsocketService } from '../../../services/websocket/websocket.service';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime } from 'rxjs';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-project-details',
@@ -18,12 +22,38 @@ import { WebsocketService } from '../../../services/websocket/websocket.service'
   styleUrl: './project-details.component.css'
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
+  @ViewChild(MatSort) sort: MatSort;
+
+  displayedColumns: string[] = ['image','taskId','status','title','assigned-to','priority'];
+
   unassignedTasksColumn: TaskColumn;
   taskColumns: TaskColumn[];
+  flatTasksList: Task[] = [];
+  filteredTaskList: Task[] = [];
+  filteredDataSource = new MatTableDataSource(this.filteredTaskList);
 
   projectId: number | null;
   organizationId: number | null;
   project: any = null;
+
+  //FILTERING
+  searchTextControl: FormControl = new FormControl();
+  filterSearchText: string = "";
+
+  taskPriorityOptions = [ null, ...Object.values(TaskPriority)];
+  _filterPriority: TaskPriority | null = null;
+  get filterPriority(): TaskPriority | null { return this._filterPriority; }
+  set filterPriority(value: TaskPriority | null) {this._filterPriority = value; this.filterTasks() }
+
+  taskStatusOptions: (string | null)[] = [ null ];
+  _filterStatus: string | null = null;
+  get filterStatus(): string | null { return this._filterStatus; }
+  set filterStatus(value: string|null) { this._filterStatus = value; this.filterTasks() }
+
+  taskAssignUserOptions: (string | null)[] = [ null ];
+  _filterUser: string | null = null;
+  get filterUser(): string | null { return this._filterUser; }
+  set filterUser(value: string | null) { this._filterUser = value; this.filterTasks() }
 
   constructor(private dialog: MatDialog, private resultToaster: ResultToasterService,
     private serviceResultHelper: ServiceResultHelper,
@@ -36,6 +66,11 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
         tasks: [],
       };
       this.taskColumns = [];
+
+      this.searchTextControl.valueChanges.pipe(debounceTime(400)).subscribe(value =>{
+        this.filterSearchText = value;
+        this.filterTasks();
+      })
   }
 
   // Prevent inside clicks from triggering the outside click listener
@@ -72,7 +107,12 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       this.taskColumns = taskColumnsRest
         .filter(taskColumnRest => taskColumnRest.id)
         .map(taskColumnRest => this._getTaskColumn(taskColumnRest));
-    });
+        this.flatTasksList = this.taskColumns.flatMap(group => group.tasks);
+        this.flatTasksList = this.flatTasksList.concat(this.unassignedTasksColumn.tasks);
+        this.taskStatusOptions = [...new Set( this.flatTasksList.map(task => task.status))];
+        this.taskAssignUserOptions = [null, ...new Set( this.flatTasksList.filter(task => task.assignUser !== null).map(task => task.assignUser!.name))];
+        this.filterTasks();
+      });
   }
 
   _getTaskColumn(taskColumnRest: TaskColumnRest): TaskColumn {
@@ -92,6 +132,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       task.priority = taskRest.priority;
       task.parentTaskIdOrNull = taskRest.parentTaskIdOrNull;
       task.parentTaskTitleOrNull = taskRest.parentTaskTitleOrNull;
+      task.status = taskRest.columnNameOrNull;
       if(taskRest.members.length !== 0) {
         const taskMember: TaskMemberRest = taskRest.members[0];
         const user = new User(taskMember.email);
@@ -263,10 +304,49 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  edit(project: any) {
-    console.log(project);
-  }
+  filterTasks() {
+    console.log(typeof(this._filterPriority))
+    console.log(this.filterPriority)
+    this.flatTasksList.forEach(task => {
+      task.hidden = false;
 
+      if (this.filterSearchText || "".length > 0){
+        if (!task.title.toLowerCase().includes(this.filterSearchText.toLocaleLowerCase()) && !task.taskId.toString().includes(this.filterSearchText)){
+          task.hidden = true;
+        }
+      }
+
+      if (this.filterPriority !== null && this.filterPriority.toString() !== "null") {
+        if (task.priority !== this.filterPriority) {
+          task.hidden = true;
+        }
+      }
+
+      if (this.filterStatus !== null && this.filterStatus.toString() !== "null") {
+        if (task.status !== this.filterStatus) {
+          task.hidden = true;
+        }
+      }
+
+      if (this.filterUser !== null && this.filterUser.toString() !== "null") {
+        if (task.assignUser === null || task.assignUser.name !== this.filterUser) {
+          task.hidden = true;
+        }
+      }
+    })
+
+    this.filteredTaskList = [...this.flatTasksList.filter(t => !t.hidden)]
+    this.filteredDataSource = new MatTableDataSource(this.filteredTaskList);
+
+    this.filteredDataSource.sortingDataAccessor = (item, property) => {
+      switch(property) {
+        case 'assigned-to': return item.assignUser?.name;
+        default: return (item as any)[property];
+      }
+    };
+
+    this.filteredDataSource.sort = this.sort;
+  }
 }
 
 interface TaskMemberRest {
@@ -304,6 +384,8 @@ class Task {
   priority: TaskPriority;
   parentTaskIdOrNull: number | null;
   parentTaskTitleOrNull: string | null;
+  status: string | null;
+  hidden: boolean = false;
 
   constructor(name: string) {
     this.title = name;

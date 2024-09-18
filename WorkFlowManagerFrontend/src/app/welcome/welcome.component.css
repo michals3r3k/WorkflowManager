@@ -78,7 +78,7 @@
 }
 
 .login {
-    width: 120px;
+    min-width: 120px;
     display: flex;
     align-items: center;
 
@@ -119,6 +119,7 @@
         border-radius: 25px;
         padding: 10px 20px;
         height: 50px;
+        margin-right: 10px;
 
         &:hover {
             background-color: #ddd;

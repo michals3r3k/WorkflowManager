@@ -40,10 +40,15 @@ export class WelcomeComponent implements OnInit {
     this.btnClicked = true;
     setTimeout(() => {
       this.btnClicked = false;
-      const dialogRef = this.loginDialogOpener.open(true);
-      dialogRef.afterClosed().subscribe(() => {
-          console.log('The dialog was closed');
-      });
+      if (!this.loggedUser) {
+        const dialogRef = this.loginDialogOpener.open(true);
+        dialogRef.afterClosed().subscribe(() => {
+            console.log('The dialog was closed');
+        });
+      }
+      else {
+        this.router.navigate((['/profile']));
+      }
     }, 600);
   }
 
